@@ -99,6 +99,30 @@ const TESTIMONIALS = [
     }
 ];
 
+const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop";
+
+function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
+    const [imgSrc, setImgSrc] = useState(src || DEFAULT_AVATAR);
+
+    useEffect(() => {
+        setImgSrc(src || DEFAULT_AVATAR);
+    }, [src]);
+
+    return (
+        <div className="relative w-14 h-14 rounded-none overflow-hidden border border-dark/10 shadow-sm bg-[#F7F3F4]">
+            <Image
+                src={imgSrc}
+                alt={name}
+                fill
+                unoptimized
+                onError={() => setImgSrc(DEFAULT_AVATAR)}
+                className="object-cover"
+                sizes="56px"
+            />
+        </div>
+    );
+}
+
 export default function Testimonials() {
     const [testimonials, setTestimonials] = useState<any[]>(TESTIMONIALS);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -200,17 +224,7 @@ export default function Testimonials() {
 
                                     {/* Author Block Below Text */}
                                     <div className="flex flex-col items-center mt-6 gap-4">
-                                        {/* Small Rounded Image */}
-                                        <div className="relative w-14 h-14 rounded-none overflow-hidden border border-dark/10 shadow-sm">
-                                            <Image
-                                                src={testimonial.image}
-                                                alt={testimonial.name}
-                                                fill
-                                                unoptimized
-                                                className="object-cover"
-                                                sizes="56px"
-                                            />
-                                        </div>
+                                        <TestimonialAvatar src={testimonial.image} name={testimonial.name} />
                                         {/* Author Details */}
                                         <div className="flex flex-col items-center">
                                             <span className="font-sans text-sm tracking-widest uppercase text-dark font-medium">
