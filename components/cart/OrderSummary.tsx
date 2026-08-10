@@ -1,0 +1,131 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Truck, ShieldCheck, Info, AlertTriangle, Tag, X } from "lucide-react";
+import GlowingButton from "@/components/ui/GlowingButton";
+import { useCart } from "@/context/CartContext";
+
+interface OrderSummaryProps {
+    subtotal: number;
+    shipping: number;
+    total: number;
+}
+
+export default function OrderSummary({ subtotal, shipping, total }: OrderSummaryProps) {
+    const router = useRouter();
+    const { appliedCoupon, removeCoupon, validateCartStock } = useCart();
+    const [stockErrors, setStockErrors] = useState<string[]>([]);
+
+    const discount = appliedCoupon?.discount ?? 0;
+    const finalTotal = Math.max(0, subtotal + shipping - discount);
+
+    const handleCheckoutClick = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        const { valid, errors } = await validateCartStock();
+        if (!valid) {
+            setStockErrors(errors);
+        } else {
+            setStockErrors([]);
+            router.push("/checkout");
+        }
+    };
+
+    return (
+        <div className="bg-white p-8 shadow-xl border border-dark/10 font-sans">
+            <h2 className="font-serif text-xl text-dark mb-6 border-b border-dark/10 pb-4">Order Summary</h2>
+
+            {/* Stock Errors Banner */}
+            {stockErrors.length > 0 && (
+                <div className="mb-6 p-4 bg-rose-50 border border-rose-200 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-rose-700 text-xs font-bold uppercase tracking-wider">
+                        <AlertTriangle size={15} /> Cannot Proceed to Checkout
+                    </div>
+                    <ul className="list-disc list-inside text-[11px] text-rose-800 flex flex-col gap-1">
+                        {stockErrors.map((err, idx) => (
+                            <li key={idx}>{err}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            <div className="flex flex-col gap-4 mb-8">
+                <div className="flex justify-between items-center text-xs">
+                    <span className="text-dark/80 font-bold uppercase tracking-widest">Subtotal</span>
+                    <span className="text-dark font-bold">{subtotal.toLocaleString()} AED</span>
+                </div>
+
+                {discount > 0 && (
+                    <div className="flex justify-between items-center text-xs text-emerald-800 bg-emerald-50/80 p-2.5 border border-emerald-200">
+                        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[10px]">
+                            <Tag size={12} /> Coupon ({appliedCoupon?.code})
+                        </div>
+                        <div className="flex items-center gap-2 font-bold">
+                            <span>-{discount.toLocaleString()} AED</span>
+                            <button
+                                onClick={removeCoupon}
+                                className="text-dark/40 hover:text-dark transition-colors"
+                                title="Remove coupon"
+                            >
+                                <X size={13} />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex justify-between items-center text-xs">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-dark/80 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                            Shipping <Info size={10} className="text-dark/40" />
+                        </span>
+                        {subtotal > 500 && (
+                            <span className="text-[9px] text-[#C5A059] font-bold uppercase tracking-[0.15em]">
+                                Complimentary applied
+                            </span>
+                        )}
+                    </div>
+                    <span className="text-dark font-bold">{shipping === 0 ? "—" : `${shipping} AED`}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs">
+                    <span className="text-dark/80 font-bold uppercase tracking-widest">Tax (Included)</span>
+                    <span className="text-dark font-bold">{Math.round(subtotal * 0.05).toLocaleString()} AED</span>
+                </div>
+            </div>
+
+            <div className="pt-6 border-t border-dark/20 mb-8">
+                <div className="flex justify-between items-center">
+                    <span className="font-serif text-xl text-dark">Total</span>
+                    <span className="font-serif text-2xl text-dark">{finalTotal.toLocaleString()} AED</span>
+                </div>
+                <p className="text-[9px] text-dark/70 mt-2 tracking-widest uppercase text-right font-bold italic">
+                    VAT inclusive
+                </p>
+            </div>
+
+            <GlowingButton
+                fullWidth
+                className="h-[52px] text-[10px] tracking-[0.3em] uppercase cursor-pointer"
+                onClick={handleCheckoutClick}
+            >
+                Checkout Now
+            </GlowingButton>
+
+            <div className="mt-8 pt-6 border-t border-dark/10 grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                    <Truck size={16} className="text-[#C5A059]" />
+                    <span className="text-[8px] tracking-widest uppercase text-dark font-bold opacity-90 leading-tight">
+                        Fast<br />Delivery
+                    </span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <ShieldCheck size={16} className="text-[#C5A059]" />
+                    <span className="text-[8px] tracking-widest uppercase text-dark font-bold opacity-90 leading-tight">
+                        Secure<br />Payment
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}

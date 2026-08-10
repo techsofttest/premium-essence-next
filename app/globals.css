@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mauve: #4A323A;
+  --color-cream: #E9D7C3;
+  --color-dark: #1B1315;
+  --color-white: #F7F3F4;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-serif: var(--font-garamond);
+  --font-sans: var(--font-space);
+}
+
+:root {
+  --background: var(--color-cream);
+  --foreground: var(--color-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--color-dark);
+    --foreground: var(--color-cream);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Updated Spatial Glassmorphism Utility with new palette */
+.glass-panel {
+  background: rgba(27, 19, 21, 0.35);
+  /* Midnight base (#1B1315) */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(233, 215, 195, 0.15);
+  /* Cream border */
+}
