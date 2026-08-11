@@ -246,6 +246,11 @@ export default function AccountOrdersPage() {
                                                         </div>
                                                         <div className="min-w-0">
                                                             <p className="text-xs font-bold text-dark truncate">{item.name}</p>
+                                                            {item.variant_details && (
+                                                                <p className="text-[10px] text-[#C5A059] font-semibold tracking-wide truncate">
+                                                                    {item.variant_details}
+                                                                </p>
+                                                            )}
                                                             <p className="text-[10px] text-dark/60">Qty: {item.quantity} &bull; {item.line_total} AED</p>
                                                         </div>
                                                     </div>

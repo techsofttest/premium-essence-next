@@ -250,7 +250,10 @@ function TrackOrderContent() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-xs font-bold text-dark truncate">{item.name}</p>
-                                                <p className="text-[10px] text-dark/60 mt-0.5">{item.brand} {item.variant_details ? `(${item.variant_details})` : ""}</p>
+                                                <p className="text-[11px] font-semibold text-[#C5A059] mt-0.5">
+                                                    {item.brand ? `${item.brand} • ` : ""}
+                                                    Size/Variant: {item.variant_details || "Standard Edition"}
+                                                </p>
                                                 <p className="text-xs text-dark/80 mt-1">Qty: {item.quantity} &times; {item.price} AED</p>
                                             </div>
                                             <div className="text-right font-serif text-sm text-dark font-medium">
