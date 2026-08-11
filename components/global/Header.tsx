@@ -102,8 +102,10 @@ export default function Header() {
     }, [searchQuery]);
 
     const categoriesList = headerData ? [
+        { name: "All Products", href: "/shop", hasDropdown: false },
         {
             name: "Brands",
+            href: "/brands",
             hasDropdown: true,
             featuredImage: "/products/The Alchemist's Garden 1.png",
             featuredText: "The Art of Layering",
@@ -158,10 +160,10 @@ export default function Header() {
                 },
             ]
         },
-        { name: "Bestsellers", hasDropdown: false },
-        { name: "New Arrivals", hasDropdown: false },
-        { name: "Discovery Sets", hasDropdown: false },
-        { name: "Gifting", hasDropdown: false },
+        { name: "Bestsellers", href: "/shop?sort=featured", hasDropdown: false },
+        { name: "New Arrivals", href: "/shop?sort=latest", hasDropdown: false },
+        { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
+        { name: "Gifting", href: "/category/gifting", hasDropdown: false },
     ] : NAV_CATEGORIES;
 
     // Scroll states
@@ -311,7 +313,7 @@ export default function Header() {
                                 onMouseEnter={() => setActiveDropdown(category.name)}
                             >
                                 <Link
-                                    href={category.name === "Brands" ? "/brands" : `/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
+                                    href={(category as any).href || (category.name === "Brands" ? "/brands" : `/category/${category.name.toLowerCase().replace(/ /g, '-')}`)}
                                     className={`text-[11px] font-bold tracking-[0.15em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/70 hover:text-dark"
                                         }`}
                                 >

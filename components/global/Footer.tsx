@@ -143,13 +143,13 @@ export default function Footer() {
                     <div className="flex flex-col pb-8 lg:pb-0 border-b lg:border-b-0 lg:border-r border-dark/10 pr-4 lg:pr-8">
                         <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Shop By</h4>
                         <ul className="flex flex-col gap-4 text-sm text-dark/70">
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Designer Houses</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Niche Fragrances</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Extrait de Parfum</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Signature Oud Collection</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
+                            <li><Link href="/brands" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Designer Houses</Link></li>
+                            <li><Link href="/fragrances?family=niche" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Niche Fragrances</Link></li>
+                            <li><Link href="/fragrances?concentration=extrait-de-parfum" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Extrait de Parfum</Link></li>
+                            <li><Link href="/fragrances?family=oud" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Signature Oud Collection</Link></li>
+                            <li><Link href="/category/discovery-sets" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
+                            <li><Link href="/category/gifting" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li>
+                            <li><Link href="/shop?sort=latest" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
                         </ul>
                     </div>
 
@@ -174,7 +174,7 @@ export default function Footer() {
                             <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">About Us</Link></li>
                             <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Contact Us</Link></li>
                             <li><Link href="/track-order" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block font-semibold text-dark">Order Tracking</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">All Products</Link></li>
+                            <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block font-semibold text-dark">All Products</Link></li>
                             <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">FAQ</Link></li>
                             <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Sitemap</Link></li>
                         </ul>

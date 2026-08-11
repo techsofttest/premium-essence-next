@@ -73,6 +73,9 @@ export function toProduct(product: StorefrontProduct): Product {
 export interface FetchProductsOptions {
     category?: string;
     brand?: string;
+    family?: string;
+    gender?: string;
+    concentration?: string;
     classification?: string;
     search?: string;
     sort?: string;
@@ -96,6 +99,9 @@ export async function getStorefrontProducts(options: FetchProductsOptions = {}):
         const query = new URLSearchParams();
         if (options.category) query.set("category", options.category);
         if (options.brand) query.set("brand", options.brand);
+        if (options.family) query.set("family", options.family);
+        if (options.gender) query.set("gender", options.gender);
+        if (options.concentration) query.set("concentration", options.concentration);
         if (options.classification) query.set("classification", options.classification);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
@@ -116,6 +122,9 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
         const query = new URLSearchParams();
         if (options.category) query.set("category", options.category);
         if (options.brand) query.set("brand", options.brand);
+        if (options.family) query.set("family", options.family);
+        if (options.gender) query.set("gender", options.gender);
+        if (options.concentration) query.set("concentration", options.concentration);
         if (options.classification) query.set("classification", options.classification);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
