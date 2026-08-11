@@ -138,33 +138,33 @@ export default function BrandsPage() {
 
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10 w-full">
                                 {brandsInClass.map((brand, index) => {
-                                    const logoSrc = brand.logo_url || `/product-logo-mockup/${brand.slug}-mockup.jpg`;
+                                    const logoSrc = brand.logo_url || brand.product_image_url || "/logo/logo.png";
                                     return (
                                         <Link
                                             href={`/brand/${brand.slug}`}
                                             key={brand.slug || index}
                                             className="flex flex-col items-center gap-4 w-full group animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
                                         >
-                                            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/40 backdrop-blur-sm shadow-sm group-hover:shadow-xl">
+                                            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md shadow-lg group-hover:shadow-2xl p-6">
                                                 <Image
                                                     src={logoSrc}
                                                     alt={`${brand.name} logo`}
                                                     fill
-                                                    className="object-cover"
+                                                    unoptimized
+                                                    className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
                                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                                                     onError={(e) => {
-                                                        // fallback image if remote logo fails
-                                                        (e.target as HTMLImageElement).src = "/logo/logo-black2.png";
+                                                        (e.target as HTMLImageElement).style.display = "none";
                                                     }}
                                                 />
-                                                <div className="absolute inset-4 border border-white/40 z-10 pointer-events-none group-hover:border-white/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
+                                                <div className="absolute inset-4 border border-white/30 z-10 pointer-events-none group-hover:border-[#D4AF37]/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
                                                 <svg className="absolute top-6 right-6 w-4 h-4 text-[#D4AF37] opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
                                                 </svg>
                                                 <span className="absolute bottom-6 left-6 text-[10px] font-sans tracking-[0.2em] text-white/70 font-medium z-20 pointer-events-none group-hover:text-white transition-all duration-1000 whitespace-nowrap drop-shadow-md">
                                                     N° {String(index + 1).padStart(2, '0')}
                                                 </span>
-                                                <div className="absolute inset-0 bg-dark/15 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
+                                                <div className="absolute inset-0 bg-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
                                             </div>
 
                                             <span className="font-serif text-xl text-cream/90 group-hover:text-[#D4AF37] transition-colors tracking-wide text-center">
