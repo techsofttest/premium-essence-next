@@ -47,13 +47,20 @@ export default function ProductCatalogView({
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const selectedCategory = fixedCategory || searchParams.get("category") || "";
-    const selectedBrand = fixedBrand || searchParams.get("brand") || "";
-    const selectedFamily = fixedFamily || searchParams.get("family") || "";
-    const selectedGender = fixedGender || searchParams.get("gender") || "";
-    const selectedConcentration = fixedConcentration || searchParams.get("concentration") || "";
+    const selectedCategoryParam = fixedCategory || searchParams.get("category") || "";
+    const selectedBrandParam = fixedBrand || searchParams.get("brand") || "";
+    const selectedFamilyParam = fixedFamily || searchParams.get("family") || "";
+    const selectedGenderParam = fixedGender || searchParams.get("gender") || "";
+    const selectedConcentrationParam = fixedConcentration || searchParams.get("concentration") || "";
     const selectedSearch = searchParams.get("search") || searchParams.get("q") || "";
     const selectedSort = searchParams.get("sort") || "latest";
+
+    // Arrays of selected items for multi-selection
+    const selectedCategories = selectedCategoryParam ? selectedCategoryParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedBrands = selectedBrandParam ? selectedBrandParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedFamilies = selectedFamilyParam ? selectedFamilyParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedGenders = selectedGenderParam ? selectedGenderParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedConcentrations = selectedConcentrationParam ? selectedConcentrationParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
 
     const [products, setProducts] = useState<Product[]>([]);
     const [meta, setMeta] = useState<CatalogMeta>({
@@ -66,7 +73,7 @@ export default function ProductCatalogView({
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
 
-    // Fetch Taxonomy Metadata (Categories, Brands, Families, Concentrations)
+    // Fetch Taxonomy Metadata
     useEffect(() => {
         const fetchMeta = async () => {
             try {
@@ -84,7 +91,7 @@ export default function ProductCatalogView({
                     genders: ["Men", "Women", "Unisex"],
                 });
             } catch {
-                // Silently fallback
+                // Fallback silently
             }
         };
         fetchMeta();
@@ -94,11 +101,11 @@ export default function ProductCatalogView({
     useEffect(() => {
         setLoading(true);
         getStorefrontProductsWithMeta({
-            category: selectedCategory,
-            brand: selectedBrand,
-            family: selectedFamily,
-            gender: selectedGender,
-            concentration: selectedConcentration,
+            category: selectedCategoryParam,
+            brand: selectedBrandParam,
+            family: selectedFamilyParam,
+            gender: selectedGenderParam,
+            concentration: selectedConcentrationParam,
             search: selectedSearch,
             sort: selectedSort,
             per_page: 48,
@@ -106,9 +113,31 @@ export default function ProductCatalogView({
             .then((res) => setProducts(res.products || []))
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedCategory, selectedBrand, selectedFamily, selectedGender, selectedConcentration, selectedSearch, selectedSort]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort]);
 
-    const updateFilter = (key: string, value: string) => {
+    // Multi-select toggle function
+    const toggleFilterOption = (key: string, value: string) => {
+        const currentParam = searchParams.get(key) || "";
+        const currentList = currentParam ? currentParam.split(",").map(s => s.trim()).filter(Boolean) : [];
+        const targetValue = value.trim();
+
+        let newList: string[];
+        if (currentList.some(item => item.toLowerCase() === targetValue.toLowerCase())) {
+            newList = currentList.filter(item => item.toLowerCase() !== targetValue.toLowerCase());
+        } else {
+            newList = [...currentList, targetValue];
+        }
+
+        const params = new URLSearchParams(searchParams.toString());
+        if (newList.length > 0) {
+            params.set(key, newList.join(","));
+        } else {
+            params.delete(key);
+        }
+        router.push(`?${params.toString()}`);
+    };
+
+    const updateSingleFilter = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());
         if (value) {
             params.set(key, value);
@@ -123,13 +152,67 @@ export default function ProductCatalogView({
     };
 
     const hasActiveFilters = Boolean(
-        (selectedCategory && !fixedCategory) ||
-        (selectedBrand && !fixedBrand) ||
-        (selectedFamily && !fixedFamily) ||
-        (selectedGender && !fixedGender) ||
-        (selectedConcentration && !fixedConcentration) ||
+        (selectedCategories.length > 0 && !fixedCategory) ||
+        (selectedBrands.length > 0 && !fixedBrand) ||
+        (selectedFamilies.length > 0 && !fixedFamily) ||
+        (selectedGenders.length > 0 && !fixedGender) ||
+        (selectedConcentrations.length > 0 && !fixedConcentration) ||
         selectedSearch
     );
+
+    const renderFilterSection = (
+        sectionTitle: string,
+        filterKey: string,
+        items: (FilterOption | string)[],
+        selectedArray: string[],
+        isFixed?: boolean
+    ) => {
+        if (isFixed || items.length === 0) return null;
+
+        return (
+            <div className="border-b border-dark/10 pb-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark">
+                        {sectionTitle}
+                    </h3>
+                    {selectedArray.length > 0 && (
+                        <button
+                            onClick={() => updateSingleFilter(filterKey, "")}
+                            className="text-[10px] text-red-700 font-bold uppercase hover:underline"
+                        >
+                            Reset
+                        </button>
+                    )}
+                </div>
+                <div className="space-y-1.5 max-h-56 overflow-y-auto scrollbar-thin pr-1">
+                    {items.map((item) => {
+                        const name = typeof item === "string" ? item : item.name;
+                        const val = typeof item === "string" ? item : item.slug;
+                        const isChecked = selectedArray.includes(val.toLowerCase()) || selectedArray.includes(name.toLowerCase());
+
+                        return (
+                            <label
+                                key={val}
+                                onClick={() => toggleFilterOption(filterKey, val)}
+                                className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider cursor-pointer rounded transition-colors ${
+                                    isChecked ? "bg-dark text-white font-bold" : "hover:bg-[#F7F3F4] text-dark/80"
+                                }`}
+                            >
+                                <div
+                                    className={`w-4 h-4 border flex items-center justify-center rounded-sm shrink-0 transition-colors ${
+                                        isChecked ? "bg-[#C5A059] border-[#C5A059] text-dark" : "border-dark/30 bg-white"
+                                    }`}
+                                >
+                                    {isChecked && <Check size={12} strokeWidth={3} />}
+                                </div>
+                                <span className="flex-1 truncate">{name}</span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-20">
@@ -171,7 +254,7 @@ export default function ProductCatalogView({
                     </p>
                 </div>
 
-                {/* Controls Bar & Filter Pills */}
+                {/* Controls Bar & Active Filter Badges */}
                 <div className="bg-white border border-dark/10 p-4 md:p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
                     {/* Active Filter Badges */}
                     <div className="flex items-center gap-2 flex-wrap flex-1">
@@ -190,45 +273,46 @@ export default function ProductCatalogView({
                             <span className="text-xs text-dark/50 italic">Showing all items ({products.length})</span>
                         )}
 
-                        {selectedCategory && !fixedCategory && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Category: {selectedCategory}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("category", "")} />
+                        {/* Individual Multi-Select Badges */}
+                        {selectedCategories.map((cat) => (
+                            <span key={`cat-${cat}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Category: {cat}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("category", cat)} />
                             </span>
-                        )}
+                        ))}
 
-                        {selectedBrand && !fixedBrand && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Brand: {selectedBrand}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("brand", "")} />
+                        {selectedBrands.map((b) => (
+                            <span key={`b-${b}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Brand: {b}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("brand", b)} />
                             </span>
-                        )}
+                        ))}
 
-                        {selectedFamily && !fixedFamily && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Family: {selectedFamily}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("family", "")} />
+                        {selectedFamilies.map((fam) => (
+                            <span key={`fam-${fam}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Family: {fam}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("family", fam)} />
                             </span>
-                        )}
+                        ))}
 
-                        {selectedGender && !fixedGender && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Gender: {selectedGender}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("gender", "")} />
+                        {selectedGenders.map((g) => (
+                            <span key={`g-${g}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Gender: {g}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("gender", g)} />
                             </span>
-                        )}
+                        ))}
 
-                        {selectedConcentration && !fixedConcentration && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Concentration: {selectedConcentration}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("concentration", "")} />
+                        {selectedConcentrations.map((conc) => (
+                            <span key={`conc-${conc}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Conc: {conc}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("concentration", conc)} />
                             </span>
-                        )}
+                        ))}
 
                         {selectedSearch && (
                             <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
                                 Search: "{selectedSearch}"
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("search", "")} />
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateSingleFilter("search", "")} />
                             </span>
                         )}
 
@@ -247,7 +331,7 @@ export default function ProductCatalogView({
                         <span className="text-xs font-bold uppercase tracking-wider text-dark/60">Sort By:</span>
                         <select
                             value={selectedSort}
-                            onChange={(e) => updateFilter("sort", e.target.value)}
+                            onChange={(e) => updateSingleFilter("sort", e.target.value)}
                             className="bg-[#F7F3F4] border border-dark/20 text-dark p-2.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-dark"
                         >
                             <option value="latest">Newest Arrivals</option>
@@ -263,178 +347,12 @@ export default function ProductCatalogView({
                 {/* Main Content Grid & Sidebar */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Sidebar Filter (Desktop) */}
-                    <aside className="hidden lg:block lg:col-span-3 space-y-8 bg-white border border-dark/10 p-6 h-fit shadow-sm">
-                        {/* 1. Category Filter */}
-                        {!fixedCategory && meta.categories.length > 0 && (
-                            <div className="border-b border-dark/10 pb-6">
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
-                                    Categories
-                                </h3>
-                                <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
-                                    <button
-                                        onClick={() => updateFilter("category", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedCategory ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
-                                    >
-                                        All Categories
-                                        {!selectedCategory && <Check size={14} />}
-                                    </button>
-                                    {meta.categories.map((cat) => {
-                                        const isSel = selectedCategory.toLowerCase() === cat.slug.toLowerCase();
-                                        return (
-                                            <button
-                                                key={cat.id}
-                                                onClick={() => updateFilter("category", cat.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSel ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
-                                            >
-                                                {cat.name}
-                                                {isSel && <Check size={14} />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 2. Brand Filter */}
-                        {!fixedBrand && meta.brands.length > 0 && (
-                            <div className="border-b border-dark/10 pb-6">
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
-                                    Brands & Houses
-                                </h3>
-                                <div className="space-y-2 max-h-56 overflow-y-auto scrollbar-thin">
-                                    <button
-                                        onClick={() => updateFilter("brand", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedBrand ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
-                                    >
-                                        All Brands
-                                        {!selectedBrand && <Check size={14} />}
-                                    </button>
-                                    {meta.brands.map((b) => {
-                                        const isSel = selectedBrand.toLowerCase() === b.slug.toLowerCase();
-                                        return (
-                                            <button
-                                                key={b.id}
-                                                onClick={() => updateFilter("brand", b.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSel ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
-                                            >
-                                                {b.name}
-                                                {isSel && <Check size={14} />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 3. Gender Filter */}
-                        {!fixedGender && (
-                            <div className="border-b border-dark/10 pb-6">
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
-                                    Gender / Classification
-                                </h3>
-                                <div className="space-y-2">
-                                    <button
-                                        onClick={() => updateFilter("gender", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
-                                    >
-                                        All Genders
-                                        {!selectedGender && <Check size={14} />}
-                                    </button>
-                                    {meta.genders.map((g) => (
-                                        <button
-                                            key={g}
-                                            onClick={() => updateFilter("gender", g)}
-                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                            }`}
-                                        >
-                                            {g}
-                                            {selectedGender.toLowerCase() === g.toLowerCase() && <Check size={14} />}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 4. Fragrance Family Filter (Multiple Allowed) */}
-                        {!fixedFamily && meta.families.length > 0 && (
-                            <div className="border-b border-dark/10 pb-6">
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
-                                    Fragrance Family
-                                </h3>
-                                <div className="space-y-2 max-h-56 overflow-y-auto scrollbar-thin">
-                                    <button
-                                        onClick={() => updateFilter("family", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
-                                    >
-                                        All Olfactive Families
-                                        {!selectedFamily && <Check size={14} />}
-                                    </button>
-                                    {meta.families.map((fam) => {
-                                        const isSel = selectedFamily.toLowerCase() === fam.slug.toLowerCase() || selectedFamily.toLowerCase() === fam.name.toLowerCase();
-                                        return (
-                                            <button
-                                                key={fam.id}
-                                                onClick={() => updateFilter("family", fam.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSel ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
-                                            >
-                                                {fam.name}
-                                                {isSel && <Check size={14} />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 5. Concentration Filter */}
-                        {!fixedConcentration && meta.concentrations.length > 0 && (
-                            <div>
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
-                                    Concentration
-                                </h3>
-                                <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
-                                    <button
-                                        onClick={() => updateFilter("concentration", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
-                                    >
-                                        All Concentrations
-                                        {!selectedConcentration && <Check size={14} />}
-                                    </button>
-                                    {meta.concentrations.map((conc) => {
-                                        const isSel = selectedConcentration.toLowerCase() === conc.slug.toLowerCase() || selectedConcentration.toLowerCase() === conc.name.toLowerCase();
-                                        return (
-                                            <button
-                                                key={conc.id}
-                                                onClick={() => updateFilter("concentration", conc.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSel ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
-                                            >
-                                                {conc.name}
-                                                {isSel && <Check size={14} />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
+                    <aside className="hidden lg:block lg:col-span-3 space-y-6 bg-white border border-dark/10 p-6 h-fit shadow-sm">
+                        {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
+                        {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
+                        {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}
+                        {renderFilterSection("Fragrance Family (Multi-Select)", "family", meta.families, selectedFamilies, Boolean(fixedFamily))}
+                        {renderFilterSection("Concentration", "concentration", meta.concentrations, selectedConcentrations, Boolean(fixedConcentration))}
                     </aside>
 
                     {/* Right Products Grid */}
@@ -453,7 +371,7 @@ export default function ProductCatalogView({
                                     <div className="bg-white border border-dark/10 p-16 text-center shadow-sm">
                                         <Sparkles size={36} className="mx-auto text-dark/30 mb-4" />
                                         <p className="font-serif text-2xl text-dark">No perfumes match your selected criteria</p>
-                                        <p className="text-xs text-dark/60 mt-2 mb-6">Try clearing filters or choosing a different category.</p>
+                                        <p className="text-xs text-dark/60 mt-2 mb-6">Try selecting additional options or clearing active filters.</p>
                                         <button
                                             onClick={clearAllFilters}
                                             className="bg-dark text-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors cursor-pointer"
