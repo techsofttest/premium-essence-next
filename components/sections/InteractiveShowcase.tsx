@@ -66,13 +66,13 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
 
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-    const [imgSrc, setImgSrc] = useState(showcaseProducts[0]?.image || "/products/Aventus 1.png");
+    const [imgSrc, setImgSrc] = useState(showcaseProducts[0]?.image || "/logo/logo-black.png");
 
     const activeProduct = showcaseProducts[activeIndex] || showcaseProducts[0];
 
     useEffect(() => {
         if (activeProduct) {
-            setImgSrc(activeProduct.image || "/products/Aventus 1.png");
+            setImgSrc(activeProduct.image || "/logo/logo-black.png");
         }
     }, [activeProduct]);
 
@@ -153,13 +153,13 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                             >
                                 <div className="relative w-full h-full">
                                     <Image
-                                        src={product.image || "/products/Aventus 1.png"}
+                                        src={product.image || "/logo/logo-black.png"}
                                         alt={product.name}
                                         fill
                                         unoptimized
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
-                                            if (target) target.src = "/products/Aventus 1.png";
+                                            if (target) target.src = "/logo/logo-black.png";
                                         }}
                                         className="object-contain drop-shadow-2xl p-4"
                                         sizes="(max-width: 768px) 200px, 250px"

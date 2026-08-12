@@ -11,14 +11,14 @@ export default function AddToCartModal() {
     const { isModalOpen, setIsModalOpen, selectedProduct, addToCart } = useCart();
     const [selectedSize, setSelectedSize] = useState("100ml");
     const [quantity, setQuantity] = useState(1);
-    const [imgSrc, setImgSrc] = useState(selectedProduct?.image || "/products/Aventus 1.png");
+    const [imgSrc, setImgSrc] = useState(selectedProduct?.image || "/logo/logo-black.png");
 
     useEffect(() => {
         if (isModalOpen && selectedProduct) {
             setQuantity(1);
             const firstVariant = selectedProduct.variants?.[0];
             setSelectedSize(firstVariant?.label || firstVariant?.size || "100ml");
-            setImgSrc(selectedProduct.image || "/products/Aventus 1.png");
+            setImgSrc(selectedProduct.image || "/logo/logo-black.png");
         }
     }, [isModalOpen, selectedProduct]);
 
@@ -47,7 +47,7 @@ export default function AddToCartModal() {
             name: selectedProduct.name,
             price: currentPrice,
             size: selectedSize,
-            image: imgSrc || selectedProduct.image || "/products/Aventus 1.png",
+            image: imgSrc || selectedProduct.image || "/logo/logo-black.png",
             quantity: quantity,
             productId: Number(selectedProduct.id),
             variantId: selectedVariant?.id,
@@ -61,11 +61,11 @@ export default function AddToCartModal() {
                     {/* Left: Product Image */}
                     <div className="w-full md:w-5/12 bg-[#F7F3F4] relative aspect-[4/5] md:aspect-auto">
                         <Image 
-                            src={imgSrc} 
+                            src={imgSrc || "/logo/logo-black.png"} 
                             alt={selectedProduct.name} 
                             fill 
                             unoptimized
-                            onError={() => setImgSrc("/products/Aventus 1.png")}
+                            onError={() => setImgSrc("/logo/logo-black.png")}
                             className="object-contain p-8"
                         />
                     </div>

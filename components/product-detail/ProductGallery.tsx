@@ -50,12 +50,12 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
                     }}
                 >
                     <Image
-                        src={activeImage || "/products/Aventus 1.png"}
+                        src={activeImage || "/logo/logo-black.png"}
                         alt={name}
                         fill
                         priority
                         unoptimized
-                        onError={() => setActiveImage("/products/Aventus 1.png")}
+                        onError={() => setActiveImage("/logo/logo-black.png")}
                         className="object-contain p-12"
                     />
                 </div>

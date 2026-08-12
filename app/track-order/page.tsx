@@ -241,10 +241,14 @@ function TrackOrderContent() {
                                         <div key={item.id} className="flex items-center gap-4 py-2 border-b border-dark/5 last:border-0">
                                             <div className="relative w-14 h-16 bg-[#F7F3F4] border border-dark/10 shrink-0">
                                                 <Image
-                                                    src={item.image || "/products/Aventus 1.png"}
+                                                    src={item.image || "/logo/logo-black.png"}
                                                     alt={item.name}
                                                     fill
                                                     unoptimized
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        if (target) target.src = "/logo/logo-black.png";
+                                                    }}
                                                     className="object-contain p-1"
                                                 />
                                             </div>

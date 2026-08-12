@@ -237,10 +237,14 @@ export default function AccountOrdersPage() {
                                                     <div key={item.id} className="flex items-center gap-3 shrink-0 bg-white p-2.5 border border-dark/10 max-w-[240px]">
                                                         <div className="relative w-10 h-12 bg-[#F7F3F4] shrink-0 border border-dark/5">
                                                             <Image
-                                                                src={item.image || "/products/Aventus 1.png"}
+                                                                src={item.image || "/logo/logo-black.png"}
                                                                 alt={item.name}
                                                                 fill
                                                                 unoptimized
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    if (target) target.src = "/logo/logo-black.png";
+                                                                }}
                                                                 className="object-contain p-0.5"
                                                             />
                                                         </div>

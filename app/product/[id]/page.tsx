@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
         ? productDetail.gallery
         : productDetail?.featured_image
         ? [productDetail.featured_image]
-        : ["/products/Aventus 1.png"];
+        : ["/logo/logo-black.png"];
 
     const sizes = productDetail?.variants && productDetail.variants.length > 0
         ? productDetail.variants.map((v) => `${v.size || ""}${v.unit || ""}`.trim()).filter(Boolean)

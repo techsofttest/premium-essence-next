@@ -58,7 +58,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         originalPrice: currentOriginalPrice,
         rating: product.rating,
         reviews: product.reviews,
-        image: product.images?.[0] || "/products/Aventus 1.png",
+        image: product.images?.[0] || "/logo/logo-black.png",
         slug: product.slug,
     };
 
@@ -70,7 +70,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             name: product.name,
             price: currentPrice,
             size: selectedSize,
-            image: product.images?.[0] || "/products/Aventus 1.png",
+            image: product.images?.[0] || "/logo/logo-black.png",
             quantity: quantity,
             productId: Number(product.id),
             variantId: selectedVariant?.id,

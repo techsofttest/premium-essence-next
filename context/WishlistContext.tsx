@@ -40,7 +40,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 originalPrice: item.originalPrice,
                 rating: item.rating || 5.0,
                 reviews: item.reviews || 0,
-                image: item.image || "/products/Aventus 1.png",
+                image: item.image || "/logo/logo-black.png",
                 badge: item.badge,
             }));
             setWishlistProducts(formatted);

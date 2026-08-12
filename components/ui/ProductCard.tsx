@@ -39,7 +39,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
     const { setSelectedProduct, setIsModalOpen } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
-    const [imgSrc, setImgSrc] = useState(product.image || "/products/Aventus 1.png");
+    const [imgSrc, setImgSrc] = useState(product.image || "/logo/logo-black.png");
 
     const isWishlisted = isInWishlist(product.id);
 
@@ -87,11 +87,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
 
                 <Image
-                    src={imgSrc}
+                    src={imgSrc || "/logo/logo-black.png"}
                     alt={product.name}
                     fill
                     unoptimized
-                    onError={() => setImgSrc("/products/Aventus 1.png")}
+                    onError={() => setImgSrc("/logo/logo-black.png")}
                     className="object-contain p-6 transition-transform duration-1000 ease-out group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 />

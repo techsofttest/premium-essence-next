@@ -138,7 +138,7 @@ export default function BrandsPage() {
 
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10 w-full">
                                 {brandsInClass.map((brand, index) => {
-                                    const logoSrc = brand.logo_url || brand.product_image_url || "/logo/logo.png";
+                                    const logoSrc = brand.logo_url || brand.product_image_url || "/logo/logo-black.png";
                                     return (
                                         <Link
                                             href={`/brand/${brand.slug}`}
@@ -151,11 +151,12 @@ export default function BrandsPage() {
                                                     alt={`${brand.name} logo`}
                                                     fill
                                                     unoptimized
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        if (target) target.src = "/logo/logo-black.png";
+                                                    }}
                                                     className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
                                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).style.display = "none";
-                                                    }}
                                                 />
                                                 <div className="absolute inset-4 border border-white/30 z-10 pointer-events-none group-hover:border-[#D4AF37]/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
                                                 <svg className="absolute top-6 right-6 w-4 h-4 text-[#D4AF37] opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">

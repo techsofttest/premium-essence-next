@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { api } from "@/lib/api";
 
 // Inline SVGs for brand icons removed from lucide-react
 const Facebook = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
@@ -32,18 +34,42 @@ const Youtube = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
     </svg>
 );
 
-const MARQUEE_PRODUCTS = [
-    "Dior Sauvage Elixir",
-    "Creed Aventus",
-    "Tom Ford Lost Cherry",
-    "Chanel Coco Mademoiselle",
-    "YSL Libre Intense",
-    "MFK Baccarat Rouge 540",
-    "Royal Oud Supreme",
-    "Hermès Terre d'Hermès"
+interface MarqueeItem {
+    name: string;
+    slug: string;
+    label?: string;
+}
+
+const DEFAULT_MARQUEE_ITEMS: MarqueeItem[] = [
+    { name: "Dior Sauvage Elixir", slug: "dior-sauvage-elixir", label: "BEST SELLER" },
+    { name: "Creed Aventus Eau de Parfum", slug: "creed-aventus-eau-de-parfum", label: "HAUTE PARFUM" },
+    { name: "Baccarat Rouge 540 Extrait", slug: "baccarat-rouge-540-extrait", label: "SIGNATURE SCENT" },
+    { name: "Tom Ford Tobacco Vanille", slug: "tom-ford-tobacco-vanille", label: "BEST SELLER" },
+    { name: "Chanel Coco Mademoiselle", slug: "chanel-coco-mademoiselle", label: "BEST SELLER" },
+    { name: "YSL Libre Intense", slug: "ysl-libre-intense", label: "NEW ARRIVAL" },
+    { name: "Roja Parfums Elysium", slug: "roja-parfums-elysium", label: "NICHE SELECTION" },
+    { name: "Hermès Terre d'Hermès", slug: "hermes-terre-dhermes", label: "CLASSIC ACCORD" }
 ];
 
 export default function Footer() {
+    const [items, setItems] = useState<MarqueeItem[]>(DEFAULT_MARQUEE_ITEMS);
+
+    useEffect(() => {
+        api<any>("/storefront/products?per_page=12")
+            .then((res) => {
+                const list = Array.isArray(res) ? res : res?.data || [];
+                if (Array.isArray(list) && list.length > 0) {
+                    const mapped: MarqueeItem[] = list.map((prod: any, idx: number) => ({
+                        name: prod.name || prod.title,
+                        slug: prod.slug,
+                        label: prod.brand?.name ? prod.brand.name.toUpperCase() : idx % 2 === 0 ? "BEST SELLER" : "EXCLUSIVE"
+                    }));
+                    setItems(mapped);
+                }
+            })
+            .catch(() => {});
+    }, []);
+
     return (
         <>
             {/* Continuous Scrolling Best-Sellers Marquee Strip */}
@@ -65,26 +91,26 @@ export default function Footer() {
                 <div className="flex w-full overflow-hidden">
                     <div className="animate-footer-marquee flex items-center gap-16 pr-16 text-[10px] tracking-[0.25em] uppercase font-semibold">
                         {/* First Set */}
-                        {MARQUEE_PRODUCTS.map((prod, i) => (
+                        {items.map((prod, i) => (
                             <Link
-                                href={`/shop/${prod.toLowerCase().replace(/ /g, '-').replace(/'/g, '')}`}
+                                href={`/shop/${prod.slug}`}
                                 key={`set1-${i}`}
                                 className="flex items-center gap-6 cursor-pointer group/link hover:opacity-80 transition-opacity"
                             >
-                                <span className="text-[#F7F3F4]/60">BEST SELLER</span>
-                                <span className="text-[#F7F3F4] font-medium underline underline-offset-4 decoration-[#F7F3F4]/20 group-hover/link:decoration-[#F7F3F4] transition-colors">{prod}</span>
+                                <span className="text-[#F7F3F4]/60">{prod.label || "BEST SELLER"}</span>
+                                <span className="text-[#F7F3F4] font-medium underline underline-offset-4 decoration-[#F7F3F4]/20 group-hover/link:decoration-[#F7F3F4] transition-colors">{prod.name}</span>
                                 <span className="text-[#F7F3F4]/30 text-[10px]">✦</span>
                             </Link>
                         ))}
                         {/* Duplicate Set for Seamless Loop */}
-                        {MARQUEE_PRODUCTS.map((prod, i) => (
+                        {items.map((prod, i) => (
                             <Link
-                                href={`/shop/${prod.toLowerCase().replace(/ /g, '-').replace(/'/g, '')}`}
+                                href={`/shop/${prod.slug}`}
                                 key={`set2-${i}`}
                                 className="flex items-center gap-6 cursor-pointer group/link hover:opacity-80 transition-opacity"
                             >
-                                <span className="text-[#F7F3F4]/60">BEST SELLER</span>
-                                <span className="text-[#F7F3F4] font-medium underline underline-offset-4 decoration-[#F7F3F4]/20 group-hover/link:decoration-[#F7F3F4] transition-colors">{prod}</span>
+                                <span className="text-[#F7F3F4]/60">{prod.label || "BEST SELLER"}</span>
+                                <span className="text-[#F7F3F4] font-medium underline underline-offset-4 decoration-[#F7F3F4]/20 group-hover/link:decoration-[#F7F3F4] transition-colors">{prod.name}</span>
                                 <span className="text-[#F7F3F4]/30 text-[10px]">✦</span>
                             </Link>
                         ))}
@@ -157,13 +183,13 @@ export default function Footer() {
                     <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0 lg:border-r border-dark/10 md:pl-8 lg:px-8">
                         <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Information</h4>
                         <ul className="flex flex-col gap-4 text-sm text-dark/70">
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">The Journal (Blog)</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Newsroom</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Terms & Conditions</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Privacy Policy</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Refund & Return</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Shipping Policy</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Corporate Gifting</Link></li>
+                            <li><Link href="/journals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">The Journal (Blog)</Link></li>
+                            <li><Link href="/journals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Newsroom</Link></li>
+                            <li><Link href="/terms-and-conditions" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Terms & Conditions</Link></li>
+                            <li><Link href="/privacy-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Privacy Policy</Link></li>
+                            <li><Link href="/refund-and-return" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Refund & Return</Link></li>
+                            <li><Link href="/shipping-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Shipping Policy</Link></li>
+                            <li><Link href="/category/gifting" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Corporate Gifting</Link></li>
                         </ul>
                     </div>
 
@@ -171,11 +197,11 @@ export default function Footer() {
                     <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0 lg:border-r border-dark/10 lg:px-8">
                         <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Support</h4>
                         <ul className="flex flex-col gap-4 text-sm text-dark/70">
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">About Us</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Contact Us</Link></li>
-                            <li><Link href="/track-order" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block font-semibold text-dark">Order Tracking</Link></li>
-                            <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block font-semibold text-dark">All Products</Link></li>
-                            <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">FAQ</Link></li>
+                            <li><Link href="/terms-and-conditions" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">About Us</Link></li>
+                            <li><a href="mailto:sales@premium-perfumes.com" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Contact Us</a></li>
+                            <li><Link href="/track-order" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Order Tracking</Link></li>
+                            <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">All Products</Link></li>
+                            <li><Link href="/faqs" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">FAQ</Link></li>
                             <li><Link href="#" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Sitemap</Link></li>
                         </ul>
                     </div>

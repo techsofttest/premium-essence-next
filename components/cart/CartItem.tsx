@@ -21,10 +21,10 @@ interface CartItemProps {
 }
 
 export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
-    const [imgSrc, setImgSrc] = useState(item.image || "/products/Aventus 1.png");
+    const [imgSrc, setImgSrc] = useState(item.image || "/logo/logo-black.png");
 
     useEffect(() => {
-        setImgSrc(item.image || "/products/Aventus 1.png");
+        setImgSrc(item.image || "/logo/logo-black.png");
     }, [item.image]);
 
     const isOutOfStock = item.stock !== undefined && item.stock !== null && item.stock <= 0;
@@ -37,11 +37,11 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Product Image */}
             <Link href={`/product/${item.id}`} className="relative w-full sm:w-32 aspect-[4/5] bg-[#F7F3F4] overflow-hidden shrink-0 group-hover:scale-[1.02] transition-transform duration-700">
                 <Image 
-                    src={imgSrc} 
+                    src={imgSrc || "/logo/logo-black.png"} 
                     alt={item.name} 
                     fill 
                     unoptimized
-                    onError={() => setImgSrc("/products/Aventus 1.png")}
+                    onError={() => setImgSrc("/logo/logo-black.png")}
                     className="object-contain p-4" 
                 />
             </Link>

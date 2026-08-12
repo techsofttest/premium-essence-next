@@ -17,18 +17,18 @@ interface OrderItemsPreviewProps {
 }
 
 function OrderItemImage({ src, name }: { src: string; name: string }) {
-    const [imgSrc, setImgSrc] = useState(src || "/products/Aventus 1.png");
+    const [imgSrc, setImgSrc] = useState(src || "/logo/logo-black.png");
     useEffect(() => {
-        setImgSrc(src || "/products/Aventus 1.png");
+        setImgSrc(src || "/logo/logo-black.png");
     }, [src]);
 
     return (
         <Image
-            src={imgSrc}
+            src={imgSrc || "/logo/logo-black.png"}
             alt={name}
             fill
             unoptimized
-            onError={() => setImgSrc("/products/Aventus 1.png")}
+            onError={() => setImgSrc("/logo/logo-black.png")}
             className="object-contain p-2"
         />
     );
