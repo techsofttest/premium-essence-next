@@ -157,13 +157,14 @@ export async function getStorefrontProductDetail(idOrSlug: string): Promise<Stor
 export interface StorefrontHomeData {
     collections: Record<string, Product[]>;
     brands: { id: number; name: string; slug: string; classification?: string; logo?: string }[];
-    banners?: any[];
+    banners?: { id: number; name: string; image_url: string; url?: string }[];
+    home_advertisement?: { id: number; name: string; title?: string; banner_url: string; url?: string } | null;
 }
 
 export async function getStorefrontHome(): Promise<StorefrontHomeData> {
     try {
         const response = await fetch(`${baseUrl}/storefront/home`, { cache: "no-store" });
-        if (!response.ok) return { collections: {}, brands: [] };
+        if (!response.ok) return { collections: {}, brands: [], banners: [], home_advertisement: null };
         const data = await response.json();
 
         const collectionsMap: Record<string, Product[]> = {};
@@ -183,12 +184,20 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
             logo: b.logo || b.logo_url || undefined,
         }));
 
+        const banners = (data.banners || []).map((b: any) => ({
+            id: b.id,
+            name: b.name || "Banner",
+            image_url: b.image_url || b.image,
+            url: b.url || "/shop",
+        }));
+
         return {
             collections: collectionsMap,
             brands,
-            banners: data.banners || [],
+            banners,
+            home_advertisement: data.home_advertisement || null,
         };
     } catch {
-        return { collections: {}, brands: [] };
+        return { collections: {}, brands: [], banners: [], home_advertisement: null };
     }
 }

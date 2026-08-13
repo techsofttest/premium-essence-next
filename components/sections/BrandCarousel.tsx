@@ -57,7 +57,8 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
                         id: b.id,
                         name: b.name,
                         slug: b.slug || b.name.toLowerCase().replace(/ /g, '-'),
-                        logo: b.logo || FALLBACK_LOGOS[b.name.toLowerCase()] || "/product-logo-mockup/doir-mockup.jpg",
+                        product_image_url: b.product_image_url || null,
+                        logo: b.logo_url || b.logo || FALLBACK_LOGOS[b.name.toLowerCase()] || "/product-logo-mockup/doir-mockup.jpg",
                         classification: b.classification,
                     }));
                     setBrands(mapped);
@@ -127,51 +128,7 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
                         className="w-full px-6 md:px-12 lg:px-20 flex gap-6 md:gap-8 lg:gap-12 overflow-x-auto snap-x snap-mandatory py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
                     >
                         {brands.map((brand, index) => (
-                            <Link
-                                href={`/brand/${brand.slug || brand.name.toLowerCase().replace(/ /g, '-')}`}
-                                key={brand.id || index}
-                                className="flex flex-col items-center gap-4 w-[26%] md:w-[25%] lg:w-[24%] min-w-[160px] md:min-w-[220px] max-w-[280px] shrink-0 snap-center group"
-                            >
-                                {/* Image Wrapper */}
-                                <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/40">
-                                    <Image
-                                        src={brand.logo || FALLBACK_LOGOS[brand.name.toLowerCase()] || "/product-logo-mockup/doir-mockup.jpg"}
-                                        alt={`${brand.name} logo`}
-                                        fill
-                                        unoptimized
-                                        className="object-cover"
-                                        sizes="(max-width: 768px) 160px, 220px"
-                                    />
-
-                                    {/* Fine Art Gallery Inset Frame Overlay */}
-                                    <div className="absolute inset-4 border border-white/20 z-10 pointer-events-none group-hover:border-white/40 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
-
-                                    {/* Rotating Luxury Gold Star Accent */}
-                                    <svg className="absolute top-6 right-6 w-3 h-3 text-[#D4AF37] opacity-40 group-hover:opacity-90 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
-                                    </svg>
-
-                                    {/* Archival Catalog Index N° */}
-                                    <span className="absolute bottom-6 left-6 text-[9px] font-sans tracking-[0.15em] text-white/70 font-medium z-20 pointer-events-none group-hover:text-white transition-all duration-1000 whitespace-nowrap bg-dark/30 px-2 py-0.5 backdrop-blur-xs">
-                                        N° 0{index + 1}
-                                    </span>
-
-                                    {/* Hover Shade Mask */}
-                                    <div className="absolute inset-0 bg-dark/15 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
-                                </div>
-
-                                {/* Brand Name */}
-                                <div className="flex flex-col items-center gap-0.5">
-                                    <span className="font-serif text-lg text-dark/80 group-hover:text-dark transition-colors tracking-wide text-center">
-                                        {brand.name}
-                                    </span>
-                                    {brand.classification && (
-                                        <span className="text-[9px] uppercase tracking-widest text-[#C5A059] font-bold">
-                                            {brand.classification}
-                                        </span>
-                                    )}
-                                </div>
-                            </Link>
+                            <BrandCarouselCard key={brand.id || brand.slug || index} brand={brand} index={index} />
                         ))}
 
                         <div className="min-w-[1px] md:min-w-[40px]" aria-hidden="true" />
@@ -181,5 +138,61 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
 
             </div>
         </section>
+    );
+}
+
+function BrandCarouselCard({ brand, index }: { brand: any; index: number }) {
+    const primaryImage = brand.product_image_url || brand.logo || FALLBACK_LOGOS[brand.name?.toLowerCase() || ''] || "/product-logo-mockup/doir-mockup.jpg";
+    const fallbackLogo = brand.logo || FALLBACK_LOGOS[brand.name?.toLowerCase() || ''] || "/product-logo-mockup/doir-mockup.jpg";
+    const [imgSrc, setImgSrc] = useState(primaryImage);
+
+    useEffect(() => {
+        setImgSrc(primaryImage);
+    }, [primaryImage]);
+
+    return (
+        <Link
+            href={`/brand/${brand.slug || brand.name?.toLowerCase().replace(/ /g, '-')}`}
+            className="flex flex-col items-center gap-4 w-[26%] md:w-[25%] lg:w-[24%] min-w-[160px] md:min-w-[220px] max-w-[280px] shrink-0 snap-center group"
+        >
+            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/40 shadow-md">
+                <Image
+                    src={imgSrc}
+                    alt={`${brand.name}`}
+                    fill
+                    unoptimized
+                    onError={() => {
+                        if (imgSrc !== fallbackLogo) {
+                            setImgSrc(fallbackLogo);
+                        }
+                    }}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 160px, 220px"
+                />
+
+                <div className="absolute inset-4 border border-white/20 z-10 pointer-events-none group-hover:border-white/40 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
+
+                <svg className="absolute top-6 right-6 w-3 h-3 text-[#D4AF37] opacity-40 group-hover:opacity-90 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
+                </svg>
+
+                <span className="absolute bottom-6 left-6 text-[9px] font-sans tracking-[0.15em] text-white/80 font-medium z-20 pointer-events-none group-hover:text-white transition-all duration-1000 whitespace-nowrap bg-dark/40 px-2 py-0.5 backdrop-blur-xs">
+                    N° 0{index + 1}
+                </span>
+
+                <div className="absolute inset-0 bg-dark/15 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
+            </div>
+
+            <div className="flex flex-col items-center gap-0.5">
+                <span className="font-serif text-lg text-dark/80 group-hover:text-dark transition-colors tracking-wide text-center">
+                    {brand.name}
+                </span>
+                {brand.classification && (
+                    <span className="text-[9px] uppercase tracking-widest text-[#C5A059] font-bold">
+                        {brand.classification}
+                    </span>
+                )}
+            </div>
+        </Link>
     );
 }

@@ -59,8 +59,28 @@ function FragranceCatalogContent() {
         if (selectedSort) queryParams.set("sort", selectedSort);
         queryParams.set("per_page", "48");
 
-        api<Product[]>(`/storefront/products?${queryParams.toString()}`)
-            .then((data) => setProducts(data || []))
+        api<any>(`/storefront/products?${queryParams.toString()}`)
+            .then((res) => {
+                const rawList = Array.isArray(res) ? res : res?.data || [];
+                if (Array.isArray(rawList)) {
+                    const mappedList: Product[] = rawList.map((prod: any) => ({
+                        id: String(prod.id),
+                        brand: prod.brand?.name || prod.brand || "Premium Essence",
+                        name: prod.name || prod.title,
+                        price: Number(prod.price || 0),
+                        originalPrice: prod.original_price ? Number(prod.original_price) : undefined,
+                        rating: Number(prod.rating || 5.0),
+                        reviews: Number(prod.reviews_count || prod.reviews || 0),
+                        image: prod.featured_image || prod.image || "/logo/logo-black.png",
+                        slug: prod.slug,
+                        badge: prod.is_bestseller ? "Bestseller" : prod.is_new ? "New" : undefined,
+                        variants: prod.variants,
+                    }));
+                    setProducts(mappedList);
+                } else {
+                    setProducts([]);
+                }
+            })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
     }, [selectedFamily, selectedGender, selectedConcentration, selectedSort]);
@@ -271,7 +291,7 @@ function FragranceCatalogContent() {
                             <div className="p-20 text-center text-dark/60 flex items-center justify-center gap-3">
                                 <Loader2 className="animate-spin" size={24} /> Loading luxury fragrances...
                             </div>
-                        ) : products.length === 0 ? (
+                        ) : !Array.isArray(products) || products.length === 0 ? (
                             <div className="bg-white border border-dark/10 p-16 text-center">
                                 <Sparkles size={36} className="mx-auto text-dark/30 mb-4" />
                                 <p className="font-serif text-2xl text-dark">No perfumes match your selected filters</p>

@@ -26,29 +26,42 @@ const SLIDES = [
     }
 ];
 
-export default function HeroSlider() {
+interface HeroSliderProps {
+    initialBanners?: { id: number; name: string; image_url: string; url?: string }[];
+}
+
+export default function HeroSlider({ initialBanners }: HeroSliderProps) {
+    const slides = (initialBanners && initialBanners.length > 0)
+        ? initialBanners.map((b) => ({
+            id: b.id,
+            image: b.image_url,
+            link: b.url ? b.url.replace(/^https?:\/\/[^\/]+/, "") || "/shop" : "/shop",
+            alt: b.name,
+        }))
+        : SLIDES;
+
     const [currentSlide, setCurrentSlide] = useState(0);
 
     // Navigation Functions
     const nextSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev === SLIDES.length - 1 ? 0 : prev + 1));
-    }, []);
+        setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, [slides.length]);
 
     const prevSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev === 0 ? SLIDES.length - 1 : prev - 1));
-    }, []);
+        setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    }, [slides.length]);
 
     // Auto-play functionality that resets when a user manually interacts
     useEffect(() => {
         const timer = setInterval(nextSlide, 5000); // 5 seconds per slide
         return () => clearInterval(timer);
-    }, [nextSlide, currentSlide]); // Added currentSlide to dependencies to reset timer on manual click
+    }, [nextSlide, currentSlide]);
 
     return (
         <div className="relative w-full h-[400px] overflow-hidden bg-dark group">
 
             {/* Slides */}
-            {SLIDES.map((slide, index) => (
+            {slides.map((slide, index) => (
                 <div
                     key={slide.id}
                     className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
@@ -61,6 +74,7 @@ export default function HeroSlider() {
                             alt={slide.alt}
                             fill
                             priority={index === 0}
+                            unoptimized
                             className="object-cover"
                             sizes="100vw"
                         />
@@ -90,7 +104,7 @@ export default function HeroSlider() {
 
             {/* Elegant Bottom Indicators */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
-                {SLIDES.map((_, index) => (
+                {slides.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}

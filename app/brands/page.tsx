@@ -137,43 +137,9 @@ export default function BrandsPage() {
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10 w-full">
-                                {brandsInClass.map((brand, index) => {
-                                    const logoSrc = brand.logo_url || brand.product_image_url || "/logo/logo-black.png";
-                                    return (
-                                        <Link
-                                            href={`/brand/${brand.slug}`}
-                                            key={brand.slug || index}
-                                            className="flex flex-col items-center gap-4 w-full group animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
-                                        >
-                                            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md shadow-lg group-hover:shadow-2xl p-6">
-                                                <Image
-                                                    src={logoSrc}
-                                                    alt={`${brand.name} logo`}
-                                                    fill
-                                                    unoptimized
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        if (target) target.src = "/logo/logo-black.png";
-                                                    }}
-                                                    className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                                                />
-                                                <div className="absolute inset-4 border border-white/30 z-10 pointer-events-none group-hover:border-[#D4AF37]/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
-                                                <svg className="absolute top-6 right-6 w-4 h-4 text-[#D4AF37] opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
-                                                </svg>
-                                                <span className="absolute bottom-6 left-6 text-[10px] font-sans tracking-[0.2em] text-white/70 font-medium z-20 pointer-events-none group-hover:text-white transition-all duration-1000 whitespace-nowrap drop-shadow-md">
-                                                    N° {String(index + 1).padStart(2, '0')}
-                                                </span>
-                                                <div className="absolute inset-0 bg-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
-                                            </div>
-
-                                            <span className="font-serif text-xl text-cream/90 group-hover:text-[#D4AF37] transition-colors tracking-wide text-center">
-                                                {brand.name}
-                                            </span>
-                                        </Link>
-                                    );
-                                })}
+                                {brandsInClass.map((brand, index) => (
+                                    <BrandPageCard key={brand.slug || index} brand={brand} index={index} />
+                                ))}
                             </div>
                         </section>
                     );
@@ -181,5 +147,50 @@ export default function BrandsPage() {
 
             </div>
         </main>
+    );
+}
+
+function BrandPageCard({ brand, index }: { brand: any; index: number }) {
+    const primaryImage = brand.product_image_url || brand.logo_url || "/logo/logo-black.png";
+    const fallbackLogo = brand.logo_url || "/logo/logo-black.png";
+    const [imgSrc, setImgSrc] = useState(primaryImage);
+
+    useEffect(() => {
+        setImgSrc(primaryImage);
+    }, [primaryImage]);
+
+    return (
+        <Link
+            href={`/brand/${brand.slug}`}
+            className="flex flex-col items-center gap-4 w-full group animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
+        >
+            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md shadow-lg group-hover:shadow-2xl">
+                <Image
+                    src={imgSrc}
+                    alt={`${brand.name}`}
+                    fill
+                    unoptimized
+                    onError={() => {
+                        if (imgSrc !== fallbackLogo) {
+                            setImgSrc(fallbackLogo);
+                        }
+                    }}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
+                <div className="absolute inset-4 border border-white/30 z-10 pointer-events-none group-hover:border-[#D4AF37]/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
+                <svg className="absolute top-6 right-6 w-4 h-4 text-[#D4AF37] opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
+                </svg>
+                <span className="absolute bottom-6 left-6 text-[10px] font-sans tracking-[0.2em] text-white/70 font-medium z-20 pointer-events-none group-hover:text-white transition-all duration-1000 whitespace-nowrap drop-shadow-md bg-black/40 px-2 py-0.5 backdrop-blur-xs">
+                    N° {String(index + 1).padStart(2, '0')}
+                </span>
+                <div className="absolute inset-0 bg-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10" />
+            </div>
+
+            <span className="font-serif text-xl text-cream/90 group-hover:text-[#D4AF37] transition-colors tracking-wide text-center">
+                {brand.name}
+            </span>
+        </Link>
     );
 }
