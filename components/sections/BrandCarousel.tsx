@@ -13,27 +13,13 @@ export interface BrandItem {
     classification?: string;
 }
 
-const FALLBACK_LOGOS: Record<string, string> = {
-    "dior": "/product-logo-mockup/doir-mockup.jpg",
-    "chanel": "/product-logo-mockup/Chanel-mockup.png",
-    "tom ford": "/product-logo-mockup/tom-ford-mockup.png",
-    "creed": "/product-logo-mockup/Creed-mockup2.jpg",
-    "gucci": "/product-logo-mockup/Gucci-mockup.jpg",
-    "yves saint laurent": "/product-logo-mockup/Yves Saint Laurent-mockup.png",
-    "versace": "/product-logo-mockup/Gucci-mockup.jpg",
-    "hermès": "/product-logo-mockup/Chanel-mockup.png",
-    "prada": "/product-logo-mockup/tom-ford-mockup.png",
-    "bvlgari": "/product-logo-mockup/Creed-mockup2.jpg",
-    "montblanc": "/product-logo-mockup/doir-mockup.jpg",
-};
-
 const DEFAULT_BRANDS: BrandItem[] = [
-    { name: "Dior", slug: "dior", logo: "/product-logo-mockup/doir-mockup.jpg", classification: "Designer Houses" },
-    { name: "Chanel", slug: "chanel", logo: "/product-logo-mockup/Chanel-mockup.png", classification: "Designer Houses" },
-    { name: "Tom Ford", slug: "tom-ford", logo: "/product-logo-mockup/tom-ford-mockup.png", classification: "Prestige & Niche" },
-    { name: "Creed", slug: "creed", logo: "/product-logo-mockup/Creed-mockup2.jpg", classification: "Prestige & Niche" },
-    { name: "Gucci", slug: "gucci", logo: "/product-logo-mockup/Gucci-mockup.jpg", classification: "Designer Houses" },
-    { name: "Yves Saint Laurent", slug: "yves-saint-laurent", logo: "/product-logo-mockup/Yves Saint Laurent-mockup.png", classification: "Designer Houses" },
+    { name: "Dior", slug: "dior", logo: undefined, classification: "Designer Houses" },
+    { name: "Chanel", slug: "chanel", logo: undefined, classification: "Designer Houses" },
+    { name: "Tom Ford", slug: "tom-ford", logo: undefined, classification: "Prestige & Niche" },
+    { name: "Creed", slug: "creed", logo: undefined, classification: "Prestige & Niche" },
+    { name: "Gucci", slug: "gucci", logo: undefined, classification: "Designer Houses" },
+    { name: "Yves Saint Laurent", slug: "yves-saint-laurent", logo: undefined, classification: "Designer Houses" },
 ];
 
 interface BrandCarouselProps {
@@ -57,8 +43,7 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
                         id: b.id,
                         name: b.name,
                         slug: b.slug || b.name.toLowerCase().replace(/ /g, '-'),
-                        product_image_url: b.product_image_url || null,
-                        logo: b.logo_url || b.logo || FALLBACK_LOGOS[b.name.toLowerCase()] || "/product-logo-mockup/doir-mockup.jpg",
+                        logo: b.logo_url || b.logo || b.image || b.banner || null,
                         classification: b.classification,
                     }));
                     setBrands(mapped);
@@ -142,33 +127,26 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
 }
 
 function BrandCarouselCard({ brand, index }: { brand: any; index: number }) {
-    const primaryImage = brand.product_image_url || brand.logo || FALLBACK_LOGOS[brand.name?.toLowerCase() || ''] || "/product-logo-mockup/doir-mockup.jpg";
-    const fallbackLogo = brand.logo || FALLBACK_LOGOS[brand.name?.toLowerCase() || ''] || "/product-logo-mockup/doir-mockup.jpg";
-    const [imgSrc, setImgSrc] = useState(primaryImage);
-
-    useEffect(() => {
-        setImgSrc(primaryImage);
-    }, [primaryImage]);
+    const rawImage = brand.logo || brand.logo_url || null;
+    const [hasError, setHasError] = useState(false);
 
     return (
         <Link
             href={`/brand/${brand.slug || brand.name?.toLowerCase().replace(/ /g, '-')}`}
             className="flex flex-col items-center gap-4 w-[26%] md:w-[25%] lg:w-[24%] min-w-[160px] md:min-w-[220px] max-w-[280px] shrink-0 snap-center group"
         >
-            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/40 shadow-md">
-                <Image
-                    src={imgSrc}
-                    alt={`${brand.name}`}
-                    fill
-                    unoptimized
-                    onError={() => {
-                        if (imgSrc !== fallbackLogo) {
-                            setImgSrc(fallbackLogo);
-                        }
-                    }}
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 160px, 220px"
-                />
+            <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md shadow-md">
+                {rawImage && !hasError ? (
+                    <Image
+                        src={rawImage}
+                        alt={`${brand.name}`}
+                        fill
+                        unoptimized
+                        onError={() => setHasError(true)}
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 160px, 220px"
+                    />
+                ) : null}
 
                 <div className="absolute inset-4 border border-white/20 z-10 pointer-events-none group-hover:border-white/40 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
 

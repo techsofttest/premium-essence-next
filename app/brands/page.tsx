@@ -31,26 +31,26 @@ export default function BrandsPage() {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const FALLBACK_BRANDS: Record<string, { name: string; logo: string }[]> = {
+    const FALLBACK_BRANDS: Record<string, { name: string; logo: string | null }[]> = {
         "Designer Houses": [
-            { name: "Dior", logo: "/product-logo-mockup/doir-mockup.jpg" },
-            { name: "Chanel", logo: "/product-logo-mockup/Chanel-mockup.png" },
-            { name: "Gucci", logo: "/product-logo-mockup/Gucci-mockup.jpg" },
-            { name: "Yves Saint Laurent", logo: "/product-logo-mockup/Yves Saint Laurent-mockup.png" },
-            { name: "Versace", logo: "/product-logo-mockup/versace-mockup.png" },
+            { name: "Dior", logo: null },
+            { name: "Chanel", logo: null },
+            { name: "Gucci", logo: null },
+            { name: "Yves Saint Laurent", logo: null },
+            { name: "Versace", logo: null },
         ],
         "Prestige & Niche": [
-            { name: "Creed", logo: "/product-logo-mockup/Creed-mockup2.jpg" },
-            { name: "Tom Ford", logo: "/product-logo-mockup/tom-ford-mockup.png" },
-            { name: "Maison Francis Kurkdjian", logo: "/product-logo-mockup/Creed-mockup2.jpg" },
-            { name: "Jo Malone London", logo: "/product-logo-mockup/tom-ford-mockup.png" },
+            { name: "Creed", logo: null },
+            { name: "Tom Ford", logo: null },
+            { name: "Maison Francis Kurkdjian", logo: null },
+            { name: "Jo Malone London", logo: null },
         ],
         "Classic Elegance": [
-            { name: "Hermès", logo: "/product-logo-mockup/Bvlgari-mockup.png" },
-            { name: "Givenchy", logo: "/product-logo-mockup/Montblanc-mockup.png" },
-            { name: "Prada", logo: "/product-logo-mockup/Bvlgari-mockup.png" },
-            { name: "Bvlgari", logo: "/product-logo-mockup/Bvlgari-mockup.png" },
-            { name: "Montblanc", logo: "/product-logo-mockup/Montblanc-mockup.png" },
+            { name: "Hermès", logo: null },
+            { name: "Givenchy", logo: null },
+            { name: "Prada", logo: null },
+            { name: "Bvlgari", logo: null },
+            { name: "Montblanc", logo: null },
         ],
     };
 
@@ -151,13 +151,8 @@ export default function BrandsPage() {
 }
 
 function BrandPageCard({ brand, index }: { brand: any; index: number }) {
-    const primaryImage = brand.product_image_url || brand.logo_url || "/logo/logo-black.png";
-    const fallbackLogo = brand.logo_url || "/logo/logo-black.png";
-    const [imgSrc, setImgSrc] = useState(primaryImage);
-
-    useEffect(() => {
-        setImgSrc(primaryImage);
-    }, [primaryImage]);
+    const rawImage = brand.logo_url || brand.product_image_url || null;
+    const [hasError, setHasError] = useState(false);
 
     return (
         <Link
@@ -165,19 +160,17 @@ function BrandPageCard({ brand, index }: { brand: any; index: number }) {
             className="flex flex-col items-center gap-4 w-full group animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out"
         >
             <div className="relative w-full aspect-[4/5] rounded-t-[8rem] flex items-center justify-center transition-all duration-1000 ease-out group-hover:rounded-none overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md shadow-lg group-hover:shadow-2xl">
-                <Image
-                    src={imgSrc}
-                    alt={`${brand.name}`}
-                    fill
-                    unoptimized
-                    onError={() => {
-                        if (imgSrc !== fallbackLogo) {
-                            setImgSrc(fallbackLogo);
-                        }
-                    }}
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                />
+                {rawImage && !hasError ? (
+                    <Image
+                        src={rawImage}
+                        alt={`${brand.name}`}
+                        fill
+                        unoptimized
+                        onError={() => setHasError(true)}
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
+                ) : null}
                 <div className="absolute inset-4 border border-white/30 z-10 pointer-events-none group-hover:border-[#D4AF37]/60 transition-all duration-1000 ease-out rounded-t-[8rem] group-hover:rounded-none" />
                 <svg className="absolute top-6 right-6 w-4 h-4 text-[#D4AF37] opacity-60 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-1000 ease-out z-20 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
