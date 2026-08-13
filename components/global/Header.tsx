@@ -9,6 +9,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
+import { usePathname, useSearchParams } from "next/navigation";
+
 // Navigation URL Resolution Helpers
 function getCategoryHref(cat: any): string {
     if (!cat) return "/shop";
@@ -88,6 +90,9 @@ const NAV_CATEGORIES = [
 ];
 
 export default function Header() {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
 
@@ -106,10 +111,22 @@ export default function Header() {
     const { cartItems } = useCart();
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
+    const closeAllMenus = () => {
+        setActiveDropdown(null);
+        setIsMobileMenuOpen(false);
+        setActiveMobileCategory(null);
+        setIsAccountMenuOpen(false);
+    };
+
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
         setActiveMobileCategory(null);
     };
+
+    // Close all menus when route changes or search query navigation occurs
+    useEffect(() => {
+        closeAllMenus();
+    }, [pathname, searchParams]);
 
     // Fetch dynamic header data
     useEffect(() => {
@@ -252,7 +269,7 @@ export default function Header() {
                         <nav className="flex items-center gap-5 xl:gap-8 h-full">
                             {categoriesList.map((category) => (
                                 <div key={category.name} className="h-full flex items-center" onMouseEnter={() => setActiveDropdown(category.name)}>
-                                    <Link href={getCategoryHref(category)} className={`text-[11px] font-bold tracking-[0.15em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/70 hover:text-dark"}`}>
+                                    <Link href={getCategoryHref(category)} onClick={closeAllMenus} className={`text-[11px] font-bold tracking-[0.15em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/70 hover:text-dark"}`}>
                                         {category.name}
                                     </Link>
                                     {category.hasDropdown && activeDropdown === category.name && (
@@ -263,7 +280,7 @@ export default function Header() {
                                                     <ul className="flex flex-col gap-3">
                                                         {sub.links.map((linkItem: any) => (
                                                             <li key={typeof linkItem === 'string' ? linkItem : linkItem.name}>
-                                                                <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} className="text-sm text-dark/70 hover:text-dark transition-colors block w-fit">
+                                                                <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} onClick={closeAllMenus} className="text-sm text-dark/70 hover:text-dark transition-colors block w-fit">
                                                                     {typeof linkItem === 'string' ? linkItem : linkItem.name}
                                                                 </Link>
                                                             </li>
@@ -271,7 +288,7 @@ export default function Header() {
                                                     </ul>
                                                 </div>
                                             ))}
-                                            <Link href={getCategoryHref(category)} className="col-span-1 md:col-start-4 bg-[#4A323A] overflow-hidden relative min-h-[220px] group border border-dark/5 flex items-center justify-center">
+                                            <Link href={getCategoryHref(category)} onClick={closeAllMenus} className="col-span-1 md:col-start-4 bg-[#4A323A] overflow-hidden relative min-h-[220px] group border border-dark/5 flex items-center justify-center">
                                                 {category.featuredImage && <Image src={category.featuredImage} alt="Featured" fill className="object-contain p-4 group-hover:scale-105 transition-transform duration-700 ease-out" />}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent z-10" />
                                                 <div className="absolute bottom-4 left-4 z-20">
