@@ -123,12 +123,12 @@ function FragranceCatalogContent() {
                     <div className="flex items-center gap-2 flex-wrap flex-1">
                         <button
                             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-                            className="md:hidden flex items-center gap-2 bg-dark text-white px-4 py-2 text-xs font-bold uppercase tracking-wider"
+                            className="lg:hidden flex items-center gap-2 bg-dark text-white px-4 py-2 text-xs font-bold uppercase tracking-wider"
                         >
-                            <SlidersHorizontal size={14} /> Filters
+                            <SlidersHorizontal size={14} /> Filters ({products.length})
                         </button>
 
-                        <span className="text-xs font-bold text-dark/60 uppercase tracking-widest mr-2 hidden md:inline">
+                        <span className="text-xs font-bold text-dark/60 uppercase tracking-widest mr-2 hidden lg:inline">
                             Active Filters:
                         </span>
 
@@ -313,6 +313,155 @@ function FragranceCatalogContent() {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Slide-Over Filter Drawer Overlay */}
+            {mobileFilterOpen && (
+                <div className="fixed inset-0 z-50 flex lg:hidden">
+                    {/* Dark Overlay Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+                        onClick={() => setMobileFilterOpen(false)}
+                    />
+
+                    {/* Slide-over Panel */}
+                    <div className="relative ml-auto w-full max-w-xs sm:max-w-sm bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-dark/10 bg-[#1B1315] text-white">
+                            <div className="flex items-center gap-2">
+                                <SlidersHorizontal size={16} className="text-[#C5A059]" />
+                                <span className="font-serif text-base font-bold tracking-wide">Filter Fragrances</span>
+                            </div>
+                            <button
+                                onClick={() => setMobileFilterOpen(false)}
+                                className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                                aria-label="Close filters"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Filter Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+                            {/* 1. Gender Filter */}
+                            <div className="border-b border-dark/10 pb-6">
+                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
+                                    Gender / Classification
+                                </h3>
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => updateFilter("gender", "")}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                            !selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
+                                    >
+                                        All Genders
+                                        {!selectedGender && <Check size={14} />}
+                                    </button>
+                                    {filterMeta.genders.map((g) => (
+                                        <button
+                                            key={g}
+                                            onClick={() => updateFilter("gender", g)}
+                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                                selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                            }`}
+                                        >
+                                            {g}
+                                            {selectedGender.toLowerCase() === g.toLowerCase() && <Check size={14} />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 2. Fragrance Family Filter */}
+                            <div className="border-b border-dark/10 pb-6">
+                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
+                                    Fragrance Family
+                                </h3>
+                                <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
+                                    <button
+                                        onClick={() => updateFilter("family", "")}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                            !selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
+                                    >
+                                        All Olfactive Families
+                                        {!selectedFamily && <Check size={14} />}
+                                    </button>
+                                    {filterMeta.families.map((fam) => {
+                                        const isSelected = selectedFamily.toLowerCase() === fam.slug.toLowerCase() || selectedFamily.toLowerCase() === fam.name.toLowerCase();
+                                        return (
+                                            <button
+                                                key={fam.id}
+                                                onClick={() => updateFilter("family", fam.slug)}
+                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                                    isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                }`}
+                                            >
+                                                {fam.name}
+                                                {isSelected && <Check size={14} />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* 3. Fragrance Concentration Filter */}
+                            <div>
+                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark mb-4">
+                                    Concentration
+                                </h3>
+                                <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
+                                    <button
+                                        onClick={() => updateFilter("concentration", "")}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                            !selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
+                                    >
+                                        All Concentrations
+                                        {!selectedConcentration && <Check size={14} />}
+                                    </button>
+                                    {filterMeta.concentrations.map((conc) => {
+                                        const isSelected = selectedConcentration.toLowerCase() === conc.slug.toLowerCase() || selectedConcentration.toLowerCase() === conc.name.toLowerCase();
+                                        return (
+                                            <button
+                                                key={conc.id}
+                                                onClick={() => updateFilter("concentration", conc.slug)}
+                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
+                                                    isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                }`}
+                                            >
+                                                {conc.name}
+                                                {isSelected && <Check size={14} />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-4 border-t border-dark/10 bg-[#F7F3F4] flex items-center gap-3">
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={() => {
+                                        clearAllFilters();
+                                        setMobileFilterOpen(false);
+                                    }}
+                                    className="w-1/2 py-3 text-xs font-bold uppercase tracking-wider border border-dark/20 text-dark hover:bg-dark/5 transition-colors"
+                                >
+                                    Reset All
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setMobileFilterOpen(false)}
+                                className="flex-1 bg-dark text-white py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors"
+                            >
+                                Apply ({products.length})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

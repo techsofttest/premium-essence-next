@@ -392,6 +392,65 @@ export default function ProductCatalogView({
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Slide-Over Filter Drawer Overlay */}
+            {mobileFilterOpen && (
+                <div className="fixed inset-0 z-50 flex lg:hidden">
+                    {/* Dark Overlay Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+                        onClick={() => setMobileFilterOpen(false)}
+                    />
+
+                    {/* Slide-over Panel */}
+                    <div className="relative ml-auto w-full max-w-xs sm:max-w-sm bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-dark/10 bg-[#1B1315] text-white">
+                            <div className="flex items-center gap-2">
+                                <SlidersHorizontal size={16} className="text-[#C5A059]" />
+                                <span className="font-serif text-base font-bold tracking-wide">Filter Catalog</span>
+                            </div>
+                            <button
+                                onClick={() => setMobileFilterOpen(false)}
+                                className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                                aria-label="Close filters"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Filter Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+                            {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
+                            {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
+                            {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}
+                            {renderFilterSection("Fragrance Family", "family", meta.families, selectedFamilies, Boolean(fixedFamily))}
+                            {renderFilterSection("Concentration", "concentration", meta.concentrations, selectedConcentrations, Boolean(fixedConcentration))}
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-4 border-t border-dark/10 bg-[#F7F3F4] flex items-center gap-3">
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={() => {
+                                        clearAllFilters();
+                                        setMobileFilterOpen(false);
+                                    }}
+                                    className="w-1/2 py-3 text-xs font-bold uppercase tracking-wider border border-dark/20 text-dark hover:bg-dark/5 transition-colors"
+                                >
+                                    Reset All
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setMobileFilterOpen(false)}
+                                className="flex-1 bg-dark text-white py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors"
+                            >
+                                Apply ({products.length})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
