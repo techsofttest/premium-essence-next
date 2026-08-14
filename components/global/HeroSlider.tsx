@@ -58,7 +58,7 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
     }, [nextSlide, currentSlide]);
 
     return (
-        <div className="relative w-full h-[400px] overflow-hidden bg-dark group">
+        <div className="relative w-full h-[180px] sm:h-[280px] md:h-[380px] lg:h-[450px] overflow-hidden bg-dark group">
 
             {/* Slides */}
             {slides.map((slide, index) => (
@@ -75,11 +75,11 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
                             fill
                             priority={index === 0}
                             unoptimized
-                            className="object-cover"
+                            className="object-cover object-center"
                             sizes="100vw"
                         />
                         {/* Subtle dark gradient at the bottom for indicator visibility */}
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-dark/40 to-transparent pointer-events-none" />
+                        <div className="absolute inset-x-0 bottom-0 h-16 sm:h-32 bg-gradient-to-t from-dark/40 to-transparent pointer-events-none" />
                     </Link>
                 </div>
             ))}
@@ -88,29 +88,29 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
             <button
                 onClick={prevSlide}
                 aria-label="Previous slide"
-                className="absolute top-1/2 -translate-y-1/2 left-8 z-20 p-3 rounded-none bg-white/70 hover:bg-white text-dark backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-8 z-20 p-2 sm:p-3 rounded-none bg-white/70 hover:bg-white text-dark backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-lg"
             >
-                <ChevronLeft size={24} strokeWidth={1.5} />
+                <ChevronLeft size={18} className="sm:w-6 sm:h-6" strokeWidth={1.5} />
             </button>
 
             {/* Right Control Button */}
             <button
                 onClick={nextSlide}
                 aria-label="Next slide"
-                className="absolute top-1/2 -translate-y-1/2 right-8 z-20 p-3 rounded-none bg-white/70 hover:bg-white text-dark backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-8 z-20 p-2 sm:p-3 rounded-none bg-white/70 hover:bg-white text-dark backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-lg"
             >
-                <ChevronRight size={24} strokeWidth={1.5} />
+                <ChevronRight size={18} className="sm:w-6 sm:h-6" strokeWidth={1.5} />
             </button>
 
             {/* Elegant Bottom Indicators */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+            <div className="absolute bottom-3 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 sm:gap-3">
                 {slides.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}
                         aria-label={`Go to slide ${index + 1}`}
                         className={`transition-all duration-500 ease-in-out rounded-none ${index === currentSlide
-                            ? "w-8 h-[3px] bg-cream opacity-100"
+                            ? "w-6 sm:w-8 h-[3px] bg-cream opacity-100"
                             : "w-2 h-[3px] bg-cream opacity-40 hover:opacity-70"
                             }`}
                     />

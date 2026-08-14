@@ -15,7 +15,7 @@ export default function ProductBanner({
     linkUrl = "/shop"
 }: ProductBannerProps) {
     return (
-        <section className="relative w-full h-[220px] md:h-[320px] overflow-hidden bg-dark/5 cursor-pointer">
+        <section className="relative w-full h-[140px] sm:h-[220px] md:h-[320px] overflow-hidden bg-dark/5 cursor-pointer">
             <Link href={linkUrl} className="block w-full h-full relative">
                 <Image
                     src={imageUrl}
