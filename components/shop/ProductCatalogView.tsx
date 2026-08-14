@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight } from "lucide-react";
+import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import ProductBanner from "@/components/sections/ProductBanner";
 import { api } from "@/lib/api";
@@ -72,6 +72,29 @@ export default function ProductCatalogView({
     });
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+
+    // Pagination State (12 products per page)
+    const ITEMS_PER_PAGE = 12;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset pagination when active filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort]);
+
+    const totalProducts = products.length;
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
+    const validPage = Math.min(Math.max(currentPage, 1), totalPages);
+    const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
+    const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        const catalogElem = document.getElementById("catalog-products-top");
+        if (catalogElem) {
+            catalogElem.scrollIntoView({ behavior: "smooth" });
+        }
+    };
 
     // Fetch Taxonomy Metadata
     useEffect(() => {
@@ -356,7 +379,7 @@ export default function ProductCatalogView({
                     </aside>
 
                     {/* Right Products Grid */}
-                    <div className="lg:col-span-9">
+                    <div id="catalog-products-top" className="lg:col-span-9">
                         {(() => {
                             const productList = Array.isArray(products) ? products : [];
                             if (loading) {
@@ -382,11 +405,56 @@ export default function ProductCatalogView({
                                 );
                             }
                             return (
-                                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
-                                    {productList.map((product) => (
-                                        <ProductCard key={product.id} product={product} />
-                                    ))}
-                                </div>
+                                <>
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
+                                        {paginatedProducts.map((product) => (
+                                            <ProductCard key={product.id} product={product} />
+                                        ))}
+                                    </div>
+
+                                    {/* Pagination Controls */}
+                                    {totalPages > 1 && (
+                                        <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-dark/10 p-4 sm:p-6 shadow-sm">
+                                            <span className="text-xs uppercase tracking-wider text-dark/60 font-medium">
+                                                Showing <span className="font-bold text-dark">{startIndex + 1}</span>–<span className="font-bold text-dark">{Math.min(startIndex + ITEMS_PER_PAGE, totalProducts)}</span> of <span className="font-bold text-dark">{totalProducts}</span> Perfumes
+                                            </span>
+
+                                            <div className="flex items-center gap-1.5">
+                                                <button
+                                                    onClick={() => handlePageChange(validPage - 1)}
+                                                    disabled={validPage === 1}
+                                                    className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                                                    aria-label="Previous page"
+                                                >
+                                                    <ChevronLeft size={16} />
+                                                </button>
+
+                                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => handlePageChange(pageNum)}
+                                                        className={`w-9 h-9 text-xs font-bold transition-all ${
+                                                            pageNum === validPage
+                                                                ? "bg-dark text-white border border-dark shadow-sm"
+                                                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                                                        }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                ))}
+
+                                                <button
+                                                    onClick={() => handlePageChange(validPage + 1)}
+                                                    disabled={validPage === totalPages}
+                                                    className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                                                    aria-label="Next page"
+                                                >
+                                                    <ChevronRight size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             );
                         })()}
                     </div>

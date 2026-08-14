@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Filter, X, Loader2, Sparkles, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
+import { Filter, X, Loader2, Sparkles, SlidersHorizontal, ChevronDown, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { api } from "@/lib/api";
 
@@ -33,6 +33,29 @@ function FragranceCatalogContent() {
     const [filterMeta, setFilterMeta] = useState<FilterMetadata>({ families: [], concentrations: [], genders: ["Men", "Women", "Unisex"] });
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+
+    // Pagination State (12 products per page)
+    const ITEMS_PER_PAGE = 12;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset pagination when active filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedFamily, selectedGender, selectedConcentration, selectedSort]);
+
+    const totalProducts = products.length;
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
+    const validPage = Math.min(Math.max(currentPage, 1), totalPages);
+    const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
+    const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        const catalogElem = document.getElementById("fragrance-products-top");
+        if (catalogElem) {
+            catalogElem.scrollIntoView({ behavior: "smooth" });
+        }
+    };
 
     // Fetch Taxonomy Filters (Families & Concentrations)
     useEffect(() => {
@@ -286,13 +309,13 @@ function FragranceCatalogContent() {
                     </aside>
 
                     {/* Right Product Grid */}
-                    <div className="lg:col-span-9">
+                    <div id="fragrance-products-top" className="lg:col-span-9">
                         {loading ? (
-                            <div className="p-20 text-center text-dark/60 flex items-center justify-center gap-3">
-                                <Loader2 className="animate-spin" size={24} /> Loading luxury fragrances...
+                            <div className="p-20 text-center text-dark/60 flex items-center justify-center gap-3 bg-white border border-dark/10">
+                                <Loader2 className="animate-spin text-dark" size={24} /> Loading luxury fragrances...
                             </div>
                         ) : !Array.isArray(products) || products.length === 0 ? (
-                            <div className="bg-white border border-dark/10 p-16 text-center">
+                            <div className="bg-white border border-dark/10 p-16 text-center shadow-sm">
                                 <Sparkles size={36} className="mx-auto text-dark/30 mb-4" />
                                 <p className="font-serif text-2xl text-dark">No perfumes match your selected filters</p>
                                 <p className="text-xs text-dark/60 mt-2 mb-6">Try clearing some filters to explore our full luxury collection.</p>
@@ -304,11 +327,56 @@ function FragranceCatalogContent() {
                                 </button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
-                                {products.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
+                                    {paginatedProducts.map((product) => (
+                                        <ProductCard key={product.id} product={product} />
+                                    ))}
+                                </div>
+
+                                {/* Pagination Controls */}
+                                {totalPages > 1 && (
+                                    <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-dark/10 p-4 sm:p-6 shadow-sm">
+                                        <span className="text-xs uppercase tracking-wider text-dark/60 font-medium">
+                                            Showing <span className="font-bold text-dark">{startIndex + 1}</span>–<span className="font-bold text-dark">{Math.min(startIndex + ITEMS_PER_PAGE, totalProducts)}</span> of <span className="font-bold text-dark">{totalProducts}</span> Fragrances
+                                        </span>
+
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={() => handlePageChange(validPage - 1)}
+                                                disabled={validPage === 1}
+                                                className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                                                aria-label="Previous page"
+                                            >
+                                                <ChevronLeft size={16} />
+                                            </button>
+
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => handlePageChange(pageNum)}
+                                                    className={`w-9 h-9 text-xs font-bold transition-all ${
+                                                        pageNum === validPage
+                                                            ? "bg-dark text-white border border-dark shadow-sm"
+                                                            : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                                                    }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            ))}
+
+                                            <button
+                                                onClick={() => handlePageChange(validPage + 1)}
+                                                disabled={validPage === totalPages}
+                                                className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                                                aria-label="Next page"
+                                            >
+                                                <ChevronRight size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
