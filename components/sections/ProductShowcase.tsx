@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import ProductCard, { Product } from "../ui/ProductCard";
 import GlowingButton from "../ui/GlowingButton";
 
@@ -46,9 +47,11 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
 
                 {/* Bottom CTA to view all products in the selected category */}
                 <div className="mt-8 sm:mt-12">
-                    <GlowingButton variant="outline" className="px-8 sm:px-12 text-xs sm:text-sm">
-                        View All {activeTab === "bestsellers" ? "Bestsellers" : "New Arrivals"}
-                    </GlowingButton>
+                    <Link href={activeTab === "bestsellers" ? "/shop?filter=bestsellers" : "/shop?filter=new_arrivals"}>
+                        <GlowingButton variant="outline" className="px-8 sm:px-12 text-xs sm:text-sm">
+                            View All {activeTab === "bestsellers" ? "Bestsellers" : "New Arrivals"}
+                        </GlowingButton>
+                    </Link>
                 </div>
 
             </div>

@@ -16,6 +16,8 @@ export interface CartItem {
     cartItemId?: string;
     productId?: number;
     variantId?: number;
+    dealSlug?: string;
+    isDeal?: boolean;
 }
 
 export interface AppliedCoupon {
@@ -74,14 +76,60 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // Sync from DB if customer is authenticated
+    // Sync from DB if customer is authenticated, while merging local guest items & preserving deals
     useEffect(() => {
         if (!customer) return;
+
+        const savedCartStr = localStorage.getItem("premium_essence_cart");
+        let localCart: CartItem[] = [];
+        if (savedCartStr) {
+            try {
+                localCart = JSON.parse(savedCartStr);
+            } catch {
+                localCart = [];
+            }
+        }
+
         void api<CartItem[]>("/customer/cart")
-            .then((items) => {
-                if (Array.isArray(items)) {
-                    setCartItems(items);
-                    localStorage.setItem("premium_essence_cart", JSON.stringify(items));
+            .then(async (serverItems) => {
+                if (Array.isArray(serverItems)) {
+                    let mergedCart = [...serverItems];
+
+                    // Transfer unSynced guest products to DB cart
+                    const unSyncedGuestProducts = localCart.filter(localItem => 
+                        localItem.productId && 
+                        localItem.variantId && 
+                        !serverItems.some(s => s.productId === localItem.productId && s.variantId === localItem.variantId)
+                    );
+
+                    for (const guestItem of unSyncedGuestProducts) {
+                        try {
+                            const res = await api<CartItem[]>("/customer/cart/items", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    product_id: guestItem.productId,
+                                    variant_id: guestItem.variantId,
+                                    quantity: guestItem.quantity,
+                                }),
+                            });
+                            if (Array.isArray(res)) {
+                                mergedCart = res;
+                            }
+                        } catch {
+                            // ignore errors
+                        }
+                    }
+
+                    // Preserve local deal / collection items
+                    const localDeals = localCart.filter(item => item.isDeal || (typeof item.id === "string" && item.id.startsWith("deal-")));
+                    for (const dealItem of localDeals) {
+                        if (!mergedCart.some(m => m.id === dealItem.id)) {
+                            mergedCart.push(dealItem);
+                        }
+                    }
+
+                    setCartItems(mergedCart);
+                    localStorage.setItem("premium_essence_cart", JSON.stringify(mergedCart));
                 }
             })
             .catch(() => undefined);

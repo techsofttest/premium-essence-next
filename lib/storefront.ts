@@ -79,6 +79,7 @@ export interface FetchProductsOptions {
     classification?: string;
     search?: string;
     sort?: string;
+    filter?: string;
     page?: number;
     per_page?: number;
 }
@@ -105,6 +106,7 @@ export async function getStorefrontProducts(options: FetchProductsOptions = {}):
         if (options.classification) query.set("classification", options.classification);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
+        if (options.filter) query.set("filter", options.filter);
         if (options.page) query.set("page", String(options.page));
         query.set("per_page", String(options.per_page || 24));
 
@@ -128,6 +130,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
         if (options.classification) query.set("classification", options.classification);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
+        if (options.filter) query.set("filter", options.filter);
         if (options.page) query.set("page", String(options.page));
         query.set("per_page", String(options.per_page || 24));
 

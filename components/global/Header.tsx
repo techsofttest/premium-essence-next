@@ -27,8 +27,8 @@ function getCategoryHref(cat: any): string {
     if (!cat) return "/shop";
     if (cat.name === "Brands") return "/brands";
     if (cat.name === "Fragrances") return "/fragrances";
-    if (cat.name === "Bestsellers") return "/shop?sort=featured";
-    if (cat.name === "New Arrivals") return "/shop?sort=latest";
+    if (cat.name === "Bestsellers") return "/shop?filter=bestsellers";
+    if (cat.name === "New Arrivals") return "/shop?filter=new_arrivals";
     if (cat.name === "Discovery Sets") return "/category/discovery-sets";
     if (cat.name === "Gifting") return "/category/gifting";
     if (cat.href) return cat.href;
@@ -94,8 +94,8 @@ const NAV_CATEGORIES = [
             { title: "Concentration", links: ["Parfum", "Eau de Parfum", "Eau de Toilette", "Perfume Oils"] },
         ]
     },
-    { name: "Bestsellers", href: "/shop?sort=featured", hasDropdown: false },
-    { name: "New Arrivals", href: "/shop?sort=latest", hasDropdown: false },
+    { name: "Bestsellers", href: "/shop?filter=bestsellers", hasDropdown: false },
+    { name: "New Arrivals", href: "/shop?filter=new_arrivals", hasDropdown: false },
     { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
     { name: "Gifting", href: "/category/gifting", hasDropdown: false },
 ];

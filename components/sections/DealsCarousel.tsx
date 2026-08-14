@@ -10,31 +10,31 @@ const DEALS = [
         id: 1,
         name: "The Signature Discovery Set",
         image: "/deals/The%20Signature%20Discovery%20Set.png",
-        link: "/shop/discovery-set",
+        link: "/deals/discovery-set",
     },
     {
         id: 2,
         name: "Ultimate His & Hers Box",
         image: "/deals/Ultimate%20His%20%26%20Hers%20Box.png",
-        link: "/shop/ultimate-box",
+        link: "/deals/ultimate-box",
     },
     {
         id: 3,
         name: "Top Collection Trio",
         image: "/deals/Top Collection Trio.png",
-        link: "/shop/oud-trio",
+        link: "/deals/oud-trio",
     },
     {
         id: 4,
         name: "Travel Miniatures Vault",
         image: "/deals/travel_vault.png",
-        link: "/shop/travel-vault",
+        link: "/deals/travel-vault",
     },
     {
         id: 5,
         name: "Midnight Exclusives",
         image: "/deals/midnight_exclusive.png",
-        link: "/shop/midnight-exclusive",
+        link: "/deals/midnight-exclusive",
     }
 ];
 

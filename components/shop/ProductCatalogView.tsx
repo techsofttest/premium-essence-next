@@ -54,6 +54,22 @@ export default function ProductCatalogView({
     const selectedConcentrationParam = fixedConcentration || searchParams.get("concentration") || "";
     const selectedSearch = searchParams.get("search") || searchParams.get("q") || "";
     const selectedSort = searchParams.get("sort") || "latest";
+    const selectedFilterParam = searchParams.get("filter") || searchParams.get("type") || "";
+
+    const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || searchParams.get("bestseller") === "true";
+    const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || searchParams.get("new") === "true";
+
+    // Dynamic Title & Subtitle overrides
+    let displayTitle = title;
+    let displaySubtitle = subtitle;
+
+    if (isBestsellerFilter) {
+        displayTitle = "Bestsellers Collection";
+        displaySubtitle = "Discover our most coveted, highly-rated luxury perfumes.";
+    } else if (isNewArrivalsFilter) {
+        displayTitle = "New Arrivals Collection";
+        displaySubtitle = "Explore the latest fragrance releases and newest perfume creations.";
+    }
 
     // Arrays of selected items for multi-selection
     const selectedCategories = selectedCategoryParam ? selectedCategoryParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
@@ -80,7 +96,7 @@ export default function ProductCatalogView({
     // Reset pagination when active filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam]);
 
     const totalProducts = products.length;
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
@@ -131,12 +147,23 @@ export default function ProductCatalogView({
             concentration: selectedConcentrationParam,
             search: selectedSearch,
             sort: selectedSort,
+            filter: selectedFilterParam,
             per_page: 48,
         })
-            .then((res) => setProducts(res.products || []))
+            .then((res) => {
+                let list = res.products || [];
+                if (isBestsellerFilter) {
+                    const filtered = list.filter((p: any) => p.badge === "Bestseller" || p.is_bestseller || p.is_featured);
+                    list = filtered.length ? filtered : list;
+                } else if (isNewArrivalsFilter) {
+                    const filtered = list.filter((p: any) => p.badge === "New" || p.is_new || p.is_new_arrival);
+                    list = filtered.length ? filtered : list;
+                }
+                setProducts(list);
+            })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam]);
 
     // Multi-select toggle function
     const toggleFilterOption = (key: string, value: string) => {
@@ -180,7 +207,8 @@ export default function ProductCatalogView({
         (selectedFamilies.length > 0 && !fixedFamily) ||
         (selectedGenders.length > 0 && !fixedGender) ||
         (selectedConcentrations.length > 0 && !fixedConcentration) ||
-        selectedSearch
+        selectedSearch ||
+        selectedFilterParam
     );
 
     const renderFilterSection = (
@@ -241,7 +269,7 @@ export default function ProductCatalogView({
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-20">
             {/* Banner Header */}
             {bannerImage && (
-                <ProductBanner imageUrl={bannerImage} altText={title} priority={true} />
+                <ProductBanner imageUrl={bannerImage} altText={displayTitle} priority={true} />
             )}
 
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 mt-10">
@@ -253,13 +281,19 @@ export default function ProductCatalogView({
                     {fixedBrand && (
                         <>
                             <ArrowRight size={10} strokeWidth={2.5} />
-                            <span className="text-dark/50">{title}</span>
+                            <span className="text-dark/50">{displayTitle}</span>
                         </>
                     )}
                     {fixedCategory && (
                         <>
                             <ArrowRight size={10} strokeWidth={2.5} />
-                            <span className="text-dark/50">{title}</span>
+                            <span className="text-dark/50">{displayTitle}</span>
+                        </>
+                    )}
+                    {selectedFilterParam && (
+                        <>
+                            <ArrowRight size={10} strokeWidth={2.5} />
+                            <span className="text-dark/50">{displayTitle}</span>
                         </>
                     )}
                 </nav>
@@ -270,10 +304,10 @@ export default function ProductCatalogView({
                         Luxury Perfumery Catalog
                     </span>
                     <h1 className="font-serif text-3xl md:text-5xl text-dark tracking-tight">
-                        {title}
+                        {displayTitle}
                     </h1>
                     <p className="text-xs md:text-sm text-dark/70 max-w-2xl mt-1 leading-relaxed">
-                        {subtitle}
+                        {displaySubtitle}
                     </p>
                 </div>
 
@@ -294,6 +328,14 @@ export default function ProductCatalogView({
 
                         {!hasActiveFilters && (
                             <span className="text-xs text-dark/50 italic">Showing all items ({products.length})</span>
+                        )}
+
+                        {/* Special Collection Filter Badge */}
+                        {selectedFilterParam && (
+                            <span className="inline-flex items-center gap-1.5 bg-[#1B1315] text-cream px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm">
+                                Collection: {selectedFilterParam === 'bestsellers' || selectedFilterParam === 'bestseller' ? 'Bestsellers' : selectedFilterParam === 'new_arrivals' || selectedFilterParam === 'new' ? 'New Arrivals' : selectedFilterParam}
+                                <X size={12} className="cursor-pointer hover:text-[#C5A059]" onClick={() => updateSingleFilter("filter", "")} />
+                            </span>
                         )}
 
                         {/* Individual Multi-Select Badges */}

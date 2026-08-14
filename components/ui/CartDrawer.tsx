@@ -142,7 +142,7 @@ export default function CartDrawer() {
                         <span className="font-serif text-xl text-dark">{subtotal.toLocaleString()} AED</span>
                     </div>
                     
-                    <button
+                    <GlowingButton
                         onClick={async (e) => {
                             e.preventDefault();
                             const { valid, errors } = await validateCartStock();
@@ -154,12 +154,11 @@ export default function CartDrawer() {
                                 window.location.href = "/checkout";
                             }
                         }}
-                        className="w-full"
+                        fullWidth
+                        className="h-14 text-[10px] tracking-[0.3em] uppercase"
                     >
-                        <GlowingButton fullWidth className="h-14 text-[10px] tracking-[0.3em] uppercase">
-                            Secure Checkout
-                        </GlowingButton>
-                    </button>
+                        Secure Checkout
+                    </GlowingButton>
                     
                     <Link 
                         href="/cart" 

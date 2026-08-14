@@ -43,16 +43,10 @@ export default async function Home() {
   // Featured collection from DB for 3D Showcase section
   const featuredList = collections["featured"] || fallbackProducts.slice(0, 5);
 
-  const mainBanner = homeData.banners?.[0];
-  const homeBannerUrl = mainBanner?.image_url || homeData.home_advertisement?.banner_url || "/product-banner/Acqua Di Giò-B.png";
-  const homeBannerAlt = mainBanner?.name || homeData.home_advertisement?.name || "Featured Fragrance Banner";
-  const rawBannerLink = mainBanner?.url || homeData.home_advertisement?.url || "/shop";
-  const homeBannerLink = rawBannerLink.replace(/^https?:\/\/[^\/]+/, "") || "/shop";
-
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
-      {/* Full-width Slider using Banners from DB */}
-      <HeroSlider initialBanners={homeData.banners} />
+      {/* Full-width Slider */}
+      <HeroSlider />
 
       {/* Product Showcase (Best Sellers & New Arrivals Collections from DB) */}
       <ProductShowcase products={showcaseProducts} />
@@ -70,14 +64,7 @@ export default async function Home() {
 
       {/* 3D Showcase displaying Featured Collection from DB */}
       <InteractiveShowcase products={featuredList} />
-
-      {/* Dynamic Mid-page Banner from DB Banners Table */}
-      <ProductBanner
-        imageUrl={homeBannerUrl}
-        altText={homeBannerAlt}
-        linkUrl={homeBannerLink}
-      />
-
+      <ProductBanner imageUrl="/product-banner/Acqua Di Giò-B.png" />
       <DealsCarousel />
 
       {/* Best Choices Grid from DB */}

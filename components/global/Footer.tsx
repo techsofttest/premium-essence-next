@@ -175,7 +175,7 @@ export default function Footer() {
                             <li><Link href="/fragrances?family=oud" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Signature Oud Collection</Link></li>
                             <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
                             <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li>
-                            <li><Link href="/shop?sort=latest" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
+                            <li><Link href="/shop?filter=new_arrivals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
                         </ul>
                     </div>
 
