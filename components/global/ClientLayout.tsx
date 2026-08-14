@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/global/Header";
 import Footer from "@/components/global/Footer";
@@ -17,7 +18,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <AuthProvider>
             <WishlistProvider>
                 <CartProvider>
-                    {!isAuthPage && <Header />}
+                    {!isAuthPage && (
+                        <Suspense fallback={null}>
+                            <Header />
+                        </Suspense>
+                    )}
                     <main className="flex-1 flex flex-col">
                         {children}
                     </main>

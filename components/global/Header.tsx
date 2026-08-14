@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Search, Heart, ShoppingCart, ChevronLeft, ChevronRight, PenTool, Truck, Sparkles, Menu, X, User, CircleUserRound, Package, LogOut, ChevronDown } from "lucide-react";
@@ -10,6 +10,17 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
 import { usePathname, useSearchParams } from "next/navigation";
+
+function HeaderRouteTracker({ onClose }: { onClose: () => void }) {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        onClose();
+    }, [pathname, searchParams, onClose]);
+
+    return null;
+}
 
 // Navigation URL Resolution Helpers
 function getCategoryHref(cat: any): string {
@@ -90,9 +101,6 @@ const NAV_CATEGORIES = [
 ];
 
 export default function Header() {
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
 
@@ -122,11 +130,6 @@ export default function Header() {
         setIsMobileMenuOpen(false);
         setActiveMobileCategory(null);
     };
-
-    // Close all menus when route changes or search query navigation occurs
-    useEffect(() => {
-        closeAllMenus();
-    }, [pathname, searchParams]);
 
     // Fetch dynamic header data
     useEffect(() => {
@@ -247,6 +250,9 @@ export default function Header() {
             className={`w-full flex flex-col sticky top-0 z-50 transition-transform duration-500 font-sans bg-white text-dark shadow-md ${isHidden ? '-translate-y-full' : 'translate-y-0'}`}
             onMouseLeave={() => setActiveDropdown(null)}
         >
+            <Suspense fallback={null}>
+                <HeaderRouteTracker onClose={closeAllMenus} />
+            </Suspense>
             {/* 1. Announcement Bar */}
             <div className="w-full py-2 px-4 flex justify-between items-center text-[10px] sm:text-xs tracking-[0.15em] uppercase transition-colors duration-500 bg-[#1B1315] text-cream">
                 <button onClick={() => setCurrentAnnouncementIndex(p => (p - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}><ChevronLeft size={14} /></button>
@@ -308,7 +314,7 @@ export default function Header() {
                             <Search size={16} strokeWidth={1.5} />
                             <span className="text-[10px] tracking-widest uppercase font-bold text-left w-full opacity-80 group-hover:opacity-100">Search...</span>
                         </button>
-                        {customer ? (
+                        {isMounted && customer ? (
                             <div className="relative">
                                 <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-1.5 text-dark/80 hover:text-dark transition-colors text-[11px] tracking-[0.15em] uppercase font-bold">
                                     <CircleUserRound size={18} strokeWidth={1.5} />
@@ -328,12 +334,12 @@ export default function Header() {
                             <Link href="/login" className="flex items-center gap-1.5 text-dark/80 hover:text-dark transition-colors text-[11px] tracking-[0.25em] uppercase font-bold"><User size={16} /><span>Login</span></Link>
                         )}
                         <Link href="/wishlist" className="relative text-dark/80 hover:text-dark">
-                            <Heart size={20} strokeWidth={1.5} className={wishlistProducts.length > 0 ? "fill-[#4A323A] text-[#4A323A]" : ""} />
-                            {wishlistProducts.length > 0 && <span className="absolute -top-2 -right-2 bg-[#4A323A] text-white text-[10px] w-4 h-4 flex items-center justify-center font-bold">{wishlistProducts.length}</span>}
+                            <Heart size={20} strokeWidth={1.5} className={isMounted && wishlistProducts.length > 0 ? "fill-[#4A323A] text-[#4A323A]" : ""} />
+                            {isMounted && wishlistProducts.length > 0 && <span className="absolute -top-2 -right-2 bg-[#4A323A] text-white text-[10px] w-4 h-4 flex items-center justify-center font-bold">{wishlistProducts.length}</span>}
                         </Link>
                         <Link href="/cart" className="relative text-dark/80 hover:text-dark">
                             <ShoppingCart size={20} strokeWidth={1.5} />
-                            {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-dark text-white text-[10px] w-4 h-4 flex items-center justify-center font-bold">{cartCount}</span>}
+                            {isMounted && cartCount > 0 && <span className="absolute -top-2 -right-2 bg-dark text-white text-[10px] w-4 h-4 flex items-center justify-center font-bold">{cartCount}</span>}
                         </Link>
                     </div>
                 </div>
@@ -355,7 +361,7 @@ export default function Header() {
                             <Search size={17} />
                         </button>
 
-                        {customer ? (
+                        {isMounted && customer ? (
                             <Link href="/account" className="p-1 text-dark/80 hover:text-dark" aria-label="Account Profile" title="Profile">
                                 <CircleUserRound size={19} />
                             </Link>
@@ -367,7 +373,7 @@ export default function Header() {
 
                         <Link href="/cart" className="relative p-1 text-dark/80 hover:text-dark" aria-label="Shopping Cart">
                             <ShoppingCart size={18} />
-                            {cartCount > 0 && (
+                            {isMounted && cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-dark text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
                                     {cartCount}
                                 </span>
