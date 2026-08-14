@@ -38,7 +38,7 @@ export const CURATED_DEALS: Record<string, CuratedDeal> = {
         ],
         features: [
             "Handcrafted 10ml atomizers with brass caps",
-            "Includes $50 voucher toward full 100ml bottle",
+            "Includes 200 AED voucher toward full 100ml bottle",
             "Complimentary luxury gift box presentation",
             "Worldwide express insured shipping",
         ],
