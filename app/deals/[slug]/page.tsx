@@ -50,11 +50,13 @@ export default function DealDetailPage({ params }: PageProps) {
         addToCart({
             id: `deal-${deal.slug}`,
             dealSlug: deal.slug,
+            dealId: (deal as any).id,
             isDeal: true,
             brand: "Exclusive Curation",
             name: deal.name,
             price: deal.price,
             size: deal.subtitle,
+            variant: deal.subtitle,
             image: deal.image,
             quantity: quantity,
         } as any);
@@ -68,11 +70,13 @@ export default function DealDetailPage({ params }: PageProps) {
         addToCart({
             id: `deal-${deal.slug}`,
             dealSlug: deal.slug,
+            dealId: (deal as any).id,
             isDeal: true,
             brand: "Exclusive Curation",
             name: deal.name,
             price: deal.price,
             size: deal.subtitle,
+            variant: deal.subtitle,
             image: deal.image,
             quantity: quantity,
         } as any);
