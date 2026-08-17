@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { HelpCircle, ChevronDown, Search, Mail, Phone, Loader2, ArrowRight } from "lucide-react";
@@ -67,16 +68,25 @@ export default function FaqsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
-            {/* Hero Header */}
-            <div className="bg-[#1B1315] text-[#FAFAF8] py-20 px-6 md:px-12 text-center relative overflow-hidden">
+            {/* Hero Header with Banner 3 */}
+            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 text-center overflow-hidden">
+                <Image
+                    src="/banners/banner3.jpg"
+                    alt="FAQs Banner"
+                    fill
+                    className="object-cover opacity-75"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
+
                 <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3">
+                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
                         Concierge Assistance
                     </span>
-                    <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-6">
+                    <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-6 drop-shadow-md">
                         Frequently Asked Questions
                     </h1>
-                    <p className="text-xs md:text-sm text-white/70 max-w-xl mx-auto leading-relaxed mb-8">
+                    <p className="text-xs md:text-sm text-white max-w-xl mx-auto leading-relaxed mb-8 drop-shadow-sm font-medium">
                         Everything you need to know about our fragrance portfolio, authenticity verification, express delivery, and care recommendations.
                     </p>
 

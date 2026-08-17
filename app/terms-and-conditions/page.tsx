@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck, FileText, Loader2, ArrowLeft } from "lucide-react";
@@ -26,16 +27,25 @@ export default function TermsAndConditionsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
-            {/* Header */}
-            <div className="bg-[#1B1315] text-[#FAFAF8] py-16 px-6 md:px-12 text-center relative overflow-hidden">
+            {/* Header with Banner 2 */}
+            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
+                <Image
+                    src="/banners/banner2.jpg"
+                    alt="Terms & Conditions Banner"
+                    fill
+                    className="object-cover opacity-75"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
+
                 <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3">
+                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
                         Legal Agreement
                     </span>
-                    <h1 className="font-serif text-3xl md:text-5xl tracking-tight text-white mb-4">
+                    <h1 className="font-serif text-3xl md:text-5xl tracking-tight text-white mb-4 drop-shadow-md">
                         {pageData?.title || "Terms & Conditions"}
                     </h1>
-                    <p className="text-xs text-white/60 uppercase tracking-widest">
+                    <p className="text-xs text-white uppercase tracking-widest drop-shadow-sm font-medium">
                         Premium Essence Perfumes LLC &bull; Abu Dhabi, UAE
                     </p>
                 </div>

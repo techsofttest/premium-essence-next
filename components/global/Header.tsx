@@ -105,6 +105,7 @@ export default function Header() {
     useEffect(() => { setIsMounted(true); }, []);
 
     const [headerData, setHeaderData] = useState<any>(null);
+    const [dbAnnouncements, setDbAnnouncements] = useState<any[]>([]);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -131,16 +132,43 @@ export default function Header() {
         setActiveMobileCategory(null);
     };
 
-    // Fetch dynamic header data
+    // Fetch dynamic header data & announcements from database
     useEffect(() => {
         const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+        fetch(`${baseUrl}/storefront/announcements`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    setDbAnnouncements(data);
+                }
+            })
+            .catch(() => { });
+
         fetch(`${baseUrl}/storefront/header`)
             .then(res => res.json())
             .then(data => {
-                if (data && (data.brands_by_classification || data.fragrance_menu)) setHeaderData(data);
+                if (data) setHeaderData(data);
             })
             .catch(() => { });
     }, []);
+
+    const rawAnnouncements = dbAnnouncements.length > 0
+        ? dbAnnouncements
+        : (headerData?.announcements && Array.isArray(headerData.announcements) && headerData.announcements.length > 0
+            ? headerData.announcements
+            : ANNOUNCEMENTS);
+
+    const activeAnnouncements = rawAnnouncements.map((a: any, idx: number) => ({
+        text: typeof a === 'string' ? a : (a.text || a.title),
+        icon: idx % 3 === 0 ? PenTool : (idx % 3 === 1 ? Truck : Sparkles)
+    }));
+
+    // Announcement slider
+    useEffect(() => {
+        if (activeAnnouncements.length === 0) return;
+        const timer = setInterval(() => setCurrentAnnouncementIndex(prev => (prev + 1) % activeAnnouncements.length), 5000);
+        return () => clearInterval(timer);
+    }, [activeAnnouncements.length]);
 
     // Global Search Logic
     useEffect(() => {
@@ -234,12 +262,6 @@ export default function Header() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Announcement slider
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentAnnouncementIndex(prev => (prev + 1) % ANNOUNCEMENTS.length), 5000);
-        return () => clearInterval(timer);
-    }, []);
-
     const handleLogout = async () => {
         await logout();
         setIsAccountMenuOpen(false);
@@ -255,14 +277,15 @@ export default function Header() {
             </Suspense>
             {/* 1. Announcement Bar */}
             <div className="w-full py-2 px-4 flex justify-between items-center text-[10px] sm:text-xs tracking-[0.15em] uppercase transition-colors duration-500 bg-[#1B1315] text-cream">
-                <button onClick={() => setCurrentAnnouncementIndex(p => (p - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}><ChevronLeft size={14} /></button>
+                <button onClick={() => setCurrentAnnouncementIndex(p => (p - 1 + activeAnnouncements.length) % activeAnnouncements.length)}><ChevronLeft size={14} /></button>
                 <span className="flex items-center justify-center gap-2 w-full animate-in fade-in duration-500 text-center truncate px-2" key={currentAnnouncementIndex}>
                     {(() => {
-                        const Icon = ANNOUNCEMENTS[currentAnnouncementIndex].icon;
-                        return <><Icon size={14} className="shrink-0 text-gold hidden sm:inline" /><span>{ANNOUNCEMENTS[currentAnnouncementIndex].text}</span></>;
+                        const currentItem = activeAnnouncements[currentAnnouncementIndex % activeAnnouncements.length] || activeAnnouncements[0];
+                        const Icon = currentItem.icon || Sparkles;
+                        return <><Icon size={14} className="shrink-0 text-gold hidden sm:inline" /><span>{currentItem.text}</span></>;
                     })()}
                 </span>
-                <button onClick={() => setCurrentAnnouncementIndex(p => (p + 1) % ANNOUNCEMENTS.length)}><ChevronRight size={14} /></button>
+                <button onClick={() => setCurrentAnnouncementIndex(p => (p + 1) % activeAnnouncements.length)}><ChevronRight size={14} /></button>
             </div>
 
             {/* 2. Desktop Navigation */}
