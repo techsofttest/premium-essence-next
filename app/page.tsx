@@ -46,7 +46,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       {/* Full-width Slider */}
-      <HeroSlider />
+      <HeroSlider initialBanners={homeData?.banners} />
 
       {/* Product Showcase (Best Sellers & New Arrivals Collections from DB) */}
       <ProductShowcase products={showcaseProducts} />

@@ -5,57 +5,68 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const SLIDES = [
-    {
-        id: 1,
-        image: "/product-banner/Doir-Sauvage-B.png",
-        link: "/shop/dior",
-        alt: "Dior Sauvage",
-    },
-    {
-        id: 2,
-        image: "/product-banner/Gucci Flora-B.png",
-        link: "/shop/creed",
-        alt: "Gucci Flora",
-    },
-    {
-        id: 3,
-        image: "/product-banner/Acqua Di Giò-B.png",
-        link: "/shop/acqua-di-giò",
-        alt: "Acqua Di Giò",
-    }
-];
+export interface HeroBannerItem {
+    id: number;
+    name: string;
+    image_url: string;
+    url?: string;
+}
 
 interface HeroSliderProps {
-    initialBanners?: { id: number; name: string; image_url: string; url?: string }[];
+    initialBanners?: HeroBannerItem[];
 }
 
 export default function HeroSlider({ initialBanners }: HeroSliderProps) {
-    const slides = (initialBanners && initialBanners.length > 0)
-        ? initialBanners.map((b) => ({
-            id: b.id,
-            image: b.image_url,
-            link: b.url ? b.url.replace(/^https?:\/\/[^\/]+/, "") || "/shop" : "/shop",
-            alt: b.name,
-        }))
-        : SLIDES;
+    const [fetchedBanners, setFetchedBanners] = useState<HeroBannerItem[]>([]);
+
+    useEffect(() => {
+        if (!initialBanners || initialBanners.length === 0) {
+            const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+            fetch(`${baseUrl}/storefront/banners`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        setFetchedBanners(data);
+                    }
+                })
+                .catch(() => { });
+        }
+    }, [initialBanners]);
+
+    const activeList = (initialBanners && initialBanners.length > 0)
+        ? initialBanners
+        : fetchedBanners;
+
+    const slides = activeList.map((b) => ({
+        id: b.id,
+        image: b.image_url,
+        link: b.url ? b.url.replace(/^https?:\/\/[^\/]+/, "") || "/shop" : "/shop",
+        alt: b.name,
+    }));
 
     const [currentSlide, setCurrentSlide] = useState(0);
 
     // Navigation Functions
     const nextSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+        if (slides.length === 0) return;
+        setCurrentSlide((prev) => (prev >= slides.length - 1 ? 0 : prev + 1));
     }, [slides.length]);
 
     const prevSlide = useCallback(() => {
+        if (slides.length === 0) return;
         setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
     }, [slides.length]);
 
-    // Auto-play functionality that resets when a user manually interacts
+    // Auto-play functionality
     useEffect(() => {
-        const timer = setInterval(nextSlide, 5000); // 5 seconds per slide
+        if (slides.length <= 1) return;
+        const timer = setInterval(nextSlide, 5000);
         return () => clearInterval(timer);
-    }, [nextSlide, currentSlide]);
+    }, [nextSlide, currentSlide, slides.length]);
+
+    if (slides.length === 0) {
+        return null;
+    }
 
     return (
         <div className="relative w-full h-[180px] sm:h-[280px] md:h-[380px] lg:h-[450px] overflow-hidden bg-dark group">
