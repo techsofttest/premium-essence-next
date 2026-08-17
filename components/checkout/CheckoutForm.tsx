@@ -156,12 +156,27 @@ export default function CheckoutForm() {
 
             // 2. Create Checkout Order & Hosted Stripe Session
             const orderPayload = {
-                cart: cartItems.map((item) => ({
-                    product_id: Number(item.productId || item.id),
-                    variant_id: item.variantId ? Number(item.variantId) : null,
-                    quantity: item.quantity,
-                    price: item.price,
-                })),
+                cart: cartItems.map((item: any) => {
+                    const rawPid = item.productId || item.product_id || item.id;
+                    const numericPid = Number(rawPid);
+                    const isPidNumeric = !isNaN(numericPid) && typeof rawPid !== "string";
+                    const isDealItem = !!(item.isDeal || (typeof item.id === "string" && item.id.startsWith("deal-")) || (typeof rawPid === "string" && rawPid.startsWith("deal-")) || item.dealSlug);
+
+                    return {
+                        id: item.id,
+                        product_id: isDealItem ? (isPidNumeric ? numericPid : (item.dealId || item.deal_id || 1)) : (isPidNumeric ? numericPid : Number(rawPid) || 1),
+                        variant_id: (item.variantId && !isNaN(Number(item.variantId))) ? Number(item.variantId) : null,
+                        name: item.name || item.title || null,
+                        variant: item.variant || item.subtitle || item.size || null,
+                        size: item.size || item.variant || item.subtitle || null,
+                        deal_slug: item.dealSlug || item.deal_slug || (typeof item.id === "string" ? item.id.replace("deal-", "") : null),
+                        dealSlug: item.dealSlug || item.deal_slug || (typeof item.id === "string" ? item.id.replace("deal-", "") : null),
+                        dealId: item.dealId || item.deal_id || null,
+                        isDeal: isDealItem,
+                        quantity: item.quantity,
+                        price: item.price,
+                    };
+                }),
                 customer_id: customer?.id || null,
                 coupon_code: appliedCoupon?.code || null,
                 customer_name: contactName,
