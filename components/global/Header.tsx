@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Search, Heart, ShoppingCart, ChevronLeft, ChevronRight, PenTool, Truck, Sparkles, Menu, X, User, CircleUserRound, Package, LogOut, ChevronDown } from "lucide-react";
@@ -14,10 +14,15 @@ import { usePathname, useSearchParams } from "next/navigation";
 function HeaderRouteTracker({ onClose }: { onClose: () => void }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         onClose();
-    }, [pathname, searchParams, onClose]);
+    }, [pathname, searchParams]);
 
     return null;
 }
@@ -114,23 +119,35 @@ export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<any>({ products: [], brands: [], categories: [] });
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+    const accountMenuRef = useRef<HTMLDivElement>(null);
 
     const { customer, logout } = useAuth();
     const { wishlistProducts } = useWishlist();
     const { cartItems } = useCart();
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-    const closeAllMenus = () => {
+    const closeAllMenus = useCallback(() => {
         setActiveDropdown(null);
         setIsMobileMenuOpen(false);
         setActiveMobileCategory(null);
         setIsAccountMenuOpen(false);
-    };
+    }, []);
 
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
         setActiveMobileCategory(null);
     };
+
+    // Close account dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+                setIsAccountMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // Fetch dynamic header data & announcements from database
     useEffect(() => {
@@ -338,18 +355,28 @@ export default function Header() {
                             <span className="text-[10px] tracking-widest uppercase font-bold text-left w-full opacity-80 group-hover:opacity-100">Search...</span>
                         </button>
                         {isMounted && customer ? (
-                            <div className="relative">
-                                <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-1.5 text-dark/80 hover:text-dark transition-colors text-[11px] tracking-[0.15em] uppercase font-bold">
+                            <div className="relative" ref={accountMenuRef}>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsAccountMenuOpen((prev) => !prev);
+                                    }}
+                                    className="flex items-center gap-1.5 text-dark/80 hover:text-dark transition-colors text-[11px] tracking-[0.15em] uppercase font-bold cursor-pointer"
+                                >
                                     <CircleUserRound size={18} strokeWidth={1.5} />
                                     <span className="max-w-24 truncate">{customer.name}</span>
-                                    <ChevronDown size={13} strokeWidth={1.5} />
+                                    <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform duration-300 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {isAccountMenuOpen && (
-                                    <div className="absolute right-0 top-full mt-4 w-52 bg-white border border-dark/10 shadow-xl py-2 z-50">
-                                        <Link href="/account" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark"><User size={15} /> Profile</Link>
-                                        <Link href="/account/orders" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark"><Package size={15} /> Orders</Link>
-                                        <Link href="/wishlist" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark"><Heart size={15} /> Wishlist</Link>
-                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark"><LogOut size={15} /> Logout</button>
+                                    <div
+                                        className="absolute right-0 top-full mt-2 w-52 bg-white border border-dark/10 shadow-2xl py-2 z-[999] animate-in fade-in slide-in-from-top-2 duration-200"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <Link href="/account" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark transition-colors"><User size={15} /> Profile</Link>
+                                        <Link href="/account/orders" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark transition-colors"><Package size={15} /> Orders</Link>
+                                        <Link href="/wishlist" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark transition-colors"><Heart size={15} /> Wishlist</Link>
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); handleLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-[10px] tracking-widest uppercase font-bold text-dark/70 hover:bg-dark/5 hover:text-dark transition-colors text-left cursor-pointer"><LogOut size={15} /> Logout</button>
                                     </div>
                                 )}
                             </div>
