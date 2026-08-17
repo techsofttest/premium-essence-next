@@ -141,6 +141,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("premium_essence_cart", JSON.stringify(newCart));
     };
 
+    // Helper to merge server cart items while retaining local deal items
+    const mergeServerItemsWithDeals = (serverItems: CartItem[], currentCartItems: CartItem[]): CartItem[] => {
+        const localDeals = currentCartItems.filter(item => item.isDeal || (typeof item.id === "string" && item.id.startsWith("deal-")));
+        const merged = [...serverItems];
+        for (const dealItem of localDeals) {
+            if (!merged.some(m => m.id === dealItem.id)) {
+                merged.push(dealItem);
+            }
+        }
+        return merged;
+    };
+
     const addToCart = (newItem: CartItem) => {
         const existingIndex = cartItems.findIndex(item => item.id === newItem.id && item.size === newItem.size);
         let updated: CartItem[];
@@ -168,7 +180,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 }),
             })
                 .then((items) => {
-                    if (Array.isArray(items)) saveCartState(items);
+                    if (Array.isArray(items)) saveCartState(mergeServerItemsWithDeals(items, updated));
                 })
                 .catch(() => undefined);
         }
@@ -184,13 +196,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (cartItemId) {
                 void api<CartItem[]>(`/customer/cart/items/${cartItemId}`, { method: "DELETE" })
                     .then((items) => {
-                        if (Array.isArray(items)) saveCartState(items);
+                        if (Array.isArray(items)) saveCartState(mergeServerItemsWithDeals(items, updated));
                     })
                     .catch(() => undefined);
             } else {
                 void api<CartItem[]>("/customer/cart")
                     .then((items) => {
-                        if (Array.isArray(items)) saveCartState(items);
+                        if (Array.isArray(items)) saveCartState(mergeServerItemsWithDeals(items, updated));
                     })
                     .catch(() => undefined);
             }
@@ -215,7 +227,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 body: JSON.stringify({ quantity: newQuantity }),
             })
                 .then((items) => {
-                    if (Array.isArray(items)) saveCartState(items);
+                    if (Array.isArray(items)) saveCartState(mergeServerItemsWithDeals(items, updated));
                 })
                 .catch(() => undefined);
         }

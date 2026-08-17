@@ -160,7 +160,16 @@ export default function CheckoutForm() {
                     const rawPid = item.productId || item.product_id || item.id;
                     const numericPid = Number(rawPid);
                     const isPidNumeric = !isNaN(numericPid) && typeof rawPid !== "string";
-                    const isDealItem = !!(item.isDeal || (typeof item.id === "string" && item.id.startsWith("deal-")) || (typeof rawPid === "string" && rawPid.startsWith("deal-")) || item.dealSlug);
+                    const isDealItem = !!(
+                        item.isDeal ||
+                        (typeof item.id === "string" && item.id.startsWith("deal-")) ||
+                        (typeof rawPid === "string" && String(rawPid).startsWith("deal-")) ||
+                        (item.dealSlug && typeof item.dealSlug === "string" && !item.dealSlug.match(/^\d+$/))
+                    );
+
+                    const dealSlug = isDealItem
+                        ? (item.dealSlug || item.deal_slug || (typeof item.id === "string" && item.id.startsWith("deal-") ? item.id.replace("deal-", "") : null))
+                        : null;
 
                     return {
                         id: item.id,
@@ -169,9 +178,9 @@ export default function CheckoutForm() {
                         name: item.name || item.title || null,
                         variant: item.variant || item.subtitle || item.size || null,
                         size: item.size || item.variant || item.subtitle || null,
-                        deal_slug: item.dealSlug || item.deal_slug || (typeof item.id === "string" ? item.id.replace("deal-", "") : null),
-                        dealSlug: item.dealSlug || item.deal_slug || (typeof item.id === "string" ? item.id.replace("deal-", "") : null),
-                        dealId: item.dealId || item.deal_id || null,
+                        deal_slug: dealSlug,
+                        dealSlug: dealSlug,
+                        dealId: isDealItem ? (item.dealId || item.deal_id || null) : null,
                         isDeal: isDealItem,
                         quantity: item.quantity,
                         price: item.price,
