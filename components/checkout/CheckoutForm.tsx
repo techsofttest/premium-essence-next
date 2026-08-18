@@ -45,6 +45,7 @@ export default function CheckoutForm() {
     const [postcode, setPostcode] = useState("00000");
     const [country, setCountry] = useState("United Arab Emirates");
     const [deliveryNotes, setDeliveryNotes] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState<"stripe" | "cod">("stripe");
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -205,7 +206,7 @@ export default function CheckoutForm() {
                     delivery_notes: deliveryNotes,
                 },
                 delivery_type: "courier",
-                payment_method: "stripe",
+                payment_method: paymentMethod,
                 success_url: `${originUrl}/checkout/success`,
                 cancel_url: `${originUrl}/checkout`,
             };
@@ -472,39 +473,117 @@ export default function CheckoutForm() {
                 </div>
             </section>
 
-            {/* 4. Payment via Hosted Stripe Gateway */}
+            {/* 4. Payment Method Selection */}
             <section className="bg-white p-8 md:p-10 border border-dark/10 shadow-sm">
                 <h2 className="text-[11px] tracking-[0.3em] uppercase font-bold text-dark mb-6 flex items-center gap-3">
                     <span className="w-6 h-6 rounded-full bg-dark text-white flex items-center justify-center text-[10px]">4</span>
-                    Payment Method
+                    Select Payment Method
                 </h2>
 
-                <div className="border border-dark/15 p-6 md:p-8 bg-[#F7F3F4]/50 mb-8 space-y-4">
-                    <div className="flex items-center justify-between border-b border-dark/10 pb-4">
-                        <div className="flex items-center gap-3">
-                            <CreditCard className="text-dark" size={24} />
-                            <div>
-                                <h3 className="text-sm font-bold text-dark">Stripe Hosted Gateway</h3>
-                                <p className="text-xs text-dark/60">Credit/Debit Cards, Apple Pay, Google Pay, UPI & More</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {/* Stripe Card Option */}
+                    <div
+                        onClick={() => setPaymentMethod("stripe")}
+                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${
+                            paymentMethod === "stripe"
+                                ? "border-dark bg-dark/5 shadow-xs"
+                                : "border-dark/10 bg-white hover:border-dark/30"
+                        }`}
+                    >
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                                <CreditCard size={22} className="text-dark" />
+                                <div>
+                                    <h3 className="text-xs font-bold text-dark uppercase tracking-wider">Pay Online (Stripe)</h3>
+                                    <p className="text-[10px] text-dark/60 mt-0.5">Cards, Apple Pay, Google Pay & Wallets</p>
+                                </div>
+                            </div>
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "stripe" ? "border-dark" : "border-dark/30"}`}>
+                                {paymentMethod === "stripe" && <div className="w-2 h-2 rounded-full bg-dark" />}
                             </div>
                         </div>
-                        <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-emerald-300">
-                            SSL Secured
-                        </span>
-                    </div>
-
-                    <p className="text-xs text-dark/70 leading-relaxed">
-                        When you click below, you will be securely redirected to Stripe's encrypted payment gateway to choose your preferred payment method (Card, UPI, Wallets, etc.) and complete your purchase.
-                    </p>
-
-                    <div className="flex items-center gap-4 pt-2 text-dark/60">
-                        <div className="flex items-center gap-1 text-[11px] font-bold">
-                            <ShieldCheck size={16} className="text-emerald-600" /> 256-Bit Encryption
-                        </div>
-                        <div className="flex items-center gap-1 text-[11px] font-bold">
-                            <Smartphone size={16} /> Mobile & UPI Support
+                        <div className="flex items-center gap-2 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 border border-emerald-200 w-fit">
+                            <ShieldCheck size={13} /> Instant Confirmation
                         </div>
                     </div>
+
+                    {/* Cash on Delivery Option */}
+                    <div
+                        onClick={() => setPaymentMethod("cod")}
+                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${
+                            paymentMethod === "cod"
+                                ? "border-dark bg-dark/5 shadow-xs"
+                                : "border-dark/10 bg-white hover:border-dark/30"
+                        }`}
+                    >
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-[10px] tracking-wider border border-amber-300">
+                                    COD
+                                </div>
+                                <div>
+                                    <h3 className="text-xs font-bold text-dark uppercase tracking-wider">Cash on Delivery</h3>
+                                    <p className="text-[10px] text-dark/60 mt-0.5">Pay with cash upon courier delivery</p>
+                                </div>
+                            </div>
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "cod" ? "border-dark" : "border-dark/30"}`}>
+                                {paymentMethod === "cod" && <div className="w-2 h-2 rounded-full bg-dark" />}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-amber-800 font-bold bg-amber-50 px-2.5 py-1 border border-amber-200 w-fit">
+                            <MapPin size={13} /> Pay on Doorstep
+                        </div>
+                    </div>
+                </div>
+
+                <div className="border border-dark/15 p-6 md:p-8 bg-[#F7F3F4]/50 mb-8 space-y-4">
+                    {paymentMethod === "stripe" ? (
+                        <>
+                            <div className="flex items-center justify-between border-b border-dark/10 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <CreditCard className="text-dark" size={24} />
+                                    <div>
+                                        <h3 className="text-sm font-bold text-dark">Stripe Hosted Gateway</h3>
+                                        <p className="text-xs text-dark/60">Credit/Debit Cards, Apple Pay, Google Pay & More</p>
+                                    </div>
+                                </div>
+                                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-emerald-300">
+                                    SSL Secured
+                                </span>
+                            </div>
+                            <p className="text-xs text-dark/70 leading-relaxed">
+                                When you click below, you will be securely redirected to Stripe's encrypted payment gateway to choose your preferred card or wallet method and complete your purchase.
+                            </p>
+                            <div className="flex items-center gap-4 pt-2 text-dark/60">
+                                <div className="flex items-center gap-1 text-[11px] font-bold">
+                                    <ShieldCheck size={16} className="text-emerald-600" /> 256-Bit SSL Encryption
+                                </div>
+                                <div className="flex items-center gap-1 text-[11px] font-bold">
+                                    <Smartphone size={16} /> Apple & Google Pay Support
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex items-center justify-between border-b border-dark/10 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs border border-amber-300">
+                                        COD
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-dark">Cash on Doorstep Delivery</h3>
+                                        <p className="text-xs text-dark/60">Pay cash directly to the courier agent upon arrival</p>
+                                    </div>
+                                </div>
+                                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-amber-300">
+                                    No Online Payment Required
+                                </span>
+                            </div>
+                            <p className="text-xs text-dark/70 leading-relaxed">
+                                Your order will be registered in our system and dispatched immediately. Please prepare the exact cash amount in AED to hand over to the courier courier upon delivery.
+                            </p>
+                        </>
+                    )}
                 </div>
 
                 <button
@@ -515,12 +594,18 @@ export default function CheckoutForm() {
                     {isProcessing ? (
                         <>
                             <Loader2 size={16} className="animate-spin" />
-                            Connecting to Stripe Gateway...
+                            {paymentMethod === "stripe" ? "Connecting to Stripe Gateway..." : "Placing Order with Cash on Delivery..."}
                         </>
-                    ) : (
+                    ) : paymentMethod === "stripe" ? (
                         <>
                             <Lock size={16} />
                             Proceed to Stripe Payment Gateway
+                            <ArrowRight size={16} />
+                        </>
+                    ) : (
+                        <>
+                            <Check size={16} />
+                            Place Order with Cash on Delivery
                             <ArrowRight size={16} />
                         </>
                     )}
