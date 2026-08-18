@@ -64,13 +64,16 @@ export default async function Home() {
 
       {/* 3D Showcase displaying Featured Collection from DB */}
       <InteractiveShowcase products={featuredList} />
-      <ProductBanner imageUrl="/product-banner/Acqua Di Giò-B.png" />
+      <ProductBanner
+        imageUrl={homeData.middle_banner?.image_url || "/product-banner/Acqua Di Giò-B.png"}
+        linkUrl={homeData.middle_banner?.url || "/shop"}
+      />
       <DealsCarousel />
 
       {/* Best Choices Grid from DB */}
       <BestChoicesGrid products={bestChoicesGridData} />
 
-      <WhyChooseUs />
+      <WhyChooseUs initialItems={homeData.why_choose_us} />
       <Testimonials />
     </div>
   );

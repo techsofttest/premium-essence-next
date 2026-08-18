@@ -157,17 +157,26 @@ export async function getStorefrontProductDetail(idOrSlug: string): Promise<Stor
     }
 }
 
+export interface WhyChooseUsItemData {
+    id: number;
+    title: string;
+    description: string;
+    icon: string;
+}
+
 export interface StorefrontHomeData {
     collections: Record<string, Product[]>;
     brands: { id: number; name: string; slug: string; classification?: string; logo?: string }[];
     banners?: { id: number; name: string; image_url: string; url?: string }[];
+    middle_banner?: { id: number; name: string; image_url: string; url?: string } | null;
+    why_choose_us?: WhyChooseUsItemData[];
     home_advertisement?: { id: number; name: string; title?: string; banner_url: string; url?: string } | null;
 }
 
 export async function getStorefrontHome(): Promise<StorefrontHomeData> {
     try {
         const response = await fetch(`${baseUrl}/storefront/home`, { cache: "no-store" });
-        if (!response.ok) return { collections: {}, brands: [], banners: [], home_advertisement: null };
+        if (!response.ok) return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], home_advertisement: null };
         const data = await response.json();
 
         const collectionsMap: Record<string, Product[]> = {};
@@ -194,13 +203,29 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
             url: b.url || "/shop",
         }));
 
+        const middleBanner = data.middle_banner ? {
+            id: data.middle_banner.id,
+            name: data.middle_banner.name || "Middle Banner",
+            image_url: data.middle_banner.image_url || data.middle_banner.image,
+            url: data.middle_banner.url || "/shop",
+        } : null;
+
+        const whyChooseUs = (data.why_choose_us || []).map((w: any) => ({
+            id: w.id,
+            title: w.title,
+            description: w.description,
+            icon: w.icon || "ShieldCheck",
+        }));
+
         return {
             collections: collectionsMap,
             brands,
             banners,
+            middle_banner: middleBanner,
+            why_choose_us: whyChooseUs,
             home_advertisement: data.home_advertisement || null,
         };
     } catch {
-        return { collections: {}, brands: [], banners: [], home_advertisement: null };
+        return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], home_advertisement: null };
     }
 }
