@@ -10,6 +10,8 @@ interface PaymentStatusResponse {
     order_id: number;
     order_number: string;
     payment_status: string;
+    payment_method?: string;
+    is_cod?: boolean;
     status: string;
     is_success: boolean;
     grand_total: number;
@@ -38,11 +40,13 @@ function SuccessContent() {
         }
     }, [orderNumber]);
 
+    const isCod = !!(statusData?.is_cod || statusData?.payment_method === "cod" || (statusData?.payment_method && ["cod", "cash_on_delivery", "cash"].includes(statusData.payment_method.toLowerCase())));
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#F7F3F4] flex flex-col items-center justify-center p-6">
                 <Loader2 className="animate-spin text-dark mb-4" size={32} />
-                <p className="font-serif text-xl text-dark">Verifying your payment...</p>
+                <p className="font-serif text-xl text-dark">Confirming your order...</p>
             </div>
         );
     }
@@ -64,7 +68,9 @@ function SuccessContent() {
                     </h1>
 
                     <p className="text-sm text-dark/70 max-w-md mx-auto mb-8 leading-relaxed">
-                        {statusData?.message || "Your payment was processed successfully. We are preparing your luxury fragrances with meticulous care."}
+                        {statusData?.message || (isCod 
+                            ? "Your order has been placed and confirmed successfully! We are preparing your luxury fragrances with meticulous care. Payment will be collected in cash upon doorstep delivery."
+                            : "Your payment was processed successfully! We are preparing your luxury fragrances with meticulous care.")}
                     </p>
 
                     {/* Order Details Card */}
@@ -75,14 +81,26 @@ function SuccessContent() {
                                 <span className="font-serif text-xl text-dark">{statusData?.order_number || orderNumber || "-"}</span>
                             </div>
                             <span className="bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider px-3 py-1 border border-emerald-300">
-                                {statusData?.payment_status || "Paid"}
+                                {isCod ? "Order Confirmed" : (statusData?.payment_status || "Paid & Confirmed")}
                             </span>
                         </div>
 
-                        {statusData?.grand_total && (
-                            <div className="flex items-center justify-between pt-2">
-                                <span className="text-xs uppercase font-bold text-dark/70">Total Paid</span>
-                                <span className="font-serif text-2xl text-dark">{statusData.grand_total} AED</span>
+                        {/* Payment Method Explicit Display */}
+                        <div className="flex items-center justify-between border-b border-dark/10 pb-3 pt-1">
+                            <span className="text-xs uppercase font-bold text-dark/70">Payment Method</span>
+                            <span className="text-xs font-bold text-dark uppercase tracking-wider">
+                                {isCod ? "Cash on Delivery (COD)" : "Online Card (Stripe)"}
+                            </span>
+                        </div>
+
+                        {statusData?.grand_total !== undefined && (
+                            <div className="flex items-center justify-between pt-1">
+                                <span className="text-xs uppercase font-bold text-dark/70">
+                                    {isCod ? "Amount Payable on Delivery" : "Total Paid"}
+                                </span>
+                                <span className={`font-serif text-2xl ${isCod ? "text-amber-900" : "text-dark"}`}>
+                                    {statusData.grand_total} AED
+                                </span>
                             </div>
                         )}
                     </div>
