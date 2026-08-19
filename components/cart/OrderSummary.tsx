@@ -15,11 +15,13 @@ interface OrderSummaryProps {
 
 export default function OrderSummary({ subtotal, shipping, total }: OrderSummaryProps) {
     const router = useRouter();
-    const { appliedCoupon, removeCoupon, validateCartStock } = useCart();
+    const { appliedCoupon, removeCoupon, validateCartStock, shippingSettings } = useCart();
     const [stockErrors, setStockErrors] = useState<string[]>([]);
 
     const discount = appliedCoupon?.discount ?? 0;
-    const finalTotal = Math.max(0, subtotal + shipping - discount);
+    const isFreeShipping = !shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold;
+    const actualShipping = isFreeShipping ? 0 : (shippingSettings.default_shipping_fee || 20);
+    const finalTotal = Math.max(0, subtotal + actualShipping - discount);
 
     const handleCheckoutClick = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -79,18 +81,23 @@ export default function OrderSummary({ subtotal, shipping, total }: OrderSummary
                         <span className="text-dark/80 font-bold uppercase tracking-widest flex items-center gap-1.5">
                             Shipping <Info size={10} className="text-dark/40" />
                         </span>
-                        {subtotal > 500 && (
+                        {isFreeShipping && subtotal > 0 && (
                             <span className="text-[9px] text-[#C5A059] font-bold uppercase tracking-[0.15em]">
-                                Complimentary applied
+                                Free Shipping Applied
+                            </span>
+                        )}
+                        {!isFreeShipping && shippingSettings.free_shipping_threshold > 0 && (
+                            <span className="text-[9px] text-dark/50 font-medium">
+                                Add {(shippingSettings.free_shipping_threshold - subtotal).toLocaleString()} AED more for FREE shipping
                             </span>
                         )}
                     </div>
-                    <span className="text-dark font-bold">{shipping === 0 ? "—" : `${shipping} AED`}</span>
+                    <span className="text-dark font-bold">{actualShipping === 0 ? "FREE" : `${actualShipping} AED`}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-xs">
-                    <span className="text-dark/80 font-bold uppercase tracking-widest">Tax (Included)</span>
-                    <span className="text-dark font-bold">{Math.round(subtotal * 0.05).toLocaleString()} AED</span>
+                    <span className="text-dark/80 font-bold uppercase tracking-widest">5% VAT (Included in prices)</span>
+                    <span className="text-dark font-bold">{((subtotal * 5) / 105).toFixed(2)} AED</span>
                 </div>
             </div>
 

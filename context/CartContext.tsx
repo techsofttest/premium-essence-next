@@ -28,6 +28,12 @@ export interface AppliedCoupon {
     name?: string;
 }
 
+export interface ShippingSettingsConfig {
+    default_shipping_fee: number;
+    free_shipping_threshold: number;
+    is_enabled: boolean;
+}
+
 interface CartContextType {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
@@ -44,6 +50,7 @@ interface CartContextType {
     removeCoupon: () => void;
     validateCartStock: () => Promise<{ valid: boolean; errors: string[] }>;
     clearCart: () => void;
+    shippingSettings: ShippingSettingsConfig;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -55,6 +62,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
     const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+    const [shippingSettings, setShippingSettings] = useState<ShippingSettingsConfig>({
+        default_shipping_fee: 20,
+        free_shipping_threshold: 200,
+        is_enabled: true,
+    });
+
+    // Fetch dynamic shipping settings from backend home API
+    useEffect(() => {
+        api<any>("/storefront/home")
+            .then((data) => {
+                if (data?.shipping_settings) {
+                    setShippingSettings(data.shipping_settings);
+                }
+            })
+            .catch(() => undefined);
+    }, []);
 
     // Initial load from localStorage
     useEffect(() => {
@@ -342,6 +365,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             removeCoupon,
             validateCartStock,
             clearCart,
+            shippingSettings,
         }}>
             {children}
         </CartContext.Provider>

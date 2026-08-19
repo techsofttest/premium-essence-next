@@ -10,9 +10,10 @@ import OrderNote from "@/components/checkout/OrderNote";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutPage() {
-    const { cartItems, appliedCoupon } = useCart();
+    const { cartItems, appliedCoupon, shippingSettings } = useCart();
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const shipping = subtotal > 500 ? 0 : 30;
+    const isFreeShipping = !shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold;
+    const shipping = isFreeShipping ? 0 : (shippingSettings.default_shipping_fee || 20);
     const discount = appliedCoupon?.discount ?? 0;
     const total = Math.max(0, subtotal + shipping - discount);
 

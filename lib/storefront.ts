@@ -164,19 +164,26 @@ export interface WhyChooseUsItemData {
     icon: string;
 }
 
+export interface ShippingSettingsData {
+    default_shipping_fee: number;
+    free_shipping_threshold: number;
+    is_enabled: boolean;
+}
+
 export interface StorefrontHomeData {
     collections: Record<string, Product[]>;
     brands: { id: number; name: string; slug: string; classification?: string; logo?: string }[];
     banners?: { id: number; name: string; image_url: string; url?: string }[];
     middle_banner?: { id: number; name: string; image_url: string; url?: string } | null;
     why_choose_us?: WhyChooseUsItemData[];
+    shipping_settings?: ShippingSettingsData;
     home_advertisement?: { id: number; name: string; title?: string; banner_url: string; url?: string } | null;
 }
 
 export async function getStorefrontHome(): Promise<StorefrontHomeData> {
     try {
         const response = await fetch(`${baseUrl}/storefront/home`, { cache: "no-store" });
-        if (!response.ok) return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], home_advertisement: null };
+        if (!response.ok) return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], shipping_settings: { default_shipping_fee: 20, free_shipping_threshold: 200, is_enabled: true }, home_advertisement: null };
         const data = await response.json();
 
         const collectionsMap: Record<string, Product[]> = {};
@@ -217,15 +224,22 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
             icon: w.icon || "ShieldCheck",
         }));
 
+        const shippingSettings: ShippingSettingsData = data.shipping_settings || {
+            default_shipping_fee: 20,
+            free_shipping_threshold: 200,
+            is_enabled: true,
+        };
+
         return {
             collections: collectionsMap,
             brands,
             banners,
             middle_banner: middleBanner,
             why_choose_us: whyChooseUs,
+            shipping_settings: shippingSettings,
             home_advertisement: data.home_advertisement || null,
         };
     } catch {
-        return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], home_advertisement: null };
+        return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], shipping_settings: { default_shipping_fee: 20, free_shipping_threshold: 200, is_enabled: true }, home_advertisement: null };
     }
 }

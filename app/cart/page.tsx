@@ -7,10 +7,11 @@ import OrderSummary from "@/components/cart/OrderSummary";
 import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
-    const { cartItems, updateQuantity, removeFromCart } = useCart();
+    const { cartItems, updateQuantity, removeFromCart, shippingSettings } = useCart();
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const shipping = subtotal > 500 ? 0 : 30;
+    const isFreeShipping = !shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold;
+    const shipping = isFreeShipping ? 0 : (shippingSettings.default_shipping_fee || 20);
     const total = subtotal + shipping;
 
     if (cartItems.length === 0) {
