@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Truck, ShieldCheck, Info, AlertTriangle, Tag, X } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Truck, ShieldCheck, Info, AlertTriangle, Tag, X, Award } from "lucide-react";
 import GlowingButton from "@/components/ui/GlowingButton";
 import { useCart } from "@/context/CartContext";
 
@@ -11,12 +11,16 @@ interface OrderSummaryProps {
     subtotal: number;
     shipping: number;
     total: number;
+    showCheckoutButton?: boolean;
 }
 
-export default function OrderSummary({ subtotal, shipping, total }: OrderSummaryProps) {
+export default function OrderSummary({ subtotal, shipping, total, showCheckoutButton }: OrderSummaryProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const { appliedCoupon, removeCoupon, validateCartStock, shippingSettings } = useCart();
     const [stockErrors, setStockErrors] = useState<string[]>([]);
+
+    const shouldShowButton = showCheckoutButton !== undefined ? showCheckoutButton : (pathname !== "/checkout");
 
     const discount = appliedCoupon?.discount ?? 0;
     const isFreeShipping = !shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold;
@@ -94,11 +98,6 @@ export default function OrderSummary({ subtotal, shipping, total }: OrderSummary
                     </div>
                     <span className="text-dark font-bold">{actualShipping === 0 ? "FREE" : `${actualShipping} AED`}</span>
                 </div>
-
-                <div className="flex justify-between items-center text-xs">
-                    <span className="text-dark/80 font-bold uppercase tracking-widest">5% VAT (Included in prices)</span>
-                    <span className="text-dark font-bold">{((subtotal * 5) / 105).toFixed(2)} AED</span>
-                </div>
             </div>
 
             <div className="pt-6 border-t border-dark/20 mb-8">
@@ -111,25 +110,33 @@ export default function OrderSummary({ subtotal, shipping, total }: OrderSummary
                 </p>
             </div>
 
-            <GlowingButton
-                fullWidth
-                className="h-[52px] text-[10px] tracking-[0.3em] uppercase cursor-pointer"
-                onClick={handleCheckoutClick}
-            >
-                Checkout Now
-            </GlowingButton>
+            {shouldShowButton && (
+                <GlowingButton
+                    fullWidth
+                    className="h-[52px] text-[10px] tracking-[0.3em] uppercase cursor-pointer mb-6"
+                    onClick={handleCheckoutClick}
+                >
+                    Checkout Now
+                </GlowingButton>
+            )}
 
-            <div className="mt-8 pt-6 border-t border-dark/10 grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                    <Truck size={16} className="text-[#C5A059]" />
+            <div className="mt-8 pt-6 border-t border-dark/10 grid grid-cols-3 gap-2">
+                <div className="flex items-center gap-2">
+                    <Truck size={16} className="text-[#C5A059] shrink-0" />
                     <span className="text-[8px] tracking-widest uppercase text-dark font-bold opacity-90 leading-tight">
                         Fast<br />Delivery
                     </span>
                 </div>
-                <div className="flex items-center gap-3">
-                    <ShieldCheck size={16} className="text-[#C5A059]" />
+                <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-[#C5A059] shrink-0" />
                     <span className="text-[8px] tracking-widest uppercase text-dark font-bold opacity-90 leading-tight">
                         Secure<br />Payment
+                    </span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Award size={16} className="text-[#C5A059] shrink-0" />
+                    <span className="text-[8px] tracking-widest uppercase text-dark font-bold opacity-90 leading-tight">
+                        100%<br />Authentic
                     </span>
                 </div>
             </div>
