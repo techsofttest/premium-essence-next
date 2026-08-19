@@ -182,7 +182,7 @@ export interface StorefrontHomeData {
 
 export async function getStorefrontHome(): Promise<StorefrontHomeData> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/home`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/home`, { next: { revalidate: 60 } });
         if (!response.ok) return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], shipping_settings: { default_shipping_fee: 20, free_shipping_threshold: 200, is_enabled: true }, home_advertisement: null };
         const data = await response.json();
 

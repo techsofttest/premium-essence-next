@@ -152,7 +152,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     }
 
                     setCartItems(mergedCart);
-                    localStorage.setItem("premium_essence_cart", JSON.stringify(mergedCart));
+                    try {
+                        localStorage.setItem("premium_essence_cart", JSON.stringify(mergedCart));
+                    } catch {
+                        // ignore storage errors
+                    }
                 }
             })
             .catch(() => undefined);
