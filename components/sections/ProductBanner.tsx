@@ -15,16 +15,13 @@ export default function ProductBanner({
     linkUrl = "/shop"
 }: ProductBannerProps) {
     return (
-        <section className="relative w-full aspect-[16/6] sm:aspect-[20/6] md:aspect-[24/7] min-h-[140px] max-h-[420px] overflow-hidden bg-dark/5 cursor-pointer">
-            <Link href={linkUrl} className="block w-full h-full relative">
-                <Image
+        <section className="w-full overflow-hidden bg-dark/5 cursor-pointer">
+            <Link href={linkUrl} className="block w-full cursor-pointer">
+                {/* eslint-disable-next-html-element-suppress */}
+                <img
                     src={imageUrl}
                     alt={altText}
-                    fill
-                    priority={priority}
-                    unoptimized={imageUrl.startsWith("http")}
-                    className="object-cover object-center transition-transform duration-1000 hover:scale-105"
-                    sizes="100vw"
+                    className="w-full h-auto block object-contain transition-transform duration-700 hover:scale-[1.02]"
                 />
             </Link>
         </section>
