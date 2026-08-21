@@ -46,19 +46,25 @@ export default function JournalsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
-            {/* Hero Header */}
-            <div className="bg-[#1B1315] text-[#FAFAF8] py-20 px-6 md:px-12 lg:px-20 text-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20 pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[80%] bg-[#D4AF37]/30 rounded-full blur-[120px]" />
-                </div>
+            {/* Hero Header with Banner 3 (matching FAQ page) */}
+            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 lg:px-20 text-center overflow-hidden">
+                <Image
+                    src="/banners/banner3.jpg"
+                    alt="The Perfume Journal Banner"
+                    fill
+                    className="object-cover opacity-75"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
+
                 <div className="relative z-10 max-w-4xl mx-auto">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3">
+                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
                         The Olfactory Gazette
                     </span>
-                    <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-white mb-6">
+                    <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-white mb-6 drop-shadow-md">
                         The Perfume Journal
                     </h1>
-                    <p className="text-xs md:text-sm text-white/70 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-xs md:text-sm text-white max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-medium">
                         Explorations into rare ingredients, European perfume heritage, layer accords, and master perfumer insights.
                     </p>
                 </div>
