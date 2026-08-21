@@ -184,7 +184,6 @@ export default function Footer() {
                             <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Information</h4>
                             <ul className="flex flex-col gap-4 text-sm text-dark/70">
                                 <li><Link href="/journals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">The Journal (Blog)</Link></li>
-                                <li><Link href="/journals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Newsroom</Link></li>
                                 <li><Link href="/terms-and-conditions" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Terms & Conditions</Link></li>
                                 <li><Link href="/privacy-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Privacy Policy</Link></li>
                                 <li><Link href="/refund-and-return" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Refund & Return</Link></li>

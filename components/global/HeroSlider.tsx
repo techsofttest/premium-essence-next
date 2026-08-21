@@ -69,7 +69,7 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
     }
 
     return (
-        <div className="relative w-full aspect-[16/7] sm:aspect-[20/7] md:aspect-[24/8] lg:aspect-[25/8] min-h-[160px] max-h-[520px] overflow-hidden bg-dark group">
+        <div className="relative w-full aspect-[2172/724] overflow-hidden bg-dark group">
 
             {/* Slides */}
             {slides.map((slide, index) => (
