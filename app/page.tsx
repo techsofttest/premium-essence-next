@@ -64,10 +64,15 @@ export default async function Home() {
 
       {/* 3D Showcase displaying Featured Collection from DB */}
       <InteractiveShowcase products={featuredList} />
-      <ProductBanner
-        imageUrl={homeData.middle_banner?.image_url || "/product-banner/Acqua Di Giò-B.png"}
-        linkUrl={homeData.middle_banner?.url || "/shop"}
-      />
+
+      {/* Middle Banner (only rendered if created in admin banners table with position='middle') */}
+      {Boolean(homeData.middle_banner?.image_url) && (
+        <ProductBanner
+          imageUrl={homeData.middle_banner!.image_url}
+          linkUrl={homeData.middle_banner?.url || "/shop"}
+        />
+      )}
+
       <DealsCarousel />
 
       {/* Best Choices Grid from DB */}

@@ -5,44 +5,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const DEALS = [
-    {
-        id: 1,
-        name: "The Signature Discovery Set",
-        image: "/deals/The%20Signature%20Discovery%20Set.png",
-        link: "/deals/discovery-set",
-    },
-    {
-        id: 2,
-        name: "Ultimate His & Hers Box",
-        image: "/deals/Ultimate%20His%20%26%20Hers%20Box.png",
-        link: "/deals/ultimate-box",
-    },
-    {
-        id: 3,
-        name: "Top Collection Trio",
-        image: "/deals/Top Collection Trio.png",
-        link: "/deals/oud-trio",
-    },
-    {
-        id: 4,
-        name: "Travel Miniatures Vault",
-        image: "/deals/travel_vault.png",
-        link: "/deals/travel-vault",
-    },
-    {
-        id: 5,
-        name: "Midnight Exclusives",
-        image: "/deals/midnight_exclusive.png",
-        link: "/deals/midnight-exclusive",
-    }
-];
+export interface DealItem {
+    id: number;
+    name: string;
+    slug?: string;
+    image: string;
+    link: string;
+}
 
 export default function DealsCarousel() {
+    const [deals, setDeals] = useState<DealItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(0);
     const [itemsVisible, setItemsVisible] = useState(3);
     const [isMounted, setIsMounted] = useState(false);
     const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+        fetch(`${baseUrl}/storefront/curated-deals`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data) && data.length > 0) {
+                    const mapped = data.map((d: any) => ({
+                        id: d.id,
+                        name: d.name,
+                        slug: d.slug,
+                        image: d.image || "/deals/The%20Signature%20Discovery%20Set.png",
+                        link: d.link || `/deals/${d.slug}`,
+                    }));
+                    setDeals(mapped);
+                } else {
+                    setDeals([]);
+                }
+            })
+            .catch(() => setDeals([]))
+            .finally(() => setIsLoading(false));
+    }, []);
 
     // Track screen size to adjust the number of visible items and disable logic
     useEffect(() => {
@@ -62,12 +61,10 @@ export default function DealsCarousel() {
         const itemWidth = carouselRef.current.children[0].clientWidth;
         const gap = 24; // gap-6 is 24px in Tailwind
 
-        // Calculate index based on scroll position + gap
         const newIndex = Math.round(scrollLeft / (itemWidth + gap));
         setActiveIndex(newIndex);
     };
 
-    // Deterministic scroll calculation to prevent vertical jumping
     const scrollToIndex = (index: number) => {
         if (!carouselRef.current) return;
         const targetNode = carouselRef.current.children[index] as HTMLElement;
@@ -83,12 +80,16 @@ export default function DealsCarousel() {
     };
 
     const handleNext = () => {
-        if (activeIndex < DEALS.length - itemsVisible) scrollToIndex(activeIndex + 1);
+        if (activeIndex < deals.length - itemsVisible) scrollToIndex(activeIndex + 1);
     };
 
     const handlePrev = () => {
         if (activeIndex > 0) scrollToIndex(activeIndex - 1);
     };
+
+    if (isLoading || deals.length === 0) {
+        return null;
+    }
 
     return (
         <section className="py-24 w-full bg-[#F7F3F4] font-sans overflow-hidden relative group">
@@ -117,8 +118,8 @@ export default function DealsCarousel() {
                 {/* Right Control Button */}
                 <button
                     onClick={handleNext}
-                    disabled={activeIndex >= DEALS.length - itemsVisible}
-                    className={`absolute right-2 md:right-6 lg:right-12 top-[60%] -translate-y-1/2 z-20 w-12 h-12 rounded-none bg-[#F7F3F4]/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-dark/5 flex items-center justify-center text-dark transition-all duration-300 ${!isMounted || activeIndex >= DEALS.length - itemsVisible ? "opacity-0 pointer-events-none" : "opacity-100 hover:bg-dark hover:text-cream hover:scale-110"
+                    disabled={activeIndex >= deals.length - itemsVisible}
+                    className={`absolute right-2 md:right-6 lg:right-12 top-[60%] -translate-y-1/2 z-20 w-12 h-12 rounded-none bg-[#F7F3F4]/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-dark/5 flex items-center justify-center text-dark transition-all duration-300 ${!isMounted || activeIndex >= deals.length - itemsVisible ? "opacity-0 pointer-events-none" : "opacity-100 hover:bg-dark hover:text-cream hover:scale-110"
                         }`}
                 >
                     <ChevronRight size={24} strokeWidth={1.5} />
@@ -131,7 +132,7 @@ export default function DealsCarousel() {
                     // Fixed Padding & scroll-padding to ensure the first item NEVER touches the edge
                     className="w-full px-6 md:px-16 lg:px-24 scroll-pl-6 md:scroll-pl-16 lg:scroll-pl-24 flex gap-6 overflow-x-auto snap-x snap-mandatory pb-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
                 >
-                    {DEALS.map((deal) => (
+                    {deals.map((deal) => (
                         <Link
                             href={deal.link}
                             key={deal.id}
@@ -159,8 +160,8 @@ export default function DealsCarousel() {
 
                 {/* Bottom Indicators (Dots) */}
                 <div className="flex items-center justify-center gap-3 mt-4">
-                    {isMounted && DEALS.map((_, index) => {
-                        const isVisibleDot = index <= DEALS.length - itemsVisible;
+                    {isMounted && deals.map((_, index) => {
+                        const isVisibleDot = index <= deals.length - itemsVisible;
 
                         if (!isVisibleDot) return null;
 

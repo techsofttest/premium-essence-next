@@ -124,7 +124,8 @@ function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
 }
 
 export default function Testimonials() {
-    const [testimonials, setTestimonials] = useState<any[]>(TESTIMONIALS);
+    const [testimonials, setTestimonials] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
@@ -134,16 +135,21 @@ export default function Testimonials() {
             .then((data) => {
                 if (Array.isArray(data) && data.length > 0) {
                     setTestimonials(data);
+                } else {
+                    setTestimonials([]);
                 }
             })
-            .catch(() => undefined);
+            .catch(() => setTestimonials([]))
+            .finally(() => setIsLoading(false));
     }, []);
 
     const nextSlide = () => {
+        if (!testimonials.length) return;
         setActiveIndex((prev) => (prev + 1) % testimonials.length);
     };
 
     const prevSlide = () => {
+        if (!testimonials.length) return;
         setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
     };
 
@@ -154,6 +160,10 @@ export default function Testimonials() {
         }, 6000);
         return () => clearInterval(timer);
     }, [testimonials.length]);
+
+    if (isLoading || testimonials.length === 0) {
+        return null;
+    }
 
     return (
         <section className="py-20 w-full bg-gradient-to-br from-[#DEDEDE] to-[#F7F3F4] font-sans overflow-hidden relative">
