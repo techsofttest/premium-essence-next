@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -56,6 +56,11 @@ export default function ProductCatalogView({
     const selectedSort = searchParams.get("sort") || "latest";
     const selectedFilterParam = searchParams.get("filter") || searchParams.get("type") || "";
 
+    const selectedSizeParam = searchParams.get("size") || "";
+    const maxPriceParam = searchParams.get("max_price") ? Number(searchParams.get("max_price")) : 1000;
+
+    const selectedSizes = selectedSizeParam ? selectedSizeParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+
     const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || searchParams.get("bestseller") === "true";
     const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || searchParams.get("new") === "true";
 
@@ -89,6 +94,47 @@ export default function ProductCatalogView({
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
 
+    // Dynamic Sizes extracted from products
+    const availableSizes = useMemo(() => {
+        const set = new Set<string>();
+        products.forEach((p) => {
+            if (p.variants && p.variants.length > 0) {
+                p.variants.forEach((v) => {
+                    const label = (v.label || v.size || "").trim();
+                    if (label) set.add(label);
+                });
+            } else if (p.sizes && p.sizes.length > 0) {
+                p.sizes.forEach((s) => {
+                    if (s.trim()) set.add(s.trim());
+                });
+            }
+        });
+        return Array.from(set).sort((a, b) => {
+            const numA = parseInt(a) || 0;
+            const numB = parseInt(b) || 0;
+            return numA - numB;
+        });
+    }, [products]);
+
+    // Local client-side filtered products based on Size & Price range
+    const filteredProducts = useMemo(() => {
+        return products.filter((p) => {
+            // Price filter: check if base price or any variant price <= maxPriceParam
+            const pPrice = p.price;
+            const matchesPrice = pPrice <= maxPriceParam || (p.variants && p.variants.some((v) => (v.price ?? pPrice) <= maxPriceParam));
+            if (!matchesPrice) return false;
+
+            // Size filter: check if any variant or product size matches selectedSizes
+            if (selectedSizes.length > 0) {
+                const productSizeLabels = p.variants?.map((v) => (v.label || v.size || "").toLowerCase().trim()).filter(Boolean) || p.sizes?.map((s) => s.toLowerCase().trim()) || [];
+                const matchesSize = selectedSizes.some((sz) => productSizeLabels.includes(sz));
+                if (!matchesSize) return false;
+            }
+
+            return true;
+        });
+    }, [products, maxPriceParam, selectedSizes]);
+
     // Pagination State (12 products per page)
     const ITEMS_PER_PAGE = 12;
     const [currentPage, setCurrentPage] = useState(1);
@@ -96,13 +142,13 @@ export default function ProductCatalogView({
     // Reset pagination when active filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam, selectedSizeParam, maxPriceParam]);
 
-    const totalProducts = products.length;
+    const totalProducts = filteredProducts.length;
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
     const validPage = Math.min(Math.max(currentPage, 1), totalPages);
     const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
-    const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -184,7 +230,7 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
-        router.push(`?${params.toString()}`);
+        router.push(`?${params.toString()}`, { scroll: false });
     };
 
     const updateSingleFilter = (key: string, value: string) => {
@@ -194,11 +240,11 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
-        router.push(`?${params.toString()}`);
+        router.push(`?${params.toString()}`, { scroll: false });
     };
 
     const clearAllFilters = () => {
-        router.push(window.location.pathname);
+        router.push(window.location.pathname, { scroll: false });
     };
 
     const hasActiveFilters = Boolean(
@@ -207,8 +253,46 @@ export default function ProductCatalogView({
         (selectedFamilies.length > 0 && !fixedFamily) ||
         (selectedGenders.length > 0 && !fixedGender) ||
         (selectedConcentrations.length > 0 && !fixedConcentration) ||
+        selectedSizes.length > 0 ||
+        maxPriceParam < 1000 ||
         selectedSearch ||
         selectedFilterParam
+    );
+
+    const renderPriceSlider = () => (
+        <div className="border-b border-dark/10 pb-6">
+            <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-dark">
+                    Max Price (AED)
+                </h3>
+                {maxPriceParam < 1000 && (
+                    <button
+                        onClick={() => updateSingleFilter("max_price", "")}
+                        className="text-[10px] text-red-700 font-bold uppercase hover:underline"
+                    >
+                        Reset
+                    </button>
+                )}
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center text-xs font-semibold text-dark/70">
+                    <span>10 AED</span>
+                    <span className="font-bold text-dark bg-[#F7F3F4] px-2 py-0.5 border border-dark/10">
+                        Up to {maxPriceParam} AED
+                    </span>
+                    <span>1000 AED</span>
+                </div>
+                <input
+                    type="range"
+                    min="10"
+                    max="1000"
+                    step="10"
+                    value={maxPriceParam}
+                    onChange={(e) => updateSingleFilter("max_price", e.target.value)}
+                    className="w-full accent-dark cursor-pointer h-2 bg-[#F7F3F4] rounded-lg border border-dark/20"
+                />
+            </div>
+        </div>
     );
 
     const renderFilterSection = (
@@ -339,6 +423,20 @@ export default function ProductCatalogView({
                         )}
 
                         {/* Individual Multi-Select Badges */}
+                        {selectedSizes.map((sz) => (
+                            <span key={`sz-${sz}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Size: {sz}
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => toggleFilterOption("size", sz)} />
+                            </span>
+                        ))}
+
+                        {maxPriceParam < 1000 && (
+                            <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                                Max Price: {maxPriceParam} AED
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateSingleFilter("max_price", "")} />
+                            </span>
+                        )}
+
                         {selectedCategories.map((cat) => (
                             <span key={`cat-${cat}`} className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
                                 Category: {cat}
@@ -413,6 +511,8 @@ export default function ProductCatalogView({
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Sidebar Filter (Desktop) */}
                     <aside className="hidden lg:block lg:col-span-3 space-y-6 bg-white border border-dark/10 p-6 h-fit shadow-sm">
+                        {renderPriceSlider()}
+                        {renderFilterSection("Bottle Sizes", "size", availableSizes, selectedSizes)}
                         {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
                         {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
                         {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}
@@ -531,6 +631,8 @@ export default function ProductCatalogView({
 
                         {/* Filter Content */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+                            {renderPriceSlider()}
+                            {renderFilterSection("Bottle Sizes", "size", availableSizes, selectedSizes)}
                             {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
                             {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
                             {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}

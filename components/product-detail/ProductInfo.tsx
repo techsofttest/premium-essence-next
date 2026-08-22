@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Star, Info, Minus, Plus, Truck, ShieldCheck, RotateCcw, Heart, AlertCircle, ShoppingCart } from "lucide-react";
 import GlowingButton from "@/components/ui/GlowingButton";
 import { useWishlist } from "@/context/WishlistContext";
@@ -77,6 +78,13 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         });
     };
 
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
     return (
         <div className="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-32 h-fit font-sans">
             {/* Brand, Title & Reviews */}
@@ -88,18 +96,26 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     {product.name}
                 </h1>
                 <div className="flex items-center gap-4 mt-2">
-                    <div className="flex items-center gap-1 text-[#C5A059]">
-                        {[...Array(5)].map((_, i) => (
-                            <Star
-                                key={i}
-                                size={14}
-                                fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
-                            />
-                        ))}
-                    </div>
-                    <span className="text-[11px] tracking-widest text-dark font-bold uppercase underline underline-offset-4 cursor-pointer hover:text-dark/70">
-                        {product.reviews} Reviews
-                    </span>
+                    {product.rating && product.reviews ? (
+                        <>
+                            <div className="flex items-center gap-1 text-[#C5A059]">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        size={14}
+                                        fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-[11px] tracking-widest text-dark font-bold uppercase underline underline-offset-4 cursor-pointer hover:text-dark/70">
+                                {product.reviews} Reviews
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-[11px] tracking-widest text-dark/60 font-medium uppercase">
+                            Not yet rated
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -113,20 +129,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     </span>
                 )}
 
+                {/* Offer percentage badge */}
                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                    <span className="text-[10px] tracking-widest text-dark font-bold uppercase bg-[#E9D7C3] px-3 py-1.5 border border-dark/10">
-                        Save {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}%
-                    </span>
-                )}
-
-                {/* Stock Badge */}
-                {isOutOfStock ? (
-                    <span className="ml-auto text-[10px] tracking-widest font-bold uppercase text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 flex items-center gap-1.5">
-                        <AlertCircle size={13} /> Out of Stock
-                    </span>
-                ) : (
-                    <span className="ml-auto text-[10px] tracking-widest font-bold uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5">
-                        In Stock ({selectedVariant?.stock ?? "Available"})
+                    <span className="bg-[#4A323A] text-cream text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 shadow-sm">
+                        {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}% OFF
                     </span>
                 )}
             </div>
@@ -137,7 +143,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     <span className="text-[11px] tracking-[0.2em] uppercase font-bold text-dark">
                         Select Size
                     </span>
-                    <button className="text-[10px] tracking-widest text-dark font-bold uppercase flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+                    <button
+                        onClick={() => setIsSizeGuideOpen(true)}
+                        className="text-[10px] tracking-widest text-dark font-bold uppercase flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+                    >
                         <Info size={12} /> Size Guide
                     </button>
                 </div>
@@ -155,39 +164,37 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                             <button
                                 key={variantItem.label}
                                 onClick={() => setSelectedSize(variantItem.label)}
-                                className={`relative px-6 py-3.5 text-[11px] tracking-[0.2em] uppercase border transition-all duration-300 font-bold flex flex-col items-center gap-0.5 ${
+                                className={`px-5 py-2.5 text-xs font-semibold tracking-wider transition-all relative ${
                                     isSelected
-                                        ? "bg-dark text-white border-dark shadow-lg"
-                                        : variantItem.outOfStock
-                                        ? "bg-gray-100 text-dark/40 border-dark/10 hover:border-dark/30 line-through"
-                                        : "bg-white text-dark border-dark/20 hover:border-dark"
-                                }`}
+                                        ? "bg-dark text-cream shadow-md"
+                                        : "bg-[#F7F3F4] text-dark/80 border border-dark/20 hover:border-dark"
+                                } ${variantItem.outOfStock ? "opacity-40 cursor-not-allowed line-through" : ""}`}
                             >
-                                <span>{variantItem.label}</span>
-                                {variantItem.price && (
-                                    <span className={`text-[9px] font-normal ${isSelected ? "text-white/80" : "text-dark/50"}`}>
-                                        {variantItem.price} AED
-                                    </span>
-                                )}
-                                {variantItem.outOfStock && (
-                                    <span className="text-[8px] uppercase tracking-tighter text-rose-600 font-bold">
-                                        Sold Out
-                                    </span>
-                                )}
+                                {variantItem.label}
                             </button>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Quantity, Add to Cart & Wishlist */}
-            <div className="flex flex-col gap-6 pt-4">
-                <div className="flex items-center gap-4">
-                    {/* Quantity Counter */}
-                    <div className="flex items-center border border-dark/30 h-[56px] bg-white opacity-100 disabled:opacity-50">
+            {/* Quantity & CTA */}
+            <div className="flex flex-col gap-4">
+                {/* Stock status indicator */}
+                <div className="flex items-center gap-2">
+                    <span
+                        className={`w-2 h-2 rounded-full ${isOutOfStock ? "bg-red-500" : "bg-emerald-500 animate-pulse"}`}
+                    />
+                    <span className="text-xs text-dark/70 font-medium">
+                        {isOutOfStock ? "Out of Stock" : "In Stock — Ready to Ship"}
+                    </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    {/* Quantity Selector */}
+                    <div className="flex items-center border border-dark/20 bg-white h-[56px]">
                         <button
-                            disabled={isOutOfStock}
-                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            disabled={quantity <= 1 || isOutOfStock}
+                            onClick={() => setQuantity(quantity - 1)}
                             className="px-4 py-2 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30"
                         >
                             <Minus size={16} strokeWidth={2.5} />
@@ -246,6 +253,94 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     <span className="text-[10px] tracking-widest uppercase text-dark font-bold opacity-80">Easy Returns</span>
                 </div>
             </div>
+
+            {/* Size Guide Modal - Rendered via Portal to document.body with z-[100] above sticky header */}
+            {isMounted && isSizeGuideOpen && createPortal(
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark/60 backdrop-blur-sm animate-fadeIn"
+                    onClick={() => setIsSizeGuideOpen(false)}
+                >
+                    <div
+                        className="bg-white border border-dark/10 shadow-2xl max-w-lg w-full p-6 sm:p-8 relative flex flex-col gap-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between border-b border-dark/10 pb-4">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] tracking-[0.25em] uppercase text-dark/50 font-semibold">
+                                    Fragrance Volume
+                                </span>
+                                <h3 className="font-serif text-2xl text-dark font-medium">
+                                    Size Guide
+                                </h3>
+                            </div>
+                            <button
+                                onClick={() => setIsSizeGuideOpen(false)}
+                                className="w-8 h-8 rounded-full border border-dark/10 flex items-center justify-center text-dark/60 hover:text-dark hover:bg-dark/5 transition-all text-sm"
+                                aria-label="Close modal"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Size Table */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                                <thead>
+                                    <tr className="border-b border-dark/20 bg-[#F7F3F4] text-dark font-serif">
+                                        <th className="py-3 px-3 sm:px-4 font-semibold tracking-wider text-[11px] uppercase">Size</th>
+                                        <th className="py-3 px-3 sm:px-4 font-semibold tracking-wider text-[11px] uppercase">Approx. fl oz</th>
+                                        <th className="py-3 px-3 sm:px-4 font-semibold tracking-wider text-[11px] uppercase">Typical use</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-dark/5 text-dark/80">
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">5–10 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">0.17–0.34 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Sample / travel</td>
+                                    </tr>
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">30 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">1.0 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Small / occasional use</td>
+                                    </tr>
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">50 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">1.7 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Standard everyday size</td>
+                                    </tr>
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">75 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">2.5 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Mid-size</td>
+                                    </tr>
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">100 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">3.4 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Large / best value for regular use</td>
+                                    </tr>
+                                    <tr className="hover:bg-[#F7F3F4]/50 transition-colors">
+                                        <td className="py-3 px-3 sm:px-4 font-medium text-dark">150–200 ml</td>
+                                        <td className="py-3 px-3 sm:px-4">5–6.7 oz</td>
+                                        <td className="py-3 px-3 sm:px-4">Large/collector size</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="pt-2 border-t border-dark/10 flex justify-end">
+                            <button
+                                onClick={() => setIsSizeGuideOpen(false)}
+                                className="px-6 py-2.5 bg-dark text-cream text-xs font-semibold tracking-widest uppercase hover:bg-dark/90 transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 }

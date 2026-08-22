@@ -1,33 +1,24 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
 
-function CategoryContent() {
-    const params = useParams();
-    const slug = params?.slug as string;
-
+export default function BestsellersPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalProducts, setTotalProducts] = useState(0);
 
-    const categoryTitle = slug
-        ? slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-        : "Category Products";
-
     const ITEMS_PER_PAGE = 12;
 
     useEffect(() => {
-        if (!slug) return;
         setLoading(true);
         getStorefrontProductsWithMeta({
-            category: slug,
+            filter: "bestsellers",
             page: page,
             per_page: ITEMS_PER_PAGE,
         })
@@ -45,7 +36,7 @@ function CategoryContent() {
                 setProducts([]);
             })
             .finally(() => setLoading(false));
-    }, [slug, page]);
+    }, [page]);
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
@@ -62,39 +53,37 @@ function CategoryContent() {
                 <nav className="flex items-center gap-3 text-[10px] tracking-widest uppercase text-dark font-bold mb-8">
                     <Link href="/" className="hover:text-dark/60 transition-colors">Home</Link>
                     <ArrowRight size={10} strokeWidth={2.5} />
-                    <Link href="/shop" className="hover:text-dark/60 transition-colors">Categories</Link>
-                    <ArrowRight size={10} strokeWidth={2.5} />
-                    <span className="text-dark/50">{categoryTitle}</span>
+                    <span className="text-dark/50">Bestsellers</span>
                 </nav>
 
                 {/* Page Heading (No Banner) */}
                 <div className="flex flex-col items-center text-center gap-3 mb-16 border-b border-dark/10 pb-10">
                     <span className="text-[11px] tracking-[0.3em] uppercase text-[#C5A059] font-bold">
-                        Category Selection
+                        Most Coveted
                     </span>
                     <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-dark tracking-tight">
-                        {categoryTitle} Collection
+                        Bestsellers Collection
                     </h1>
                     <div className="w-12 h-[1px] bg-[#4A323A] my-2"></div>
                     <p className="text-sm text-dark/70 max-w-xl leading-relaxed">
-                        Curated selections of fine luxury perfumes within {categoryTitle}.
+                        Discover our most popular and highly-rated luxury perfumes, handpicked by fragrance connoisseurs around the world.
                     </p>
                 </div>
 
                 {/* Product Grid */}
                 {loading ? (
                     <div className="p-24 text-center text-dark/60 flex items-center justify-center gap-3 bg-white border border-dark/10">
-                        <Loader2 className="animate-spin text-dark" size={24} /> Loading {categoryTitle}...
+                        <Loader2 className="animate-spin text-dark" size={24} /> Loading bestsellers...
                     </div>
                 ) : products.length === 0 ? (
                     <div className="bg-white border border-dark/10 p-16 text-center shadow-sm">
-                        <p className="font-serif text-2xl text-dark">No perfumes found in {categoryTitle}</p>
-                        <p className="text-xs text-dark/60 mt-2 mb-6">Check back soon for new additions to this category.</p>
+                        <p className="font-serif text-2xl text-dark">No bestsellers found</p>
+                        <p className="text-xs text-dark/60 mt-2 mb-6">Check back soon for updated selections.</p>
                         <Link
                             href="/shop"
                             className="bg-dark text-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors inline-block"
                         >
-                            Explore Full Catalog
+                            Explore Shop All
                         </Link>
                     </div>
                 ) : (
@@ -109,7 +98,7 @@ function CategoryContent() {
                         {totalPages > 1 && (
                             <div className="mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-dark/10 p-4 sm:p-6 shadow-sm">
                                 <span className="text-xs uppercase tracking-wider text-dark/60 font-medium">
-                                    Showing <span className="font-bold text-dark">{startIndex + 1}</span>–<span className="font-bold text-dark">{Math.min(startIndex + products.length, totalProducts)}</span> of <span className="font-bold text-dark">{totalProducts}</span> Perfumes
+                                    Showing <span className="font-bold text-dark">{startIndex + 1}</span>–<span className="font-bold text-dark">{Math.min(startIndex + products.length, totalProducts)}</span> of <span className="font-bold text-dark">{totalProducts}</span> Bestsellers
                                 </span>
 
                                 <div className="flex items-center gap-1.5">
@@ -151,17 +140,5 @@ function CategoryContent() {
                 )}
             </div>
         </main>
-    );
-}
-
-export default function CategoryPage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-[#F7F3F4] flex items-center justify-center">
-                <Loader2 className="animate-spin text-dark" size={32} />
-            </div>
-        }>
-            <CategoryContent />
-        </Suspense>
     );
 }

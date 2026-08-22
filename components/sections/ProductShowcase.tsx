@@ -47,7 +47,7 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
 
                 {/* Bottom CTA to view all products in the selected category */}
                 <div className="mt-8 sm:mt-12">
-                    <Link href={activeTab === "bestsellers" ? "/shop?filter=bestsellers" : "/shop?filter=new_arrivals"}>
+                    <Link href={activeTab === "bestsellers" ? "/bestsellers" : "/new-arrivals"}>
                         <GlowingButton variant="outline" className="px-8 sm:px-12 text-xs sm:text-sm">
                             View All {activeTab === "bestsellers" ? "Bestsellers" : "New Arrivals"}
                         </GlowingButton>

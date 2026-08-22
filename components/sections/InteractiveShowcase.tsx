@@ -117,14 +117,14 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
 
     return (
         <section
-            className="w-full py-16 bg-[#FFFFFF] font-sans overflow-hidden border-t border-dark/5"
+            className="w-full pt-16 pb-10 bg-[#FFFFFF] font-sans overflow-hidden border-t border-dark/5"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
             <div className="max-w-screen-2xl mx-auto px-8 md:px-16 lg:px-24 grid grid-cols-1 lg:grid-cols-12 items-center gap-16 lg:gap-12">
 
                 {/* LEFT: 3D Circular Path Carousel */}
-                <div className="relative w-full lg:col-span-7 h-[450px] md:h-[600px] flex items-center justify-center [perspective:1000px]">
+                <div className="relative w-full lg:col-span-7 flex items-center justify-center [perspective:1000px]">
                     {showcaseProducts.map((product, index) => {
                         let diff = index - activeIndex;
                         const total = showcaseProducts.length;

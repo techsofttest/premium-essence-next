@@ -30,10 +30,11 @@ function HeaderRouteTracker({ onClose }: { onClose: () => void }) {
 // Navigation URL Resolution Helpers
 function getCategoryHref(cat: any): string {
     if (!cat) return "/shop";
+    if (cat.name === "All Products") return "/shop";
     if (cat.name === "Brands") return "/brands";
     if (cat.name === "Fragrances") return "/fragrances";
-    if (cat.name === "Bestsellers") return "/shop?filter=bestsellers";
-    if (cat.name === "New Arrivals") return "/shop?filter=new_arrivals";
+    if (cat.name === "Bestsellers") return "/bestsellers";
+    if (cat.name === "New Arrivals") return "/new-arrivals";
     if (cat.name === "Discovery Sets") return "/category/discovery-sets";
     if (cat.name === "Gifting") return "/category/gifting";
     if (cat.href) return cat.href;
@@ -75,6 +76,7 @@ const ANNOUNCEMENTS = [
 ];
 
 const NAV_CATEGORIES = [
+    { name: "All Products", href: "/shop", hasDropdown: false },
     {
         name: "Brands",
         href: "/brands",
@@ -99,8 +101,8 @@ const NAV_CATEGORIES = [
             { title: "Concentration", links: ["Parfum", "Eau de Parfum", "Eau de Toilette", "Perfume Oils"] },
         ]
     },
-    { name: "Bestsellers", href: "/shop?filter=bestsellers", hasDropdown: false },
-    { name: "New Arrivals", href: "/shop?filter=new_arrivals", hasDropdown: false },
+    { name: "Bestsellers", href: "/bestsellers", hasDropdown: false },
+    { name: "New Arrivals", href: "/new-arrivals", hasDropdown: false },
     { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
     { name: "Gifting", href: "/category/gifting", hasDropdown: false },
 ];
@@ -205,6 +207,7 @@ export default function Header() {
 
     // Build categories based on API data or fallback
     const categoriesList = headerData ? [
+        { name: "All Products", href: "/shop", hasDropdown: false },
         {
             name: "Brands",
             href: "/brands",

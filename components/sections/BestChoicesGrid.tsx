@@ -13,7 +13,7 @@ export default function BestChoicesGrid({ products }: BestChoicesGridProps) {
     );
 
     return (
-        <section className="py-24 px-8 bg-[#F7F3F4] border-t border-dark/5">
+        <section className="pt-10 pb-24 px-8 bg-[#F7F3F4] border-t border-dark/5">
             <div className="max-w-screen-2xl mx-auto">
                 
                 {/* Section Header */}

@@ -65,7 +65,7 @@ export default async function AboutPage() {
                 {/* CMS Dynamic Rich Content Block (Editable via Admin Panel) */}
                 <div className="bg-white border border-dark/10 p-8 md:p-14 shadow-sm">
                     <div
-                        className="prose prose-sm md:prose-base max-w-none prose-headings:font-serif prose-headings:text-dark prose-h2:text-2xl prose-h2:md:text-3xl prose-h3:text-lg prose-p:text-dark/80 prose-p:leading-relaxed prose-strong:text-dark"
+                        className="rich-text max-w-none"
                         dangerouslySetInnerHTML={{ __html: contentHtml }}
                     />
                 </div>

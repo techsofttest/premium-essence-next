@@ -92,7 +92,7 @@ export default function DealsCarousel() {
     }
 
     return (
-        <section className="py-24 w-full bg-[#F7F3F4] font-sans overflow-hidden relative group">
+        <section className="pt-10 pb-24 w-full bg-[#F7F3F4] font-sans overflow-hidden relative group">
             <div className="max-w-screen-2xl mx-auto flex flex-col items-center relative w-full">
 
                 {/* Section Header */}

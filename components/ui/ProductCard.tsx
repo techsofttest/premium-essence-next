@@ -30,6 +30,7 @@ export interface Product {
     badge?: "Bestseller" | "New" | "Limited Edition";
     slug?: string;
     variants?: ProductVariantItem[];
+    sizes?: string[];
 }
 
 interface ProductCardProps {
@@ -115,11 +116,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                     <span className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-dark/60 truncate">
                         {product.brand}
                     </span>
-                    <div className="flex items-center gap-1 text-[11px] sm:text-xs text-dark/80 shrink-0">
-                        <Star size={11} className="fill-[#D4AF37] text-[#D4AF37]" />
-                        <span>{product.rating}</span>
-                        <span className="text-dark/40">({product.reviews})</span>
-                    </div>
+                    {Boolean(product.rating && product.reviews) && (
+                        <div className="flex items-center gap-1 text-[11px] sm:text-xs text-dark/80 shrink-0">
+                            <Star size={11} className="fill-[#D4AF37] text-[#D4AF37]" />
+                            <span>{product.rating}</span>
+                            <span className="text-dark/40">({product.reviews})</span>
+                        </div>
+                    )}
                 </div>
 
                 <Link href={`/product/${product.slug || product.id}`}>
@@ -127,6 +130,16 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {product.name}
                     </h3>
                 </Link>
+
+                {/* Size count display */}
+                {(() => {
+                    const sizeCount = product.variants?.length || (product.sizes?.length ?? 1);
+                    return (
+                        <p className="text-[10px] sm:text-xs text-dark/60 font-medium">
+                            {sizeCount} {sizeCount === 1 ? "Size" : "Sizes"}
+                        </p>
+                    );
+                })()}
 
                 {/* Pricing & Mobile Quick Add */}
                 <div className="flex items-center justify-between mt-1">
