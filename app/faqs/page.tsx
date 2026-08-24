@@ -6,6 +6,7 @@ import Link from "next/link";
 import { HelpCircle, ChevronDown, Search, Mail, Phone, Loader2, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import { useContactSettings } from "@/context/ContactContext";
 
 interface FaqItem {
     id: number;
@@ -15,6 +16,7 @@ interface FaqItem {
 }
 
 export default function FaqsPage() {
+    const { contactSettings } = useContactSettings();
     const [faqs, setFaqs] = useState<FaqItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -138,18 +140,22 @@ export default function FaqsPage() {
                         Our fragrance advisors are at your service for personal scent recommendations and order assistance.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a
-                            href="mailto:sales@premium-perfumes.com"
-                            className="inline-flex items-center gap-2 bg-dark text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors w-full sm:w-auto justify-center"
-                        >
-                            <Mail size={14} /> Email Advisor
-                        </a>
-                        <a
-                            href="tel:+971557232010"
-                            className="inline-flex items-center gap-2 border border-dark/20 text-dark px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-dark hover:text-white transition-colors w-full sm:w-auto justify-center"
-                        >
-                            <Phone size={14} /> +971 55 723 2010
-                        </a>
+                        {contactSettings.email && (
+                            <a
+                                href={`mailto:${contactSettings.email}`}
+                                className="inline-flex items-center gap-2 bg-dark text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors w-full sm:w-auto justify-center"
+                            >
+                                <Mail size={14} /> Email Advisor ({contactSettings.email})
+                            </a>
+                        )}
+                        {contactSettings.phone && (
+                            <a
+                                href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
+                                className="inline-flex items-center gap-2 border border-dark/20 text-dark px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-dark hover:text-white transition-colors w-full sm:w-auto justify-center"
+                            >
+                                <Phone size={14} /> {contactSettings.phone}
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>

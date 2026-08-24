@@ -106,8 +106,8 @@ const NAV_CATEGORIES = [
 
     { name: "All Products", href: "/shop", hasDropdown: false },
 
-    { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
-    { name: "Gifting", href: "/category/gifting", hasDropdown: false },
+    // { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
+    // { name: "Gifting", href: "/category/gifting", hasDropdown: false },
 ];
 
 export default function Header() {

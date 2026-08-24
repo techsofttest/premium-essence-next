@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
+import { useContactSettings } from "@/context/ContactContext";
 
 // Inline SVGs for brand icons removed from lucide-react
 const Facebook = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
@@ -34,6 +35,14 @@ const Youtube = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
     </svg>
 );
 
+const Linkedin = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+    </svg>
+);
+
 interface MarqueeItem {
     name: string;
     slug: string;
@@ -52,6 +61,7 @@ const DEFAULT_MARQUEE_ITEMS: MarqueeItem[] = [
 ];
 
 export default function Footer() {
+    const { contactSettings } = useContactSettings();
     const [items, setItems] = useState<MarqueeItem[]>(DEFAULT_MARQUEE_ITEMS);
 
     useEffect(() => {
@@ -173,8 +183,8 @@ export default function Footer() {
                                 <li><Link href="/fragrances?family=niche" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Niche Fragrances</Link></li>
                                 <li><Link href="/fragrances?concentration=eau-de-parfum" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Extrait de Parfum</Link></li>
                                 <li><Link href="/fragrances?family=oud" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Signature Oud Collection</Link></li>
-                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
-                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li>
+                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
+                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li> */}
                                 <li><Link href="/shop?filter=new_arrivals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
                             </ul>
                         </div>
@@ -205,25 +215,35 @@ export default function Footer() {
                             </ul>
                         </div>
 
-                        {/* Column 4: Contact Us (Details from Client PDF) */}
+                        {/* Column 4: Contact Us */}
                         <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0 lg:border-r border-dark/10 md:pl-8 lg:px-8">
                             <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Contact Us</h4>
                             <div className="flex flex-col gap-4 text-sm text-dark/70 leading-relaxed">
                                 <p>
-                                    Premium Essence Perfumes LLC<br />
-                                    Musaffah, M/9, Abu Dhabi, UAE<br />
-                                    PO Box: 92282
+                                    <strong>{contactSettings.company_name}</strong><br />
+                                    {contactSettings.address}
                                 </p>
                                 <div className="flex flex-col gap-1 mt-2">
-                                    <a href="mailto:sales@premium-perfumes.com" className="hover:text-[#D4AF37] transition-colors underline underline-offset-4 decoration-dark/20">
-                                        sales@premium-perfumes.com
-                                    </a>
-                                    <a href="tel:+971557232010" className="hover:text-[#D4AF37] transition-colors mt-2 block">
-                                        Mob: +971 55 723 2010
-                                    </a>
-                                    <a href="tel:025508990" className="hover:text-[#D4AF37] transition-colors block">
-                                        Tel: 02 550 8990
-                                    </a>
+                                    {contactSettings.email && (
+                                        <a href={`mailto:${contactSettings.email}`} className="hover:text-[#D4AF37] transition-colors underline underline-offset-4 decoration-dark/20">
+                                            {contactSettings.email}
+                                        </a>
+                                    )}
+                                    {contactSettings.phone && (
+                                        <a href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`} className="hover:text-[#D4AF37] transition-colors mt-2 block">
+                                            Mob: {contactSettings.phone}
+                                        </a>
+                                    )}
+                                    {contactSettings.telephone && (
+                                        <a href={`tel:${contactSettings.telephone.replace(/\s+/g, '')}`} className="hover:text-[#D4AF37] transition-colors block">
+                                            Tel: {contactSettings.telephone}
+                                        </a>
+                                    )}
+                                    {contactSettings.whatsapp && (
+                                        <a href={`https://wa.me/${contactSettings.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] transition-colors block">
+                                            WhatsApp: {contactSettings.whatsapp}
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -253,20 +273,33 @@ export default function Footer() {
                                 Plus, you'll be the first to know about our private sales.
                             </p>
 
-                            {/* Social Icons */}
+                            {/* Dynamic Social Icons (Hidden if DB column is empty) */}
                             <div className="flex items-center gap-6 text-dark/70">
-                                <a href="#" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                    <Facebook size={20} strokeWidth={1.5} />
-                                </a>
-                                <a href="#" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                    <Twitter size={20} strokeWidth={1.5} />
-                                </a>
-                                <a href="#" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                    <Instagram size={20} strokeWidth={1.5} />
-                                </a>
-                                <a href="#" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                    <Youtube size={20} strokeWidth={1.5} />
-                                </a>
+                                {contactSettings.facebook_url && contactSettings.facebook_url.trim() !== "" && (
+                                    <a href={contactSettings.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Facebook size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+                                {contactSettings.twitter_url && contactSettings.twitter_url.trim() !== "" && (
+                                    <a href={contactSettings.twitter_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Twitter size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+                                {contactSettings.instagram_url && contactSettings.instagram_url.trim() !== "" && (
+                                    <a href={contactSettings.instagram_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Instagram size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+                                {contactSettings.youtube_url && contactSettings.youtube_url.trim() !== "" && (
+                                    <a href={contactSettings.youtube_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Youtube size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+                                {contactSettings.linkedin_url && contactSettings.linkedin_url.trim() !== "" && (
+                                    <a href={contactSettings.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Linkedin size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
                             </div>
                         </div>
 

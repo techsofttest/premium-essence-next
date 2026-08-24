@@ -7,6 +7,7 @@ import Footer from "@/components/global/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { ContactProvider } from "@/context/ContactContext";
 import AddToCartModal from "@/components/ui/AddToCartModal";
 import CartDrawer from "@/components/ui/CartDrawer";
 
@@ -16,21 +17,23 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
     return (
         <AuthProvider>
-            <WishlistProvider>
-                <CartProvider>
-                    {!isAuthPage && (
-                        <Suspense fallback={null}>
-                            <Header />
-                        </Suspense>
-                    )}
-                    <main className="flex-1 flex flex-col">
-                        {children}
-                    </main>
-                    {!isAuthPage && <Footer />}
-                    <AddToCartModal />
-                    <CartDrawer />
-                </CartProvider>
-            </WishlistProvider>
+            <ContactProvider>
+                <WishlistProvider>
+                    <CartProvider>
+                        {!isAuthPage && (
+                            <Suspense fallback={null}>
+                                <Header />
+                            </Suspense>
+                        )}
+                        <main className="flex-1 flex flex-col">
+                            {children}
+                        </main>
+                        {!isAuthPage && <Footer />}
+                        <AddToCartModal />
+                        <CartDrawer />
+                    </CartProvider>
+                </WishlistProvider>
+            </ContactProvider>
         </AuthProvider>
     );
 }
