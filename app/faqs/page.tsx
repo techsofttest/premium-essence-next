@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { HelpCircle, ChevronDown, Search, Mail, Phone, Loader2, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface FaqItem {
     id: number;
@@ -35,6 +36,7 @@ export default function FaqsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="faqs" />
             {/* Hero Header with Banner 3 */}
             <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 text-center overflow-hidden">
                 <Image

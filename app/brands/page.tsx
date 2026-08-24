@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface BrandItem {
     id: number;
@@ -58,6 +59,7 @@ export default function BrandsPage() {
 
     return (
         <main className="relative w-full min-h-screen pt-8 pb-24 overflow-hidden font-sans bg-[#1B1315]">
+            <SeoHead pageSlug="brands" />
 
             {/* 1. Base Sky Background */}
             <div className="absolute inset-0 z-0 pointer-events-none">

@@ -9,6 +9,7 @@ import ProductGallery from "@/components/product-detail/ProductGallery";
 import ProductInfo from "@/components/product-detail/ProductInfo";
 import ProductTabs from "@/components/product-detail/ProductTabs";
 import { getStorefrontProductDetail, getStorefrontProducts, StorefrontProduct } from "@/lib/storefront";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -104,6 +105,15 @@ export default function ProductDetailPage() {
 
     return (
         <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-20">
+            <SeoHead
+                pageSlug={`product-${productDetail?.slug || id}`}
+                fallbackTitle={`${productDetail?.name || "Product"} | Premium Essence`}
+                fallbackDescription={productDetail?.description ? productDetail.description.replace(/<[^>]*>?/gm, '').slice(0, 160) : undefined}
+                fallbackKeywords={productDetail?.top_notes || productDetail?.category?.name || "luxury fragrance"}
+                overrideTitle={productDetail?.meta_title}
+                overrideDescription={productDetail?.meta_description}
+                overrideKeywords={productDetail?.meta_keywords}
+            />
             <style jsx global>{`
                 .product-gallery-scroll {
                     scrollbar-width: none;

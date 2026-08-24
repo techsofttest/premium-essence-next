@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import ProductCatalogView from "@/components/shop/ProductCatalogView";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default function ShopPage() {
     return (
@@ -11,6 +12,7 @@ export default function ShopPage() {
                 <Loader2 className="animate-spin text-dark" size={32} />
             </div>
         }>
+            <SeoHead pageSlug="shop" />
             <ProductCatalogView
                 title="All Perfumes & Fragrances"
                 subtitle="Browse our complete collection of luxury fragrances, Eau de Parfum, Extrait de Parfum, and Niche perfume houses."

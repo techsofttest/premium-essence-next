@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, MessageSquare, Sparkles, Building2 } from "lucide-react";
 import ContactForm from "@/components/global/ContactForm";
 import ContactSection from "@/components/global/ContactSection";
+import SeoHead from "@/components/seo/SeoHead";
 
 export const metadata = {
     title: "Contact Us | Premium Essence Perfumes LLC",
@@ -12,6 +13,7 @@ export const metadata = {
 export default function ContactPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="contact-us" />
             {/* Hero Header with Banner 2 */}
             <div className="relative bg-[#1B1315] text-[#E9D7C3] py-28 px-6 md:px-12 text-center border-b border-[#C5A059]/20 overflow-hidden">
                 <Image

@@ -35,6 +35,9 @@ export type StorefrontProduct = {
     middle_notes_list?: string[];
     base_notes_list?: string[];
     reviews?: StorefrontReview[];
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string | null;
 };
 
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");

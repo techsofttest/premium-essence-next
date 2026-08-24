@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Calendar, User, ArrowRight, Search, Sparkles, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface JournalArticle {
     id: number;
@@ -46,6 +47,7 @@ export default function JournalsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="journals" />
             {/* Hero Header with Banner 3 (matching FAQ page) */}
             <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 lg:px-20 text-center overflow-hidden">
                 <Image

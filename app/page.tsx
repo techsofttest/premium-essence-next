@@ -10,6 +10,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import ProductCarousel from "@/components/sections/ProductCarousel";
 import BestChoicesGrid from "@/components/sections/BestChoicesGrid";
 import { getStorefrontHome, getStorefrontProducts } from "@/lib/storefront";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default async function Home() {
   const [homeData, fallbackProducts] = await Promise.all([
@@ -45,6 +46,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
+      <SeoHead pageSlug="home" />
       {/* Full-width Slider */}
       <HeroSlider initialBanners={homeData?.banners} />
 

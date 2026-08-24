@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface CmsPageData {
     title: string;
@@ -27,6 +28,7 @@ export default function TermsAndConditionsPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="terms-and-conditions" />
             {/* Header with Banner 2 */}
             <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
                 <Image

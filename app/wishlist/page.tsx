@@ -6,6 +6,7 @@ import ProductCard from "@/components/ui/ProductCard";
 import ProductBanner from "@/components/sections/ProductBanner";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default function WishlistPage() {
     const { customer, loading: authLoading } = useAuth();
@@ -14,6 +15,7 @@ export default function WishlistPage() {
     if (authLoading || wishlistLoading) {
         return (
             <main className="w-full bg-[#F7F3F4] min-h-screen font-sans py-32 flex items-center justify-center">
+                <SeoHead pageSlug="wishlist" />
                 <div className="text-center flex flex-col items-center gap-4">
                     <span className="w-8 h-8 border-2 border-dark border-t-transparent rounded-full animate-spin" />
                     <span className="text-xs uppercase tracking-widest text-dark font-bold">Loading Your Wishlist...</span>

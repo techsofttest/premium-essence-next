@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Truck, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface CmsPageData {
     title: string;
@@ -25,6 +26,7 @@ export default function ShippingPolicyPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="shipping-policy" />
             <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
                 <Image
                     src="/banners/banner1.jpg"

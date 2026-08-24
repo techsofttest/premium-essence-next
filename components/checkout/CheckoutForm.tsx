@@ -47,6 +47,18 @@ export default function CheckoutForm() {
     const [deliveryNotes, setDeliveryNotes] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<"stripe" | "cod">("stripe");
 
+    // Billing Address State
+    const [billingSameAsShipping, setBillingSameAsShipping] = useState<boolean>(true);
+    const [billingFirstName, setBillingFirstName] = useState("");
+    const [billingLastName, setBillingLastName] = useState("");
+    const [billingPhone, setBillingPhone] = useState("");
+    const [billingAddressLine1, setBillingAddressLine1] = useState("");
+    const [billingAddressLine2, setBillingAddressLine2] = useState("");
+    const [billingCity, setBillingCity] = useState("Dubai");
+    const [billingState, setBillingState] = useState("Dubai");
+    const [billingPostcode, setBillingPostcode] = useState("00000");
+    const [billingCountry, setBillingCountry] = useState("United Arab Emirates");
+
     const [isProcessing, setIsProcessing] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -192,6 +204,42 @@ export default function CheckoutForm() {
                 customer_name: contactName,
                 customer_email: email,
                 customer_phone: phone,
+                billing_same_as_shipping: billingSameAsShipping,
+                delivery_details: {
+                    contact_name: contactName,
+                    email,
+                    phone,
+                    address_line_1: addressLine1,
+                    address_line_2: addressLine2 || "N/A",
+                    suburb,
+                    city,
+                    state,
+                    postcode: postcode || "00000",
+                    country,
+                    delivery_notes: deliveryNotes,
+                },
+                billing_details: billingSameAsShipping ? {
+                    contact_name: contactName,
+                    email,
+                    phone,
+                    address_line_1: addressLine1,
+                    address_line_2: addressLine2 || "N/A",
+                    suburb,
+                    city,
+                    state,
+                    postcode: postcode || "00000",
+                    country,
+                } : {
+                    contact_name: `${billingFirstName} ${billingLastName}`.trim() || contactName,
+                    email,
+                    phone: billingPhone || phone,
+                    address_line_1: billingAddressLine1,
+                    address_line_2: billingAddressLine2 || "N/A",
+                    city: billingCity,
+                    state: billingState,
+                    postcode: billingPostcode || "00000",
+                    country: billingCountry,
+                },
                 address: {
                     contact_name: contactName,
                     email,
@@ -437,7 +485,7 @@ export default function CheckoutForm() {
 
                     {customer && selectedAddressId === "new" && (
                         <div className="md:col-span-2 mt-2">
-                            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-dark/80">
+                            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-dark/80 select-none">
                                 <input
                                     type="checkbox"
                                     checked={saveAddressToProfile}
@@ -449,6 +497,132 @@ export default function CheckoutForm() {
                         </div>
                     )}
                 </div>
+
+                {/* Billing Address Checkbox Toggle */}
+                <div className="mt-8 pt-6 border-t border-dark/10">
+                    <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-dark select-none">
+                        <input
+                            type="checkbox"
+                            checked={billingSameAsShipping}
+                            onChange={(e) => setBillingSameAsShipping(e.target.checked)}
+                            className="w-4 h-4 accent-dark"
+                        />
+                        <span>Billing address is same as shipping address</span>
+                    </label>
+                </div>
+
+                {/* Separate Billing Address Input Fields */}
+                {!billingSameAsShipping && (
+                    <div className="mt-6 pt-6 border-t border-dark/10 flex flex-col gap-6">
+                        <h3 className="text-[10px] tracking-[0.2em] uppercase font-bold text-dark/70">
+                            Billing Address Details
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing First Name *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    placeholder="First Name"
+                                    value={billingFirstName}
+                                    onChange={(e) => setBillingFirstName(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Last Name *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    placeholder="Last Name"
+                                    value={billingLastName}
+                                    onChange={(e) => setBillingLastName(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 md:col-span-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Phone *</label>
+                                <input
+                                    type="tel"
+                                    required={!billingSameAsShipping}
+                                    placeholder="+971 50 123 4567"
+                                    value={billingPhone}
+                                    onChange={(e) => setBillingPhone(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 md:col-span-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Street Address *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    placeholder="Building, Street, Area"
+                                    value={billingAddressLine1}
+                                    onChange={(e) => setBillingAddressLine1(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 md:col-span-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Apartment / Suite (Optional)</label>
+                                <input
+                                    type="text"
+                                    placeholder="Apartment, Suite, Unit Number"
+                                    value={billingAddressLine2}
+                                    onChange={(e) => setBillingAddressLine2(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing City *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    placeholder="Dubai"
+                                    value={billingCity}
+                                    onChange={(e) => setBillingCity(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Emirate / State *</label>
+                                <select
+                                    value={billingState}
+                                    onChange={(e) => setBillingState(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors appearance-none"
+                                >
+                                    <option value="Dubai">Dubai</option>
+                                    <option value="Abu Dhabi">Abu Dhabi</option>
+                                    <option value="Sharjah">Sharjah</option>
+                                    <option value="Ajman">Ajman</option>
+                                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                                    <option value="Fujairah">Fujairah</option>
+                                    <option value="Umm Al Quwain">Umm Al Quwain</option>
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Postal / Zip Code *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    placeholder="e.g. 92282 or 00000"
+                                    value={billingPostcode}
+                                    onChange={(e) => setBillingPostcode(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Billing Country *</label>
+                                <input
+                                    type="text"
+                                    required={!billingSameAsShipping}
+                                    value={billingCountry}
+                                    onChange={(e) => setBillingCountry(e.target.value)}
+                                    className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </section>
 
             {/* 3. Delivery Method */}

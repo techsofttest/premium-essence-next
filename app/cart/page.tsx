@@ -5,6 +5,7 @@ import CartHeader from "@/components/cart/CartHeader";
 import CartItem from "@/components/cart/CartItem";
 import OrderSummary from "@/components/cart/OrderSummary";
 import { useCart } from "@/context/CartContext";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default function CartPage() {
     const { cartItems, updateQuantity, removeFromCart, shippingSettings } = useCart();
@@ -15,11 +16,17 @@ export default function CartPage() {
     const total = subtotal + shipping;
 
     if (cartItems.length === 0) {
-        return <EmptyCart />;
+        return (
+            <>
+                <SeoHead pageSlug="cart" />
+                <EmptyCart />
+            </>
+        );
     }
 
     return (
         <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-32">
+            <SeoHead pageSlug="cart" />
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 py-12">
                 <CartHeader title="Shopping Bag" itemCount={cartItems.length} currentStep={1} />
 

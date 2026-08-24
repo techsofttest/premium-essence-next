@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
+import SeoHead from "@/components/seo/SeoHead";
 
 export default function BestsellersPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -47,6 +48,7 @@ export default function BestsellersPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="bestsellers" />
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-10">
                 
                 {/* Breadcrumb Navigation */}

@@ -24,8 +24,31 @@ interface AccountOrder {
     date: string;
     status: string;
     payment_status: string;
+    payment_method?: string;
+    subtotal?: number;
+    shipping_cost?: number;
+    discount?: number;
     grand_total: number;
     items_count?: number;
+    billing_same_as_shipping?: boolean;
+    shipping_address?: {
+        name?: string;
+        phone?: string;
+        street?: string;
+        city?: string;
+        state?: string;
+        postcode?: string;
+        country?: string;
+    };
+    billing_address?: {
+        name?: string;
+        phone?: string;
+        street?: string;
+        city?: string;
+        state?: string;
+        postcode?: string;
+        country?: string;
+    };
     items?: OrderItem[];
 }
 
@@ -259,6 +282,37 @@ export default function AccountOrdersPage() {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Expanded Details Panel */}
+                                    {isExpanded && (
+                                        <div className="p-6 md:p-8 bg-white border-t border-dark/10 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-dark">
+                                            {/* Shipping Address */}
+                                            <div className="p-4 bg-[#F7F3F4] border border-dark/5">
+                                                <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 mb-2">Shipping Address</h4>
+                                                <p className="font-bold">{order.shipping_address?.name || customer?.name}</p>
+                                                <p className="text-dark/80 mt-1">{order.shipping_address?.street}</p>
+                                                <p className="text-dark/70">{order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.postcode}</p>
+                                                <p className="text-dark/70">{order.shipping_address?.country}</p>
+                                                {order.shipping_address?.phone && <p className="text-dark/60 mt-1">Tel: {order.shipping_address.phone}</p>}
+                                            </div>
+
+                                            {/* Billing Address */}
+                                            <div className="p-4 bg-[#F7F3F4] border border-dark/5">
+                                                <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 mb-2">Billing Address</h4>
+                                                {order.billing_same_as_shipping || !order.billing_address?.street ? (
+                                                    <p className="italic text-dark/60">Same as Shipping Address</p>
+                                                ) : (
+                                                    <>
+                                                        <p className="font-bold">{order.billing_address.name || customer?.name}</p>
+                                                        <p className="text-dark/80 mt-1">{order.billing_address.street}</p>
+                                                        <p className="text-dark/70">{order.billing_address.city}, {order.billing_address.state} {order.billing_address.postcode}</p>
+                                                        <p className="text-dark/70">{order.billing_address.country}</p>
+                                                        {order.billing_address.phone && <p className="text-dark/60 mt-1">Tel: {order.billing_address.phone}</p>}
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     )}

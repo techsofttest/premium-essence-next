@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, ShieldCheck, Award } from "lucide-react";
+import SeoHead from "@/components/seo/SeoHead";
 
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
 
@@ -36,6 +37,7 @@ export default async function AboutPage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead pageSlug="about-us" />
             {/* Hero Header with Banner 1 */}
             <div className="relative bg-[#1B1315] text-[#E9D7C3] py-28 px-6 md:px-12 text-center border-b border-[#C5A059]/20 overflow-hidden">
                 <Image
