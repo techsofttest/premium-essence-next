@@ -19,44 +19,11 @@ export default function FaqsPage() {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-    const DEFAULT_FAQS: FaqItem[] = [
-        {
-            id: 1,
-            question: "Are all perfumes sold on Premium Essence 100% authentic originals?",
-            answer: "Yes, absolutely. We source exclusively from authorized European and Middle Eastern perfume houses, official distributors, and certified brand laboratories. Every bottle comes sealed in its original luxury packaging with official batch codes."
-        },
-        {
-            id: 2,
-            question: "How fast is delivery within the UAE?",
-            answer: "Orders placed before 2:00 PM GST are dispatched on the same day. Urban deliveries across Abu Dhabi, Dubai, and Sharjah typically arrive within 24 to 48 hours. Direct driver fulfillment is available for select Abu Dhabi postcodes."
-        },
-        {
-            id: 3,
-            question: "What is your return & exchange policy?",
-            answer: "We offer a 14-day return and exchange period for unused, unopened items in their original shrink-wrapped packaging. Opened perfume bottles cannot be returned due to international cosmetics safety standards."
-        },
-        {
-            id: 4,
-            question: "How do I choose between Eau de Parfum and Extrait de Parfum?",
-            answer: "Extrait de Parfum contains the highest concentration of essential perfume oils (20%–40%), providing unmatched longevity and skin intimacy. Eau de Parfum contains 15%–20% oil concentration, providing exceptional projection and radiance throughout the day."
-        },
-        {
-            id: 5,
-            question: "What payment methods do you accept?",
-            answer: "We accept Visa, MasterCard, American Express, Apple Pay via Stripe's encrypted payment gateway. Cash on Delivery (COD) is also supported across all UAE Emirates."
-        },
-        {
-            id: 6,
-            question: "How should I store my luxury perfume to preserve scent quality?",
-            answer: "Store your fragrance bottles in a cool, dark place away from direct sunlight, ambient heat, and bathroom humidity. Keeping your flacon in its original luxury box preserves the delicate essential oil accords for years."
-        }
-    ];
-
     useEffect(() => {
         setLoading(true);
         api<FaqItem[]>("/storefront/faqs")
-            .then((data) => setFaqs(Array.isArray(data) && data.length > 0 ? data : DEFAULT_FAQS))
-            .catch(() => setFaqs(DEFAULT_FAQS))
+            .then((data) => setFaqs(Array.isArray(data) ? data : []))
+            .catch(() => setFaqs([]))
             .finally(() => setLoading(false));
     }, []);
 
@@ -113,14 +80,22 @@ export default function FaqsPage() {
                 ) : filteredFaqs.length === 0 ? (
                     <div className="bg-white border border-dark/10 p-12 text-center shadow-sm">
                         <HelpCircle size={36} className="mx-auto text-dark/30 mb-4" />
-                        <h2 className="font-serif text-2xl text-dark">No Matching Questions</h2>
-                        <p className="text-xs text-dark/60 mt-1 mb-6">Try searching for different terms or contact our concierge.</p>
-                        <button
-                            onClick={() => setSearchQuery("")}
-                            className="bg-dark text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors"
-                        >
-                            Clear Search
-                        </button>
+                        <h2 className="font-serif text-2xl text-dark">
+                            {searchQuery ? "No Matching Questions" : "No Questions Available"}
+                        </h2>
+                        <p className="text-xs text-dark/60 mt-1 mb-6">
+                            {searchQuery
+                                ? "Try searching for different terms or clear your search query."
+                                : "No frequently asked questions have been published yet. Please feel free to contact our concierge team below."}
+                        </p>
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="bg-dark text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors"
+                            >
+                                Clear Search
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-4">

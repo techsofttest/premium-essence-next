@@ -76,19 +76,6 @@ const ANNOUNCEMENTS = [
 ];
 
 const NAV_CATEGORIES = [
-    { name: "All Products", href: "/shop", hasDropdown: false },
-    {
-        name: "Brands",
-        href: "/brands",
-        hasDropdown: true,
-        featuredImage: "/products/The Alchemist's Garden 1.png",
-        featuredText: "The Art of Layering",
-        subCategories: [
-            { title: "Designer Houses", links: ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"] },
-            { title: "Prestige & Niche", links: ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"] },
-            { title: "Classic Elegance", links: ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"] },
-        ]
-    },
     {
         name: "Fragrances",
         href: "/fragrances",
@@ -101,8 +88,24 @@ const NAV_CATEGORIES = [
             { title: "Concentration", links: ["Parfum", "Eau de Parfum", "Eau de Toilette", "Perfume Oils"] },
         ]
     },
+    {
+        name: "Brands",
+        href: "/brands",
+        hasDropdown: true,
+        featuredImage: "/products/The Alchemist's Garden 1.png",
+        featuredText: "The Art of Layering",
+        subCategories: [
+            { title: "Designer Houses", links: ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"] },
+            { title: "Prestige & Niche", links: ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"] },
+            { title: "Classic Elegance", links: ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"] },
+        ]
+    },
+
     { name: "Bestsellers", href: "/bestsellers", hasDropdown: false },
     { name: "New Arrivals", href: "/new-arrivals", hasDropdown: false },
+
+    { name: "All Products", href: "/shop", hasDropdown: false },
+
     { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
     { name: "Gifting", href: "/category/gifting", hasDropdown: false },
 ];
@@ -207,28 +210,6 @@ export default function Header() {
 
     // Build categories based on API data or fallback
     const categoriesList = headerData ? [
-        { name: "All Products", href: "/shop", hasDropdown: false },
-        {
-            name: "Brands",
-            href: "/brands",
-            hasDropdown: true,
-            featuredImage: "/products/The Alchemist's Garden 1.png",
-            featuredText: "The Art of Layering",
-            subCategories: [
-                {
-                    title: "Designer Houses",
-                    links: headerData.brands_by_classification?.["Designer Houses"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"]
-                },
-                {
-                    title: "Prestige & Niche",
-                    links: headerData.brands_by_classification?.["Prestige & Niche"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"]
-                },
-                {
-                    title: "Classic Elegance",
-                    links: headerData.brands_by_classification?.["Classic Elegance"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"]
-                },
-            ]
-        },
         {
             name: "Fragrances",
             href: "/fragrances",
@@ -250,10 +231,37 @@ export default function Header() {
                 },
             ]
         },
+
+        {
+            name: "Brands",
+            href: "/brands",
+            hasDropdown: true,
+            featuredImage: "/products/The Alchemist's Garden 1.png",
+            featuredText: "The Art of Layering",
+            subCategories: [
+                {
+                    title: "Designer Houses",
+                    links: headerData.brands_by_classification?.["Designer Houses"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"]
+                },
+                {
+                    title: "Prestige & Niche",
+                    links: headerData.brands_by_classification?.["Prestige & Niche"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"]
+                },
+                {
+                    title: "Classic Elegance",
+                    links: headerData.brands_by_classification?.["Classic Elegance"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"]
+                },
+            ]
+        },
+
         { name: "Bestsellers", href: "/shop?sort=featured", hasDropdown: false },
         { name: "New Arrivals", href: "/shop?sort=latest", hasDropdown: false },
+
+        { name: "All Products", href: "/shop", hasDropdown: false },
+
         { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
         { name: "Gifting", href: "/category/gifting", hasDropdown: false },
+
     ] : NAV_CATEGORIES;
 
     // Scroll Behavior
