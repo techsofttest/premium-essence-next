@@ -198,7 +198,7 @@ export default function Footer() {
                                 <li><Link href="/privacy-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Privacy Policy</Link></li>
                                 <li><Link href="/refund-and-return" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Refund & Return</Link></li>
                                 <li><Link href="/shipping-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Shipping Policy</Link></li>
-                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Corporate Gifting</Link></li>
+                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Corporate Gifting</Link></li> */}
                             </ul>
                         </div>
 
@@ -211,7 +211,7 @@ export default function Footer() {
                                 <li><Link href="/track-order" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Order Tracking</Link></li>
                                 <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">All Products</Link></li>
                                 <li><Link href="/faqs" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">FAQ</Link></li>
-                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Sitemap</Link></li>
+                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Sitemap</Link></li> */}
                             </ul>
                         </div>
 
