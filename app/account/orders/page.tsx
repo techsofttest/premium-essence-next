@@ -56,7 +56,7 @@ export default function AccountOrdersPage() {
     const { customer, loading: authLoading } = useAuth();
     const [orders, setOrders] = useState<AccountOrder[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<string>("paid"); // Default filter: Completed/Paid orders
+    const [activeTab, setActiveTab] = useState<string>("all"); // Default filter: All orders
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
