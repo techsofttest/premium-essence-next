@@ -554,11 +554,20 @@ export default function Header() {
                         <div className="p-6 max-h-[60vh] overflow-y-auto bg-[#FAFAF8]">
                             {/* ... Search results mapping logic ... */}
                             {searchQuery && searchResults.products.length > 0 && (
-                                <div className="space-y-4">
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] uppercase tracking-widest text-dark/40 font-bold mb-2">Products ({searchResults.products.length})</h4>
                                     {searchResults.products.map((p: any) => (
-                                        <Link key={p.id} href={`/product/${p.slug}`} onClick={() => setIsSearchModalOpen(false)} className="flex items-center justify-between border-b border-dark/5 pb-3">
-                                            <span className="font-serif text-lg">{p.name}</span>
-                                            <span className="text-xs font-bold">{p.price} AED</span>
+                                        <Link key={p.id} href={`/product/${p.slug}`} onClick={() => setIsSearchModalOpen(false)} className="flex items-center justify-between border-b border-dark/5 pb-3 hover:opacity-80 transition-opacity">
+                                            <div className="flex flex-col">
+                                                <span className="font-serif text-base text-dark font-medium">{p.name}</span>
+                                                {p.brand?.name && <span className="text-[10px] uppercase tracking-wider text-dark/50">{p.brand.name}</span>}
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                {p.in_stock === false && (
+                                                    <span className="text-[9px] uppercase tracking-widest bg-red-100 text-red-700 px-2 py-0.5 font-bold rounded-sm">Out of Stock</span>
+                                                )}
+                                                <span className="text-xs font-bold text-dark font-mono">{p.price} AED</span>
+                                            </div>
                                         </Link>
                                     ))}
                                 </div>
