@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 import { useContactSettings } from "@/context/ContactContext";
 
@@ -173,7 +173,7 @@ export default function Footer() {
                 <div className="relative z-10 max-w-screen-2xl mx-auto">
 
                     {/* Main Responsive Grid with clean divider lines */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 mb-20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-y-12 mb-20">
 
                         {/* Column 1: Collections */}
                         <div className="flex flex-col pb-8 lg:pb-0 border-b lg:border-b-0 lg:border-r border-dark/10 pr-4 lg:pr-8">
@@ -216,7 +216,7 @@ export default function Footer() {
                         </div>
 
                         {/* Column 4: Contact Us */}
-                        <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0  border-dark/10 md:pl-8 lg:px-8">
+                        <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0 lg:border-r border-dark/10 md:pl-8 lg:px-8">
                             <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Contact Us</h4>
                             <div className="flex flex-col gap-4 text-sm text-dark/70 leading-relaxed">
                                 <p>
@@ -246,51 +246,13 @@ export default function Footer() {
                                     )}
                                 </div>
                             </div>
-
-                            <div className="flex items-center gap-6 text-dark/70 pt-4">
-                                {contactSettings.facebook_url && contactSettings.facebook_url.trim() !== "" && (
-                                    <a href={contactSettings.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Facebook size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.twitter_url && contactSettings.twitter_url.trim() !== "" && (
-                                    <a href={contactSettings.twitter_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <svg
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="currentColor"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.963 6.817H1.684l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
-                                        </svg>
-                                    </a>
-                                )}
-                                {contactSettings.instagram_url && contactSettings.instagram_url.trim() !== "" && (
-                                    <a href={contactSettings.instagram_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Instagram size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.youtube_url && contactSettings.youtube_url.trim() !== "" && (
-                                    <a href={contactSettings.youtube_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Youtube size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.linkedin_url && contactSettings.linkedin_url.trim() !== "" && (
-                                    <a href={contactSettings.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Linkedin size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                            </div>
-
-
                         </div>
 
                         {/* Column 5: Exclusive Newsletter */}
-                        {/* <div className="flex flex-col pt-8 lg:pt-0 lg:pl-8"> */}
-                        {/* <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Exclusive</h4>
+                        <div className="flex flex-col pt-8 lg:pt-0 lg:pl-8">
+                            <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Exclusive</h4>
 
-                           
+                            {/* Elegant Input Field */}
                             <form className="relative mb-6 group">
                                 <input
                                     type="email"
@@ -309,10 +271,10 @@ export default function Footer() {
                                 Sign up here to get the latest news, updates and special offers delivered to your inbox.
                                 <br /><br />
                                 Plus, you'll be the first to know about our private sales.
-                            </p> */}
+                            </p>
 
-                        {/* Dynamic Social Icons (Hidden if DB column is empty) */}
-                        {/* <div className="flex items-center gap-6 text-dark/70">
+                            {/* Dynamic Social Icons (Hidden if DB column is empty) */}
+                            <div className="flex items-center gap-6 text-dark/70">
                                 {contactSettings.facebook_url && contactSettings.facebook_url.trim() !== "" && (
                                     <a href={contactSettings.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
                                         <Facebook size={20} strokeWidth={1.5} />
@@ -320,15 +282,7 @@ export default function Footer() {
                                 )}
                                 {contactSettings.twitter_url && contactSettings.twitter_url.trim() !== "" && (
                                     <a href={contactSettings.twitter_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <svg
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="currentColor"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.963 6.817H1.684l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
-                                        </svg>
+                                        <Twitter size={20} strokeWidth={1.5} />
                                     </a>
                                 )}
                                 {contactSettings.instagram_url && contactSettings.instagram_url.trim() !== "" && (
@@ -346,8 +300,8 @@ export default function Footer() {
                                         <Linkedin size={20} strokeWidth={1.5} />
                                     </a>
                                 )}
-                            </div> */}
-                        {/* </div> */}
+                            </div>
+                        </div>
 
                     </div>
 
@@ -355,8 +309,8 @@ export default function Footer() {
                     <div className="pt-8 border-t border-dark/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-dark/40">
                         <p>© {new Date().getFullYear()} Premium Essence Perfumes LLC. All Rights Reserved.</p>
                         <div className="flex gap-6">
-                            <Link href="/privacy-policy" className="hover:text-[#D4AF37] transition-colors">Privacy</Link>
-                            <Link href="/terms-and-conditions" className="hover:text-[#D4AF37] transition-colors">Terms</Link>
+                            <Link href="#" className="hover:text-[#D4AF37] transition-colors">Privacy</Link>
+                            <Link href="#" className="hover:text-[#D4AF37] transition-colors">Terms</Link>
                         </div>
                     </div>
 
