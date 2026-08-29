@@ -35,6 +35,7 @@ interface AccountOrder {
         name?: string;
         phone?: string;
         street?: string;
+        suburb?: string;
         city?: string;
         state?: string;
         postcode?: string;
@@ -44,6 +45,7 @@ interface AccountOrder {
         name?: string;
         phone?: string;
         street?: string;
+        suburb?: string;
         city?: string;
         state?: string;
         postcode?: string;
@@ -51,6 +53,15 @@ interface AccountOrder {
     };
     items?: OrderItem[];
 }
+
+const formatPaymentMethod = (method?: string) => {
+    if (!method) return "Not Specified";
+    const lower = method.toLowerCase().trim();
+    if (lower === "cod" || lower === "cash_on_delivery" || lower === "cash") return "Cash on Delivery (COD)";
+    if (lower === "stripe" || lower === "card" || lower === "credit_card" || lower === "online") return "Card / Online Payment";
+    if (lower === "bank_transfer" || lower === "bank") return "Bank Transfer";
+    return method.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
 
 export default function AccountOrdersPage() {
     const { customer, loading: authLoading } = useAuth();
@@ -221,6 +232,9 @@ export default function AccountOrdersPage() {
                                                 }`}>
                                                     Payment: {order.payment_status}
                                                 </span>
+                                                <span className="text-[9px] uppercase tracking-wider font-bold bg-[#D4AF37]/10 text-[#8C6D1F] px-2.5 py-1 border border-[#D4AF37]/30">
+                                                    Mode: {formatPaymentMethod(order.payment_method)}
+                                                </span>
                                                 <span className="text-[9px] uppercase tracking-wider font-bold bg-dark/5 text-dark/80 px-2.5 py-1 border border-dark/10">
                                                     Status: {order.status}
                                                 </span>
@@ -289,29 +303,96 @@ export default function AccountOrdersPage() {
                                     {/* Expanded Details Panel */}
                                     {isExpanded && (
                                         <div className="p-6 md:p-8 bg-white border-t border-dark/10 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-dark">
-                                            {/* Shipping Address */}
-                                            <div className="p-4 bg-[#F7F3F4] border border-dark/5">
-                                                <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 mb-2">Shipping Address</h4>
-                                                <p className="font-bold">{order.shipping_address?.name || customer?.name}</p>
-                                                <p className="text-dark/80 mt-1">{order.shipping_address?.street}</p>
-                                                <p className="text-dark/70">{order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.postcode}</p>
-                                                <p className="text-dark/70">{order.shipping_address?.country}</p>
-                                                {order.shipping_address?.phone && <p className="text-dark/60 mt-1">Tel: {order.shipping_address.phone}</p>}
+                                            {/* Mode of Payment & Order Summary Bar */}
+                                            <div className="md:col-span-2 p-4 bg-[#D4AF37]/5 border border-[#D4AF37]/20 flex flex-wrap items-center justify-between gap-4">
+                                                <div>
+                                                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#8C6D1F] block">Mode of Payment</span>
+                                                    <span className="font-bold text-dark text-sm">{formatPaymentMethod(order.payment_method)}</span>
+                                                </div>
+                                                <div className="flex items-center gap-6 text-xs text-dark/80">
+                                                    {order.subtotal !== undefined && (
+                                                        <div>
+                                                            <span className="text-[9px] uppercase font-semibold text-dark/50 block">Subtotal</span>
+                                                            <span>{order.subtotal.toFixed(2)} AED</span>
+                                                        </div>
+                                                    )}
+                                                    {order.shipping_cost !== undefined && (
+                                                        <div>
+                                                            <span className="text-[9px] uppercase font-semibold text-dark/50 block">Shipping</span>
+                                                            <span>{order.shipping_cost > 0 ? `${order.shipping_cost.toFixed(2)} AED` : "Free"}</span>
+                                                        </div>
+                                                    )}
+                                                    {order.discount !== undefined && order.discount > 0 && (
+                                                        <div>
+                                                            <span className="text-[9px] uppercase font-semibold text-emerald-600 block">Discount</span>
+                                                            <span className="text-emerald-700">-{order.discount.toFixed(2)} AED</span>
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <span className="text-[9px] uppercase font-bold tracking-widest text-dark block">Grand Total</span>
+                                                        <span className="font-bold font-serif text-sm text-dark">{order.grand_total.toFixed(2)} AED</span>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            {/* Billing Address */}
-                                            <div className="p-4 bg-[#F7F3F4] border border-dark/5">
-                                                <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 mb-2">Billing Address</h4>
-                                                {order.billing_same_as_shipping || !order.billing_address?.street ? (
-                                                    <p className="italic text-dark/60">Same as Shipping Address</p>
-                                                ) : (
-                                                    <>
-                                                        <p className="font-bold">{order.billing_address.name || customer?.name}</p>
-                                                        <p className="text-dark/80 mt-1">{order.billing_address.street}</p>
-                                                        <p className="text-dark/70">{order.billing_address.city}, {order.billing_address.state} {order.billing_address.postcode}</p>
-                                                        <p className="text-dark/70">{order.billing_address.country}</p>
-                                                        {order.billing_address.phone && <p className="text-dark/60 mt-1">Tel: {order.billing_address.phone}</p>}
-                                                    </>
+                                            {/* Shipping Address (Full Address) */}
+                                            <div className="p-5 bg-[#F7F3F4] border border-dark/5 flex flex-col justify-between">
+                                                <div>
+                                                    <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 mb-2.5 flex items-center gap-1.5">
+                                                        <MapPin size={13} className="text-[#C5A059]" /> Shipping Address
+                                                    </h4>
+                                                    <p className="font-bold text-dark text-sm">{order.shipping_address?.name || customer?.name || "Customer"}</p>
+                                                    <p className="text-dark/80 mt-1 leading-relaxed">
+                                                        {order.shipping_address?.street || "No street provided"}
+                                                    </p>
+                                                    {(order.shipping_address?.suburb || order.shipping_address?.city || order.shipping_address?.state || order.shipping_address?.postcode) && (
+                                                        <p className="text-dark/70 leading-relaxed">
+                                                            {order.shipping_address?.suburb ? `${order.shipping_address.suburb}, ` : ""}
+                                                            {order.shipping_address?.city ? `${order.shipping_address.city}, ` : ""}
+                                                            {order.shipping_address?.state || ""} {order.shipping_address?.postcode || ""}
+                                                        </p>
+                                                    )}
+                                                    <p className="text-dark/70 font-medium">{order.shipping_address?.country || ""}</p>
+                                                </div>
+                                                {order.shipping_address?.phone && (
+                                                    <p className="text-dark/60 mt-3 pt-2 border-t border-dark/5 text-[11px]">
+                                                        <span className="font-semibold text-dark/80">Tel:</span> {order.shipping_address.phone}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Billing Address (Full Address) */}
+                                            <div className="p-5 bg-[#F7F3F4] border border-dark/5 flex flex-col justify-between">
+                                                <div>
+                                                    <div className="flex items-center justify-between mb-2.5">
+                                                        <h4 className="text-[10px] uppercase font-bold tracking-wider text-dark/70 flex items-center gap-1.5">
+                                                            <MapPin size={13} className="text-[#C5A059]" /> Billing Address
+                                                        </h4>
+                                                        {order.billing_same_as_shipping && (
+                                                            <span className="text-[9px] font-semibold text-dark/50 bg-dark/5 px-2 py-0.5 rounded">Same as Shipping</span>
+                                                        )}
+                                                    </div>
+                                                    <p className="font-bold text-dark text-sm">
+                                                        {order.billing_address?.name || order.shipping_address?.name || customer?.name || "Customer"}
+                                                    </p>
+                                                    <p className="text-dark/80 mt-1 leading-relaxed">
+                                                        {order.billing_address?.street || order.shipping_address?.street || "No street provided"}
+                                                    </p>
+                                                    {(order.billing_address?.suburb || order.shipping_address?.suburb || order.billing_address?.city || order.shipping_address?.city || order.billing_address?.state || order.shipping_address?.state || order.billing_address?.postcode || order.shipping_address?.postcode) && (
+                                                        <p className="text-dark/70 leading-relaxed">
+                                                            {(order.billing_address?.suburb || order.shipping_address?.suburb) ? `${order.billing_address?.suburb || order.shipping_address?.suburb}, ` : ""}
+                                                            {(order.billing_address?.city || order.shipping_address?.city) ? `${order.billing_address?.city || order.shipping_address?.city}, ` : ""}
+                                                            {order.billing_address?.state || order.shipping_address?.state || ""} {order.billing_address?.postcode || order.shipping_address?.postcode || ""}
+                                                        </p>
+                                                    )}
+                                                    <p className="text-dark/70 font-medium">
+                                                        {order.billing_address?.country || order.shipping_address?.country || ""}
+                                                    </p>
+                                                </div>
+                                                {(order.billing_address?.phone || order.shipping_address?.phone) && (
+                                                    <p className="text-dark/60 mt-3 pt-2 border-t border-dark/5 text-[11px]">
+                                                        <span className="font-semibold text-dark/80">Tel:</span> {order.billing_address?.phone || order.shipping_address?.phone}
+                                                    </p>
                                                 )}
                                             </div>
                                         </div>
