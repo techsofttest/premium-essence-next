@@ -67,8 +67,26 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [imgSrc, setImgSrc] = useState(showcaseProducts[0]?.image || "/logo/logo-black.png");
+    const [translateXStep, setTranslateXStep] = useState(180);
 
     const activeProduct = showcaseProducts[activeIndex] || showcaseProducts[0];
+
+    useEffect(() => {
+        const updateStep = () => {
+            if (window.innerWidth < 480) {
+                setTranslateXStep(70);
+            } else if (window.innerWidth < 640) {
+                setTranslateXStep(90);
+            } else if (window.innerWidth < 1024) {
+                setTranslateXStep(130);
+            } else {
+                setTranslateXStep(180);
+            }
+        };
+        updateStep();
+        window.addEventListener("resize", updateStep);
+        return () => window.removeEventListener("resize", updateStep);
+    }, []);
 
     useEffect(() => {
         if (activeProduct) {
@@ -117,14 +135,14 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
 
     return (
         <section
-            className="w-full pt-16 pb-10 bg-[#FFFFFF] font-sans overflow-hidden border-t border-dark/5"
+            className="w-full py-16 sm:py-20 md:py-24 lg:py-28 bg-[#FFFFFF] font-sans overflow-hidden border-t border-dark/10 relative"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
-            <div className="max-w-screen-2xl mx-auto px-8 md:px-16 lg:px-24 grid grid-cols-1 lg:grid-cols-12 items-center gap-16 lg:gap-12">
+            <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-24 grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-12">
 
-                {/* LEFT: 3D Circular Path Carousel */}
-                <div className="relative w-full lg:col-span-7 flex items-center justify-center [perspective:1000px]">
+                {/* TOP (Mobile) / LEFT (Desktop): 3D Circular Path Carousel */}
+                <div className="relative w-full h-[320px] sm:h-[400px] md:h-[480px] lg:col-span-7 flex items-center justify-center [perspective:1000px]">
                     {showcaseProducts.map((product, index) => {
                         let diff = index - activeIndex;
                         const total = showcaseProducts.length;
@@ -133,20 +151,20 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                         if (diff < -Math.floor(total / 2)) diff += total;
 
                         const isCenter = diff === 0;
-                        const translateX = diff * 180;
-                        const translateZ = Math.abs(diff) * -100;
-                        const rotateY = diff * -25;
+                        const translateX = diff * translateXStep;
+                        const translateZ = Math.abs(diff) * -90;
+                        const rotateY = diff * -20;
                         const scale = 1 - Math.abs(diff) * 0.15;
-                        const opacity = 1 - Math.abs(diff) * 0.3;
+                        const opacity = 1 - Math.abs(diff) * 0.25;
                         const zIndex = 10 - Math.abs(diff);
 
                         return (
                             <div
                                 key={product.id || index}
                                 onClick={() => setActiveIndex(index)}
-                                className={`absolute top-0 bottom-0 my-auto w-[240px] h-[360px] md:w-[320px] md:h-[480px] cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isCenter ? 'drop-shadow-2xl' : 'drop-shadow-md hover:opacity-100'}`}
+                                className={`absolute top-1/2 left-1/2 w-[180px] h-[270px] sm:w-[240px] sm:h-[360px] md:w-[300px] md:h-[450px] cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isCenter ? 'drop-shadow-2xl' : 'drop-shadow-md hover:opacity-100'}`}
                                 style={{
-                                    transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                                    transform: `translate(calc(-50% + ${translateX}px), -50%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
                                     opacity: opacity,
                                     zIndex: zIndex,
                                 }}
@@ -161,8 +179,8 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                                             const target = e.target as HTMLImageElement;
                                             if (target) target.src = "/logo/logo-black.png";
                                         }}
-                                        className="object-contain drop-shadow-2xl p-4"
-                                        sizes="(max-width: 768px) 200px, 250px"
+                                        className="object-contain drop-shadow-2xl p-2 sm:p-4"
+                                        sizes="(max-width: 768px) 180px, 300px"
                                         priority={isCenter}
                                     />
                                 </div>
@@ -171,21 +189,21 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                     })}
                 </div>
 
-                {/* RIGHT: Dynamic Details & CTA */}
-                <div className="w-full lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left z-20 min-w-0 lg:pl-16">
+                {/* BOTTOM (Mobile) / RIGHT (Desktop): Dynamic Details & CTA */}
+                <div className="w-full lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left z-20 min-w-0 lg:pl-12 mt-6 lg:mt-0">
                     <div className="animate-in slide-in-from-right-8 fade-in duration-700 ease-out w-full" key={activeProduct.id}>
-                        <span className="text-xs tracking-[0.3em] uppercase text-[#C5A059] font-bold mb-3 block">
-                            Featured Collection — {activeProduct.brand}
+                        <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#C5A059] font-bold mb-2 sm:mb-3 block">
+                            Featured Collection &mdash; {activeProduct.brand}
                         </span>
 
                         {/* Title */}
                         <Link href={activeProduct.slug ? `/product/${activeProduct.slug}` : `/product/${activeProduct.id}`}>
-                            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-dark tracking-tight leading-[1.1] mb-4 truncate max-w-[280px] sm:max-w-[350px] md:max-w-[450px] lg:max-w-[500px] mx-auto lg:mx-0 hover:text-dark/70 transition-colors">
+                            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-dark tracking-tight leading-[1.15] mb-3 hover:text-dark/70 transition-colors">
                                 {activeProduct.name}
                             </h2>
                         </Link>
 
-                        <p className="text-sm md:text-base text-dark/60 font-light tracking-wide mb-8 max-w-md">
+                        <p className="text-xs sm:text-sm md:text-base text-dark/60 font-light tracking-wide mb-6 sm:mb-8 max-w-md mx-auto lg:mx-0">
                             Prestige Collection Selection <br className="hidden md:block" />
                             <span className="font-medium text-dark">
                                 Crafted for Fine Connoisseurs
@@ -193,32 +211,32 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                         </p>
 
                         {/* Price & Rating */}
-                        <div className="flex items-center justify-center lg:justify-start gap-8 mb-10">
-                            <div className="flex items-baseline gap-3">
-                                <span className="font-serif text-3xl text-dark">
-                                    {activeProduct.price} <span className="text-xl font-sans">AED</span>
+                        <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 mb-8 sm:mb-10">
+                            <div className="flex items-baseline gap-2 sm:gap-3">
+                                <span className="font-serif text-2xl sm:text-3xl text-dark">
+                                    {activeProduct.price} <span className="text-lg sm:text-xl font-sans">AED</span>
                                 </span>
                                 {activeProduct.originalPrice && activeProduct.originalPrice > activeProduct.price && (
-                                    <span className="text-base text-dark/40 line-through font-light">
+                                    <span className="text-sm sm:text-base text-dark/40 line-through font-light">
                                         {activeProduct.originalPrice} AED
                                     </span>
                                 )}
                             </div>
 
-                            <div className="h-8 w-px bg-dark/10" />
+                            <div className="h-7 sm:h-8 w-px bg-dark/10" />
 
-                            <div className="flex items-center gap-2 text-dark/80">
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-dark/80">
                                 <Star size={16} className="fill-[#D4AF37] text-[#D4AF37]" />
-                                <span className="font-medium text-lg">{activeProduct.rating || 5.0}</span>
-                                <span className="text-sm text-dark/50">({activeProduct.reviews || 0} Reviews)</span>
+                                <span className="font-medium text-base sm:text-lg">{activeProduct.rating || 5.0}</span>
+                                <span className="text-xs sm:text-sm text-dark/50">({activeProduct.reviews || 0} Reviews)</span>
                             </div>
                         </div>
 
                         {/* CTA Controls */}
-                        <div className="flex flex-col sm:flex-row items-center gap-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6">
                             <GlowingButton 
                                 onClick={handleAddToCart}
-                                className="w-full sm:w-auto px-10 py-5 text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2"
                             >
                                 <ShoppingCart size={16} /> Add to Cart
                             </GlowingButton>
@@ -227,14 +245,14 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={handlePrev}
-                                    className="w-12 h-12 rounded-none border border-dark/10 flex items-center justify-center text-dark hover:bg-dark hover:text-white transition-colors duration-300"
+                                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-none border border-dark/10 flex items-center justify-center text-dark hover:bg-dark hover:text-white transition-colors duration-300"
                                     aria-label="Previous product"
                                 >
                                     <ChevronLeft size={20} strokeWidth={1.5} />
                                 </button>
                                 <button
                                     onClick={handleNext}
-                                    className="w-12 h-12 rounded-none border border-dark/10 flex items-center justify-center text-dark hover:bg-dark hover:text-white transition-colors duration-300"
+                                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-none border border-dark/10 flex items-center justify-center text-dark hover:bg-dark hover:text-white transition-colors duration-300"
                                     aria-label="Next product"
                                 >
                                     <ChevronRight size={20} strokeWidth={1.5} />
