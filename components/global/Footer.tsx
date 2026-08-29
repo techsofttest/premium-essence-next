@@ -173,7 +173,7 @@ export default function Footer() {
                 <div className="relative z-10 max-w-screen-2xl mx-auto">
 
                     {/* Main Responsive Grid with clean divider lines */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 mb-20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-8 md:gap-y-12 mb-8 md:mb-12 lg:mb-16">
 
                         {/* Column 1: Collections */}
                         <div className="flex flex-col pb-8 lg:pb-0 border-b lg:border-b-0 lg:border-r border-dark/10 pr-4 lg:pr-8">
@@ -182,10 +182,7 @@ export default function Footer() {
                                 <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">All Products</Link></li>
                                 <li><Link href="/brands" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Designer Houses</Link></li>
                                 <li><Link href="/fragrances?family=niche" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Niche Fragrances</Link></li>
-                                {/* <li><Link href="/fragrances?concentration=eau-de-parfum" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Extrait de Parfum</Link></li> */}
                                 <li><Link href="/fragrances?family=oud" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Signature Oud Collection</Link></li>
-                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Discovery Sets</Link></li>
-                                <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Luxury Gifting</Link></li> */}
                                 <li><Link href="/shop?filter=new_arrivals" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">New Arrivals</Link></li>
                             </ul>
                         </div>
@@ -200,24 +197,21 @@ export default function Footer() {
                                 <li><Link href="/privacy-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Privacy Policy</Link></li>
                                 <li><Link href="/shipping-policy" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Shipping Policy</Link></li>
                                 <li><Link href="/refund-and-return" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Refund & Return</Link></li>
-                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Corporate Gifting</Link></li> */}
                             </ul>
                         </div>
 
                         {/* Column 3: Support */}
-                        <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0 lg:border-r border-dark/10 lg:px-8">
+                        <div className="flex flex-col py-8 lg:py-0 border-b md:border-b-0 lg:border-r border-dark/10 lg:px-8">
                             <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Support</h4>
                             <ul className="flex flex-col gap-4 text-sm text-dark/70">
-
                                 <li><Link href="/contact" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Contact Us</Link></li>
                                 <li><Link href="/track-order" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Order Tracking</Link></li>
                                 <li><Link href="/faqs" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">FAQ</Link></li>
-                                {/* <li><Link href="/shop" className="hover:text-[#D4AF37] hover:translate-x-1.5 transition-all duration-300 block">Sitemap</Link></li> */}
                             </ul>
                         </div>
 
                         {/* Column 4: Contact Us */}
-                        <div className="flex flex-col py-8 lg:py-0 border-b lg:border-b-0  border-dark/10 md:pl-8 lg:px-8">
+                        <div className="flex flex-col pt-8 lg:py-0 border-dark/10 md:pl-8 lg:px-8">
                             <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Contact Us</h4>
                             <div className="flex flex-col gap-4 text-sm text-dark/70 leading-relaxed">
                                 <p>
@@ -283,77 +277,12 @@ export default function Footer() {
                                     </a>
                                 )}
                             </div>
-
-
                         </div>
-
-                        {/* Column 5: Exclusive Newsletter */}
-                        {/* <div className="flex flex-col pt-8 lg:pt-0 lg:pl-8"> */}
-                        {/* <h4 className="font-serif text-lg tracking-widest uppercase mb-6 text-dark">Exclusive</h4>
-
-                           
-                            <form className="relative mb-6 group">
-                                <input
-                                    type="email"
-                                    placeholder="Enter email here"
-                                    className="w-full bg-transparent border-b border-dark/20 pb-3 text-sm text-dark outline-none placeholder:text-dark/40 focus:border-[#4A323A] transition-colors pr-8"
-                                />
-                                <button
-                                    type="submit"
-                                    className="absolute right-0 top-0 text-dark/50 group-hover:text-[#D4AF37] transition-colors"
-                                >
-                                    <ArrowRight size={18} strokeWidth={1.5} />
-                                </button>
-                            </form>
-
-                            <p className="text-xs text-dark/60 leading-relaxed mb-8">
-                                Sign up here to get the latest news, updates and special offers delivered to your inbox.
-                                <br /><br />
-                                Plus, you'll be the first to know about our private sales.
-                            </p> */}
-
-                        {/* Dynamic Social Icons (Hidden if DB column is empty) */}
-                        {/* <div className="flex items-center gap-6 text-dark/70">
-                                {contactSettings.facebook_url && contactSettings.facebook_url.trim() !== "" && (
-                                    <a href={contactSettings.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Facebook size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.twitter_url && contactSettings.twitter_url.trim() !== "" && (
-                                    <a href={contactSettings.twitter_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <svg
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="currentColor"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.963 6.817H1.684l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
-                                        </svg>
-                                    </a>
-                                )}
-                                {contactSettings.instagram_url && contactSettings.instagram_url.trim() !== "" && (
-                                    <a href={contactSettings.instagram_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Instagram size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.youtube_url && contactSettings.youtube_url.trim() !== "" && (
-                                    <a href={contactSettings.youtube_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Youtube size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                                {contactSettings.linkedin_url && contactSettings.linkedin_url.trim() !== "" && (
-                                    <a href={contactSettings.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Linkedin size={20} strokeWidth={1.5} />
-                                    </a>
-                                )}
-                            </div> */}
-                        {/* </div> */}
 
                     </div>
 
                     {/* Bottom Copyright Bar */}
-                    <div className="pt-8 border-t border-dark/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-dark/40">
+                    <div className="pt-6 md:pt-8 border-t border-dark/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-dark/40">
                         <p>© {new Date().getFullYear()} Premium Essence Perfumes LLC. All Rights Reserved.</p>
                         <div className="flex gap-6">
                             <Link href="/privacy-policy" className="hover:text-[#D4AF37] transition-colors">Privacy</Link>
