@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MapPin, Plus, Check, Loader2, AlertCircle, CreditCard, Lock, ArrowRight, ShieldCheck, Smartphone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -31,6 +32,10 @@ export default function CheckoutForm() {
     const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
     const [saveAddressToProfile, setSaveAddressToProfile] = useState<boolean>(true);
     const [loadingAddresses, setLoadingAddresses] = useState<boolean>(false);
+
+    // Terms & Conditions Acceptance State
+    const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
+    const [termsError, setTermsError] = useState<boolean>(false);
 
     // Contact & Shipping Form State
     const [email, setEmail] = useState("");
@@ -119,6 +124,7 @@ export default function CheckoutForm() {
     const handleProceedToStripeGateway = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
+        setTermsError(false);
 
         const contactName = `${firstName} ${lastName}`.trim();
         if (!email || !firstName || !addressLine1 || !city || !state || !postcode) {
@@ -128,6 +134,12 @@ export default function CheckoutForm() {
 
         if (!cartItems.length) {
             setErrorMessage("Your cart is empty. Please add items before checking out.");
+            return;
+        }
+
+        if (!acceptTerms) {
+            setTermsError(true);
+            setErrorMessage("Please read and accept the Terms & Conditions to proceed with your order.");
             return;
         }
 
@@ -757,6 +769,39 @@ export default function CheckoutForm() {
                                 Your order will be registered in our system and dispatched immediately. Please prepare the exact cash amount in AED to hand over to the courier courier upon delivery.
                             </p>
                         </>
+                    )}
+                </div>
+
+                {/* Terms & Conditions Agreement Checkbox */}
+                <div className="mb-6 pt-6 border-t border-dark/10">
+                    <label className="flex items-start gap-3 cursor-pointer select-none group">
+                        <input
+                            type="checkbox"
+                            checked={acceptTerms}
+                            onChange={(e) => {
+                                setAcceptTerms(e.target.checked);
+                                if (e.target.checked) setTermsError(false);
+                            }}
+                            className="w-4 h-4 mt-0.5 accent-dark shrink-0 cursor-pointer"
+                        />
+                        <span className="text-xs text-dark/80 group-hover:text-dark transition-colors leading-relaxed">
+                            I have read and agree to the{" "}
+                            <Link
+                                href="/terms-and-conditions"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-dark underline underline-offset-2 hover:text-[#C5A059] transition-colors"
+                            >
+                                Terms & Conditions
+                            </Link>
+                            <span className="text-rose-500 font-bold ml-1">*</span>
+                        </span>
+                    </label>
+                    {termsError && (
+                        <p className="text-xs text-rose-600 font-semibold mt-2.5 flex items-center gap-1.5 pl-7">
+                            <AlertCircle size={14} className="shrink-0" />
+                            You must accept the Terms & Conditions to proceed with your order.
+                        </p>
                     )}
                 </div>
 
