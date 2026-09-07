@@ -259,8 +259,8 @@ export default function Header() {
 
         { name: "All Products", href: "/shop", hasDropdown: false },
 
-        { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
-        { name: "Gifting", href: "/category/gifting", hasDropdown: false },
+        // { name: "Discovery Sets", href: "/category/discovery-sets", hasDropdown: false },
+        // { name: "Gifting", href: "/category/gifting", hasDropdown: false },
 
     ] : NAV_CATEGORIES;
 
