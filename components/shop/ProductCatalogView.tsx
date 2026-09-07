@@ -53,7 +53,7 @@ export default function ProductCatalogView({
     const selectedGenderParam = fixedGender || searchParams.get("gender") || "";
     const selectedConcentrationParam = fixedConcentration || searchParams.get("concentration") || "";
     const selectedSearch = searchParams.get("search") || searchParams.get("q") || "";
-    const selectedSort = searchParams.get("sort") || "latest";
+    const selectedSort = searchParams.get("sort") || "sort_order";
     const selectedFilterParam = searchParams.get("filter") || searchParams.get("type") || "";
 
     const selectedSizeParam = searchParams.get("size") || "";
@@ -497,6 +497,7 @@ export default function ProductCatalogView({
                             onChange={(e) => updateSingleFilter("sort", e.target.value)}
                             className="bg-[#F7F3F4] border border-dark/20 text-dark p-2.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-dark"
                         >
+                            <option value="sort_order">Default Order</option>
                             <option value="latest">Newest Arrivals</option>
                             <option value="price_low">Price: Low to High</option>
                             <option value="price_high">Price: High to Low</option>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { Package, Search, MapPin, Truck, ChevronDown, ChevronUp, ArrowRight, Loader2, ArrowLeft, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
@@ -52,11 +53,13 @@ interface AccountOrder {
     items?: OrderItem[];
 }
 
-export default function AccountOrdersPage() {
+function OrdersContent() {
     const { customer, loading: authLoading } = useAuth();
+    const searchParams = useSearchParams();
+    const initialTab = searchParams.get("tab") || "all";
     const [orders, setOrders] = useState<AccountOrder[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<string>("all"); // Default filter: All orders
+    const [activeTab, setActiveTab] = useState<string>(initialTab);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
@@ -130,20 +133,20 @@ export default function AccountOrdersPage() {
                     {/* Status Tabs */}
                     <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
                         <button
-                            onClick={() => setActiveTab("paid")}
-                            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors ${
-                                activeTab === "paid" ? "bg-dark text-white" : "bg-[#F7F3F4] text-dark/70 hover:text-dark"
-                            }`}
-                        >
-                            Paid (Completed)
-                        </button>
-                        <button
                             onClick={() => setActiveTab("all")}
                             className={`px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors ${
                                 activeTab === "all" ? "bg-dark text-white" : "bg-[#F7F3F4] text-dark/70 hover:text-dark"
                             }`}
                         >
                             All Orders
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("active")}
+                            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors ${
+                                activeTab === "active" ? "bg-dark text-white" : "bg-[#F7F3F4] text-dark/70 hover:text-dark"
+                            }`}
+                        >
+                            Active Orders
                         </button>
                         <button
                             onClick={() => setActiveTab("confirmed")}
@@ -323,5 +326,17 @@ export default function AccountOrdersPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function AccountOrdersPage() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen bg-[#F7F3F4] p-12 text-center text-dark/60 flex items-center justify-center gap-3">
+                <Loader2 className="animate-spin" size={24} /> Loading orders...
+            </main>
+        }>
+            <OrdersContent />
+        </Suspense>
     );
 }
