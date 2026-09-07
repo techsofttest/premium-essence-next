@@ -64,7 +64,7 @@ const formatPaymentMethod = (method?: string) => {
     return method.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-export default function AccountOrdersPage() {
+function OrdersContent() {
     const { customer, loading: authLoading } = useAuth();
     const searchParams = useSearchParams();
     const initialTab = searchParams.get("tab") || "all";
