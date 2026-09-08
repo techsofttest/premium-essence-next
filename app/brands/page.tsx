@@ -55,7 +55,9 @@ export default function BrandsPage() {
         ],
     };
 
-    const classifications = ["Designer Houses", "Prestige & Niche", "Classic Elegance"];
+    const classifications = Object.keys(classifiedBrands).length > 0
+        ? Object.keys(classifiedBrands).filter(key => Array.isArray(classifiedBrands[key]) && classifiedBrands[key].length > 0)
+        : ["Designer Houses", "Prestige & Niche", "Classic Elegance"];
 
     return (
         <main className="relative w-full min-h-screen pt-8 pb-24 overflow-hidden font-sans bg-[#1B1315]">

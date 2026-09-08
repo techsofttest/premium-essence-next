@@ -238,20 +238,27 @@ export default function Header() {
             hasDropdown: true,
             featuredImage: "/products/The Alchemist's Garden 1.png",
             featuredText: "The Art of Layering",
-            subCategories: [
-                {
-                    title: "Designer Houses",
-                    links: headerData.brands_by_classification?.["Designer Houses"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"]
-                },
-                {
-                    title: "Prestige & Niche",
-                    links: headerData.brands_by_classification?.["Prestige & Niche"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"]
-                },
-                {
-                    title: "Classic Elegance",
-                    links: headerData.brands_by_classification?.["Classic Elegance"]?.map((b: any) => ({ name: b.name, slug: b.slug })) || ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"]
-                },
-            ]
+            subCategories: headerData?.brands_by_classification
+                ? Object.keys(headerData.brands_by_classification)
+                    .filter((key) => Array.isArray(headerData.brands_by_classification[key]) && headerData.brands_by_classification[key].length > 0)
+                    .map((key) => ({
+                        title: key,
+                        links: headerData.brands_by_classification[key].map((b: any) => ({ name: b.name, slug: b.slug })),
+                    }))
+                : [
+                    {
+                        title: "Designer Houses",
+                        links: ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Versace"]
+                    },
+                    {
+                        title: "Prestige & Niche",
+                        links: ["Creed", "Tom Ford", "Maison Francis Kurkdjian", "Jo Malone London"]
+                    },
+                    {
+                        title: "Classic Elegance",
+                        links: ["Hermès", "Givenchy", "Prada", "Bvlgari", "Montblanc"]
+                    },
+                ]
         },
 
         { name: "Bestsellers", href: "/shop?sort=featured", hasDropdown: false },
@@ -330,30 +337,48 @@ export default function Header() {
                                         {category.name}
                                     </Link>
                                     {category.hasDropdown && activeDropdown === category.name && (
-                                        <div className="absolute top-full left-0 w-[100vw] -ml-8 bg-white text-dark border-t border-dark/10 shadow-2xl py-12 px-24 grid grid-cols-4 gap-12 animate-in fade-in slide-in-from-top-2 duration-300">
-                                            {category.subCategories?.map((sub: any) => (
-                                                <div key={sub.title} className="flex flex-col gap-4">
-                                                    <h4 className="font-serif text-lg text-mauve tracking-wide mb-2 border-b border-dark/10 pb-2">{sub.title}</h4>
-                                                    <ul className="flex flex-col gap-3">
-                                                        {sub.links.map((linkItem: any) => (
-                                                            <li key={typeof linkItem === 'string' ? linkItem : linkItem.name}>
-                                                                <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} onClick={closeAllMenus} className="text-sm text-dark/70 hover:text-dark transition-colors block w-fit">
-                                                                    {typeof linkItem === 'string' ? linkItem : linkItem.name}
-                                                                </Link>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
+                                        (() => {
+                                            const subCount = category.subCategories?.length || 0;
+                                            const isFiveCols = subCount >= 4;
+                                            return (
+                                                <div className={`absolute top-full left-0 w-[100vw] -ml-8 bg-white text-dark border-t border-dark/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300 ${
+                                                    isFiveCols
+                                                        ? "py-8 px-12 md:px-16 grid grid-cols-5 gap-6 xl:gap-8"
+                                                        : "py-10 px-16 md:px-24 grid grid-cols-4 gap-10 xl:gap-12"
+                                                }`}>
+                                                    {category.subCategories?.map((sub: any) => (
+                                                        <div key={sub.title} className="flex flex-col gap-3">
+                                                            <h4 className="font-serif text-base font-bold text-mauve tracking-wide mb-1 border-b border-dark/10 pb-2 truncate">{sub.title}</h4>
+                                                            <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto scrollbar-thin pr-1">
+                                                                {sub.links.map((linkItem: any) => (
+                                                                    <li key={typeof linkItem === 'string' ? linkItem : linkItem.name}>
+                                                                        <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} onClick={closeAllMenus} className="text-xs text-dark/70 hover:text-dark transition-colors block w-fit truncate">
+                                                                            {typeof linkItem === 'string' ? linkItem : linkItem.name}
+                                                                        </Link>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    ))}
+                                                    <Link
+                                                        href={getCategoryHref(category)}
+                                                        onClick={closeAllMenus}
+                                                        className={`bg-[#4A323A] overflow-hidden relative group border border-dark/5 flex items-center justify-center ${
+                                                            isFiveCols
+                                                                ? "col-span-1 col-start-5 min-h-[180px] max-h-[250px]"
+                                                                : "col-span-1 col-start-4 min-h-[220px]"
+                                                        }`}
+                                                    >
+                                                        {category.featuredImage && <Image src={category.featuredImage} alt="Featured" fill className="object-contain p-4 group-hover:scale-105 transition-transform duration-700 ease-out" />}
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent z-10" />
+                                                        <div className="absolute bottom-4 left-4 z-20">
+                                                            <span className="text-cream text-[10px] uppercase tracking-widest block mb-0.5 opacity-80">Discover</span>
+                                                            <span className="text-cream font-serif text-base leading-tight block">{category.featuredText}</span>
+                                                        </div>
+                                                    </Link>
                                                 </div>
-                                            ))}
-                                            <Link href={getCategoryHref(category)} onClick={closeAllMenus} className="col-span-1 md:col-start-4 bg-[#4A323A] overflow-hidden relative min-h-[220px] group border border-dark/5 flex items-center justify-center">
-                                                {category.featuredImage && <Image src={category.featuredImage} alt="Featured" fill className="object-contain p-4 group-hover:scale-105 transition-transform duration-700 ease-out" />}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent z-10" />
-                                                <div className="absolute bottom-4 left-4 z-20">
-                                                    <span className="text-cream text-[10px] uppercase tracking-widest block mb-0.5 opacity-80">Discover</span>
-                                                    <span className="text-cream font-serif text-lg leading-tight block">{category.featuredText}</span>
-                                                </div>
-                                            </Link>
-                                        </div>
+                                            );
+                                        })()
                                     )}
                                 </div>
                             ))}
