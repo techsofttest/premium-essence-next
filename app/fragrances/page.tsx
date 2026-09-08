@@ -27,7 +27,7 @@ function FragranceCatalogContent() {
     const selectedFamily = searchParams.get("family") || "";
     const selectedGender = searchParams.get("gender") || "";
     const selectedConcentration = searchParams.get("concentration") || "";
-    const selectedSort = searchParams.get("sort") || "latest";
+    const selectedSort = searchParams.get("sort") || "sort_order";
 
     const [products, setProducts] = useState<Product[]>([]);
     const [filterMeta, setFilterMeta] = useState<FilterMetadata>({ families: [], concentrations: [], genders: ["Men", "Women", "Unisex"] });
@@ -198,6 +198,7 @@ function FragranceCatalogContent() {
                             onChange={(e) => updateFilter("sort", e.target.value)}
                             className="bg-[#F7F3F4] border border-dark/20 text-dark p-2.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-dark"
                         >
+                            <option value="sort_order">Default Order</option>
                             <option value="latest">Newest Arrivals</option>
                             <option value="price_low">Price: Low to High</option>
                             <option value="price_high">Price: High to Low</option>
