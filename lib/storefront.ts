@@ -34,6 +34,8 @@ export type StorefrontProduct = {
     top_notes_list?: string[];
     middle_notes_list?: string[];
     base_notes_list?: string[];
+    concentration?: string | { id?: number; name: string; slug?: string } | null;
+    fragrance_concentration?: { id?: number; name: string; slug?: string } | null;
     reviews?: StorefrontReview[];
     meta_title?: string | null;
     meta_description?: string | null;
@@ -47,11 +49,16 @@ export function toProduct(product: StorefrontProduct): Product {
     const mainBuying = mainVariant?.buying_price ?? mainVariant?.original_price ?? product.buying_price ?? product.original_price;
     const originalPrice = (mainBuying && mainBuying > product.price) ? mainBuying : undefined;
 
+    const concentrationName = typeof product.concentration === "string" 
+        ? product.concentration 
+        : (product.fragrance_concentration?.name || (typeof product.concentration === "object" ? product.concentration?.name : undefined));
+
     return {
         id: String(product.id),
         slug: product.slug,
         brand: product.brand?.name || "Premium Essence",
         name: product.name,
+        concentration: concentrationName || "Eau de Parfum",
         price: product.price,
         originalPrice: originalPrice,
         rating: product.rating,
@@ -247,5 +254,73 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
         };
     } catch {
         return { collections: {}, brands: [], banners: [], middle_banner: null, why_choose_us: [], shipping_settings: { default_shipping_fee: 20, free_shipping_threshold: 200, is_enabled: true }, home_advertisement: null };
+    }
+}
+
+export type FragranceReelItem = {
+    id: number;
+    title: string;
+    subtitle?: string;
+    video_url: string;
+    thumbnail?: string;
+    badge?: string;
+    button_text?: string;
+    button_link?: string;
+    product?: Product;
+};
+
+export type FragranceFamilyItem = {
+    id: number;
+    name: string;
+    slug: string;
+    image?: string;
+    description?: string;
+    product_count?: number;
+    href: string;
+};
+
+export async function getStorefrontReels(): Promise<FragranceReelItem[]> {
+    try {
+        const response = await fetch(`${baseUrl}/storefront/reels`, { cache: "no-store" });
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (Array.isArray(data)) {
+            return data.map((item: any) => ({
+                id: item.id,
+                title: item.title,
+                subtitle: item.subtitle,
+                video_url: item.video_url,
+                thumbnail: item.thumbnail,
+                badge: item.badge,
+                button_text: item.button_text,
+                button_link: item.button_link,
+                product: item.product ? toProduct(item.product) : undefined,
+            }));
+        }
+        return [];
+    } catch {
+        return [];
+    }
+}
+
+export async function getFragranceFamilies(): Promise<FragranceFamilyItem[]> {
+    try {
+        const response = await fetch(`${baseUrl}/storefront/fragrance-families`, { cache: "no-store" });
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (Array.isArray(data)) {
+            return data.map((item: any) => ({
+                id: item.id,
+                name: item.name,
+                slug: item.slug,
+                image: item.image,
+                description: item.description,
+                product_count: item.product_count,
+                href: item.href || `/fragrances?family=${item.slug}`,
+            }));
+        }
+        return [];
+    } catch {
+        return [];
     }
 }

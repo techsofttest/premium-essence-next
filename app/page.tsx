@@ -9,13 +9,17 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import Testimonials from "@/components/sections/Testimonials";
 import ProductCarousel from "@/components/sections/ProductCarousel";
 import BestChoicesGrid from "@/components/sections/BestChoicesGrid";
-import { getStorefrontHome, getStorefrontProducts } from "@/lib/storefront";
+import FragranceReelsSection from "@/components/sections/FragranceReelsSection";
+import FragranceFamilySection from "@/components/sections/FragranceFamilySection";
+import { getStorefrontHome, getStorefrontProducts, getStorefrontReels, getFragranceFamilies } from "@/lib/storefront";
 import SeoHead from "@/components/seo/SeoHead";
 
 export default async function Home() {
-  const [homeData, fallbackProducts] = await Promise.all([
+  const [homeData, fallbackProducts, reels, fragranceFamilies] = await Promise.all([
     getStorefrontHome(),
     getStorefrontProducts(),
+    getStorefrontReels(),
+    getFragranceFamilies(),
   ]);
 
   const collections = homeData.collections || {};
@@ -53,6 +57,9 @@ export default async function Home() {
       {/* Product Showcase (Best Sellers & New Arrivals Collections from DB) */}
       <ProductShowcase products={showcaseProducts} />
 
+      {/* Explore Perfumes by Fragrance Family (Right after Best Sellers & New Arrivals) */}
+      <FragranceFamilySection families={fragranceFamilies} />
+
       {/* Dynamic Brands Carousel from DB */}
       <BrandCarousel initialBrands={homeData.brands} />
 
@@ -63,6 +70,9 @@ export default async function Home() {
         products={trendingList}
         viewAllLink="/shop"
       />
+
+      {/* Fragrance Video Reels Section (Just before Featured Section) */}
+      <FragranceReelsSection reels={reels} />
 
       {/* 3D Showcase displaying Featured Collection from DB */}
       <InteractiveShowcase products={featuredList} />

@@ -192,13 +192,13 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                 {/* BOTTOM (Mobile) / RIGHT (Desktop): Dynamic Details & CTA */}
                 <div className="w-full lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left z-20 min-w-0 lg:pl-12 mt-6 lg:mt-0">
                     <div className="animate-in slide-in-from-right-8 fade-in duration-700 ease-out w-full" key={activeProduct.id}>
-                        <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#C5A059] font-bold mb-2 sm:mb-3 block">
+                        <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#C5A059] font-extrabold mb-2 sm:mb-3 block">
                             Featured Collection &mdash; {activeProduct.brand}
                         </span>
 
                         {/* Title */}
                         <Link href={activeProduct.slug ? `/product/${activeProduct.slug}` : `/product/${activeProduct.id}`}>
-                            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-dark tracking-tight leading-[1.15] mb-3 hover:text-dark/70 transition-colors">
+                            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase font-bold text-dark tracking-wider leading-[1.15] mb-3 hover:text-dark/70 transition-colors">
                                 {activeProduct.name}
                             </h2>
                         </Link>

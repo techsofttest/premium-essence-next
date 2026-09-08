@@ -338,7 +338,7 @@ export default function Header() {
                         <nav className="flex items-center gap-5 xl:gap-8 h-full">
                             {categoriesList.map((category) => (
                                 <div key={category.name} className="h-full flex items-center" onMouseEnter={() => setActiveDropdown(category.name)}>
-                                    <Link href={getCategoryHref(category)} onClick={closeAllMenus} className={`text-[11px] font-bold tracking-[0.15em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/70 hover:text-dark"}`}>
+                                    <Link href={getCategoryHref(category)} onClick={closeAllMenus} className={`text-xs font-black tracking-[0.18em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/85 hover:text-dark"}`}>
                                         {category.name}
                                     </Link>
                                     {category.hasDropdown && activeDropdown === category.name && (
@@ -353,11 +353,11 @@ export default function Header() {
                                                 }`}>
                                                     {category.subCategories?.map((sub: any) => (
                                                         <div key={sub.title} className="flex flex-col gap-3">
-                                                            <h4 className="font-serif text-base font-bold text-mauve tracking-wide mb-1 border-b border-dark/10 pb-2 truncate">{sub.title}</h4>
-                                                            <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto scrollbar-thin pr-1">
+                                                            <h4 className="font-serif text-base font-black text-[#4A323A] tracking-wider mb-2 border-b-2 border-dark/15 pb-2 truncate">{sub.title}</h4>
+                                                            <ul className="flex flex-col gap-2.5 max-h-60 overflow-y-auto scrollbar-thin pr-1">
                                                                 {sub.links.map((linkItem: any) => (
                                                                     <li key={typeof linkItem === 'string' ? linkItem : linkItem.name}>
-                                                                        <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} onClick={closeAllMenus} className="text-xs text-dark/70 hover:text-dark transition-colors block w-fit truncate">
+                                                                        <Link href={getMenuLinkHref(category.name, sub.title, linkItem)} onClick={closeAllMenus} className="text-xs sm:text-sm font-bold text-dark/90 hover:text-dark hover:scale-102 transition-all block w-fit truncate">
                                                                             {typeof linkItem === 'string' ? linkItem : linkItem.name}
                                                                         </Link>
                                                                     </li>
@@ -391,9 +391,9 @@ export default function Header() {
                     </div>
 
                     <div className="flex shrink-0 justify-end items-center gap-5 xl:gap-6 relative z-10">
-                        <button onClick={() => setIsSearchModalOpen(true)} className="flex items-center gap-2 text-dark/60 hover:text-dark transition-colors border-b border-dark/20 hover:border-dark pb-1.5 w-24 group">
-                            <Search size={16} strokeWidth={1.5} />
-                            <span className="text-[10px] tracking-widest uppercase font-bold text-left w-full opacity-80 group-hover:opacity-100">Search...</span>
+                        <button onClick={() => setIsSearchModalOpen(true)} className="flex items-center gap-2 text-dark/90 hover:text-dark transition-colors border-b-2 border-dark/30 hover:border-dark pb-1.5 w-28 group">
+                            <Search size={16} strokeWidth={2} />
+                            <span className="text-xs tracking-widest uppercase font-extrabold text-left w-full text-dark/90 group-hover:text-dark">Search...</span>
                         </button>
                         {isMounted && customer ? (
                             <div className="relative" ref={accountMenuRef}>
@@ -403,11 +403,11 @@ export default function Header() {
                                         e.stopPropagation();
                                         setIsAccountMenuOpen((prev) => !prev);
                                     }}
-                                    className="flex items-center gap-1.5 text-dark/80 hover:text-dark transition-colors text-[11px] tracking-[0.15em] uppercase font-bold cursor-pointer"
+                                    className="flex items-center gap-1.5 text-dark transition-colors text-xs tracking-[0.18em] uppercase font-black cursor-pointer"
                                 >
-                                    <CircleUserRound size={18} strokeWidth={1.5} />
-                                    <span className="max-w-24 truncate">{customer.name}</span>
-                                    <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform duration-300 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
+                                    <CircleUserRound size={18} strokeWidth={2} />
+                                    <span className="max-w-28 truncate">{customer.name}</span>
+                                    <ChevronDown size={14} strokeWidth={2} className={`transition-transform duration-300 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {isAccountMenuOpen && (
                                     <div

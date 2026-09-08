@@ -89,10 +89,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         <div className="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-32 h-fit font-sans">
             {/* Brand, Title & Reviews */}
             <div className="flex flex-col gap-2">
-                <span className="text-xs tracking-[0.4em] uppercase text-dark font-bold opacity-90">
+                <span className="text-xs sm:text-sm tracking-[0.4em] uppercase text-dark font-extrabold opacity-90">
                     {product.brand}
                 </span>
-                <h1 className="font-serif text-4xl md:text-5xl text-dark leading-tight">
+                <h1 className="font-serif text-4xl md:text-5xl uppercase font-bold text-dark leading-tight tracking-wider">
                     {product.name}
                 </h1>
                 <div className="flex items-center gap-4 mt-2">

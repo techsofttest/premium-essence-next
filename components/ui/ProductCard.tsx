@@ -22,6 +22,7 @@ export interface Product {
     id: string;
     brand: string;
     name: string;
+    concentration?: string;
     price: number;
     originalPrice?: number;
     rating: number;
@@ -111,31 +112,38 @@ export default function ProductCard({ product }: ProductCardProps) {
             </Link>
 
             {/* Product Details with solid off-white background */}
-            <div className="flex flex-col gap-1 sm:gap-1.5 px-2 pb-2.5 pt-1 bg-[#F7F3F4] md:group-hover:-translate-y-12 transition-transform duration-500 ease-out z-10">
+            <div className="flex flex-col gap-1 sm:gap-1.5 px-2 pb-2.5 pt-1.5 bg-[#F7F3F4] md:group-hover:-translate-y-12 transition-transform duration-500 ease-out z-10">
                 <div className="flex justify-between items-start mb-0.5 sm:mb-1">
-                    <span className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-dark/60 truncate">
+                    <span className="text-[11px] sm:text-xs font-extrabold tracking-[0.18em] uppercase text-dark/90 truncate">
                         {product.brand}
                     </span>
                     {Boolean(product.rating && product.reviews) && (
-                        <div className="flex items-center gap-1 text-[11px] sm:text-xs text-dark/80 shrink-0">
-                            <Star size={11} className="fill-[#D4AF37] text-[#D4AF37]" />
+                        <div className="flex items-center gap-1 text-xs sm:text-sm font-bold text-dark shrink-0">
+                            <Star size={13} className="fill-[#D4AF37] text-[#D4AF37]" />
                             <span>{product.rating}</span>
-                            <span className="text-dark/40">({product.reviews})</span>
+                            <span className="text-dark/50">({product.reviews})</span>
                         </div>
                     )}
                 </div>
 
                 <Link href={`/product/${product.slug || product.id}`}>
-                    <h3 className="font-serif text-sm sm:text-lg font-medium text-dark group-hover:text-dark transition-colors line-clamp-1">
+                    <h3 className="font-serif text-base sm:text-xl font-bold uppercase tracking-wider text-dark group-hover:text-[#4A323A] transition-colors line-clamp-1">
                         {product.name}
                     </h3>
                 </Link>
+
+                {/* Fragrance Concentration Display right under the name */}
+                {Boolean(product.concentration) && (
+                    <span className="text-[10px] sm:text-xs font-bold text-mauve uppercase tracking-widest block truncate -mt-0.5">
+                        {product.concentration}
+                    </span>
+                )}
 
                 {/* Size count display */}
                 {(() => {
                     const sizeCount = product.variants?.length || (product.sizes?.length ?? 1);
                     return (
-                        <p className="text-[10px] sm:text-xs text-dark/60 font-medium">
+                        <p className="text-xs font-semibold text-dark/70">
                             {sizeCount} {sizeCount === 1 ? "Size" : "Sizes"}
                         </p>
                     );
@@ -144,11 +152,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 {/* Pricing & Mobile Quick Add */}
                 <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
-                        <span className="font-medium text-xs sm:text-base text-dark">
+                        <span className="font-bold text-sm sm:text-lg text-dark">
                             {product.price} AED
                         </span>
                         {product.originalPrice && (
-                            <span className="text-[10px] sm:text-sm text-dark/40 line-through">
+                            <span className="text-xs sm:text-sm font-semibold text-dark/50 line-through">
                                 {product.originalPrice} AED
                             </span>
                         )}
