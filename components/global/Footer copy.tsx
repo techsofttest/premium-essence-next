@@ -229,6 +229,11 @@ export default function Footer() {
                                             {contactSettings.email}
                                         </a>
                                     )}
+                                    {contactSettings.support_email && contactSettings.support_email !== contactSettings.email && (
+                                        <a href={`mailto:${contactSettings.support_email}`} className="hover:text-[#D4AF37] transition-colors underline underline-offset-4 decoration-dark/20">
+                                            {contactSettings.support_email}
+                                        </a>
+                                    )}
                                     {contactSettings.phone && (
                                         <a href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`} className="hover:text-[#D4AF37] transition-colors mt-2 block">
                                             Mob: {contactSettings.phone}
