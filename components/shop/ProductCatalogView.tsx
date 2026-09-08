@@ -64,6 +64,8 @@ export default function ProductCatalogView({
     const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || searchParams.get("bestseller") === "true";
     const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || searchParams.get("new") === "true";
 
+    const selectedCollectionParam = searchParams.get("collection") || searchParams.get("collection_slug") || "";
+
     // Dynamic Title & Subtitle overrides
     let displayTitle = title;
     let displaySubtitle = subtitle;
@@ -74,6 +76,14 @@ export default function ProductCatalogView({
     } else if (isNewArrivalsFilter) {
         displayTitle = "New Arrivals Collection";
         displaySubtitle = "Explore the latest fragrance releases and newest perfume creations.";
+    } else if (selectedCollectionParam) {
+        if (selectedCollectionParam.includes("gift") || selectedCollectionParam.includes("box")) {
+            displayTitle = "Perfumes with Gift Box";
+            displaySubtitle = "Discover luxury perfumes packaged in exquisite gift boxes.";
+        } else {
+            displayTitle = selectedCollectionParam.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            displaySubtitle = "Handpicked collection items for discerning perfume connoisseurs.";
+        }
     }
 
     // Arrays of selected items for multi-selection
@@ -191,6 +201,7 @@ export default function ProductCatalogView({
             family: selectedFamilyParam,
             gender: selectedGenderParam,
             concentration: selectedConcentrationParam,
+            collection: selectedCollectionParam,
             search: selectedSearch,
             sort: selectedSort,
             filter: selectedFilterParam,
@@ -209,7 +220,7 @@ export default function ProductCatalogView({
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam]);
 
     // Multi-select toggle function
     const toggleFilterOption = (key: string, value: string) => {

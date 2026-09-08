@@ -60,7 +60,12 @@ function getMenuLinkHref(categoryName: string, subTitle: string | undefined, lin
 
     // 3. Specific Logic for Fragrances
     if (categoryName === "Fragrances") {
-        if (subTitle === "For Whom") return `/fragrances?gender=${encodeURIComponent(linkName)}`;
+        if (subTitle === "For Whom") {
+            if (slug.includes("giftbox") || slug.includes("gift-box") || String(linkName).toLowerCase().includes("gift")) {
+                return `/shop?collection=perfumes-with-gift-box`;
+            }
+            return `/fragrances?gender=${encodeURIComponent(linkName)}`;
+        }
         if (subTitle === "Olfactive Families") return `/fragrances?family=${slug}`;
         if (subTitle === "Concentration") return `/fragrances?concentration=${slug}`;
         return `/fragrances`;
@@ -83,7 +88,7 @@ const NAV_CATEGORIES = [
         featuredImage: "/products/Baccarat Rouge 540 1.png",
         featuredText: "Exquisite Concentrations",
         subCategories: [
-            { title: "For Whom", links: ["Men", "Women", "Unisex"] },
+            { title: "For Whom", links: ["Men", "Women", "Unisex", "Perfumes with giftbox"] },
             { title: "Olfactive Families", links: ["Oud", "Woody", "Floral", "Fresh & Citrus", "Oriental & Spicy"] },
             { title: "Concentration", links: ["Parfum", "Eau de Parfum", "Eau de Toilette", "Perfume Oils"] },
         ]
@@ -219,7 +224,7 @@ export default function Header() {
             subCategories: [
                 {
                     title: "For Whom",
-                    links: headerData.fragrance_menu?.for_whom?.map((item: any) => ({ name: item.name, href: item.href })) || ["Men", "Women", "Unisex"]
+                    links: headerData.fragrance_menu?.for_whom?.map((item: any) => ({ name: item.name, href: item.href })) || ["Men", "Women", "Unisex", "Perfumes with giftbox"]
                 },
                 {
                     title: "Olfactive Families",

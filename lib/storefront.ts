@@ -80,6 +80,7 @@ export interface FetchProductsOptions {
     gender?: string;
     concentration?: string;
     classification?: string;
+    collection?: string;
     search?: string;
     sort?: string;
     filter?: string;
@@ -107,6 +108,7 @@ export async function getStorefrontProducts(options: FetchProductsOptions = {}):
         if (options.gender) query.set("gender", options.gender);
         if (options.concentration) query.set("concentration", options.concentration);
         if (options.classification) query.set("classification", options.classification);
+        if (options.collection) query.set("collection", options.collection);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
         if (options.filter) query.set("filter", options.filter);
@@ -131,6 +133,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
         if (options.gender) query.set("gender", options.gender);
         if (options.concentration) query.set("concentration", options.concentration);
         if (options.classification) query.set("classification", options.classification);
+        if (options.collection) query.set("collection", options.collection);
         if (options.search) query.set("search", options.search);
         if (options.sort) query.set("sort", options.sort);
         if (options.filter) query.set("filter", options.filter);

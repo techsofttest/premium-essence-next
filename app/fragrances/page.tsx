@@ -27,6 +27,7 @@ function FragranceCatalogContent() {
     const selectedFamily = searchParams.get("family") || "";
     const selectedGender = searchParams.get("gender") || "";
     const selectedConcentration = searchParams.get("concentration") || "";
+    const selectedCollection = searchParams.get("collection") || searchParams.get("collection_slug") || "";
     const selectedSort = searchParams.get("sort") || "sort_order";
 
     const [products, setProducts] = useState<Product[]>([]);
@@ -41,7 +42,7 @@ function FragranceCatalogContent() {
     // Reset pagination when active filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedFamily, selectedGender, selectedConcentration, selectedSort]);
+    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
 
     const totalProducts = products.length;
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
@@ -79,6 +80,7 @@ function FragranceCatalogContent() {
         if (selectedFamily) queryParams.set("family", selectedFamily);
         if (selectedGender) queryParams.set("gender", selectedGender);
         if (selectedConcentration) queryParams.set("concentration", selectedConcentration);
+        if (selectedCollection) queryParams.set("collection", selectedCollection);
         if (selectedSort) queryParams.set("sort", selectedSort);
         queryParams.set("per_page", "48");
 
@@ -106,7 +108,7 @@ function FragranceCatalogContent() {
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedFamily, selectedGender, selectedConcentration, selectedSort]);
+    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
 
     const updateFilter = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());
