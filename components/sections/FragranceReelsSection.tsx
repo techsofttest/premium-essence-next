@@ -19,7 +19,7 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
     if (!reels || reels.length === 0) return null;
 
     return (
-        <section className="w-full py-14 px-4 sm:px-8 md:px-12 bg-[#140F11] text-cream relative overflow-hidden border-y border-gold/15">
+        <section className="hidden w-full py-14 px-4 sm:px-8 md:px-12 bg-[#140F11] text-cream relative overflow-hidden border-y border-gold/15">
             {/* Ambient Lighting Accents */}
             <div className="absolute -top-32 -left-32 w-96 h-96 bg-mauve/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none" />

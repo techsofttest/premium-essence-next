@@ -13,7 +13,7 @@ export default function FragranceFamilySection({ families }: FragranceFamilySect
     if (!families || families.length === 0) return null;
 
     return (
-        <section className="w-full py-12 px-4 sm:px-8 md:px-12 bg-white text-dark border-b border-dark/10">
+        <section className="hidden w-full py-12 px-4 sm:px-8 md:px-12 bg-white text-dark border-b border-dark/10">
             <div className="max-w-screen-2xl mx-auto">
                 {/* Section Header */}
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-dark/10">
