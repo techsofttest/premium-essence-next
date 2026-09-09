@@ -81,22 +81,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Initial load from localStorage
     useEffect(() => {
-        const savedCart = localStorage.getItem("premium_essence_cart");
-        if (savedCart) {
-            try {
-                setCartItems(JSON.parse(savedCart));
-            } catch {
-                setCartItems([]);
-            }
+        let loadedItems: CartItem[] = [];
+        let loadedCoupon: AppliedCoupon | null = null;
+        try {
+            const savedCart = localStorage.getItem("premium_essence_cart");
+            if (savedCart) loadedItems = JSON.parse(savedCart);
+        } catch {
+            loadedItems = [];
         }
-        const savedCoupon = localStorage.getItem("premium_essence_coupon");
-        if (savedCoupon) {
-            try {
-                setAppliedCoupon(JSON.parse(savedCoupon));
-            } catch {
-                setAppliedCoupon(null);
-            }
+        try {
+            const savedCoupon = localStorage.getItem("premium_essence_coupon");
+            if (savedCoupon) loadedCoupon = JSON.parse(savedCoupon);
+        } catch {
+            loadedCoupon = null;
         }
+
+        queueMicrotask(() => {
+            if (loadedItems.length > 0) setCartItems(loadedItems);
+            if (loadedCoupon) setAppliedCoupon(loadedCoupon);
+        });
     }, []);
 
     // Sync from DB if customer is authenticated, while merging local guest items & preserving deals
@@ -339,8 +342,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             } else {
                 return { success: false, message: res.message || "Invalid coupon code" };
             }
-        } catch (err: any) {
-            return { success: false, message: err?.message || "Failed to validate coupon code" };
+        } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to validate coupon code";
+            return { success: false, message: errorMsg };
         }
     };
 

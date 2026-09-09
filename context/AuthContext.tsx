@@ -34,7 +34,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    useEffect(() => { void refreshCustomer(); }, []);
+    useEffect(() => {
+        let isMounted = true;
+        api<Customer>("/me")
+            .then((data) => {
+                if (isMounted) setCustomer(data);
+            })
+            .catch(() => {
+                if (isMounted) setCustomer(null);
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false);
+            });
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const login = async (email: string, password: string) => {
         const result = await api<Customer>("/customer/login", {

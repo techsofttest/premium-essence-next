@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
@@ -10,7 +11,7 @@ import GlowingButton from "./GlowingButton";
 function CartDrawerItemImage({ src, name }: { src: string; name: string }) {
     const [imgSrc, setImgSrc] = useState(src || "/logo/logo-black.png");
     useEffect(() => {
-        setImgSrc(src || "/logo/logo-black.png");
+        queueMicrotask(() => setImgSrc(src || "/logo/logo-black.png"));
     }, [src]);
 
     return (
@@ -26,6 +27,7 @@ function CartDrawerItemImage({ src, name }: { src: string; name: string }) {
 }
 
 export default function CartDrawer() {
+    const router = useRouter();
     const { isDrawerOpen, setIsDrawerOpen, cartItems, updateQuantity, removeFromCart, validateCartStock } = useCart();
     const [stockError, setStockError] = useState<string | null>(null);
 
@@ -151,7 +153,7 @@ export default function CartDrawer() {
                             } else {
                                 setStockError(null);
                                 setIsDrawerOpen(false);
-                                window.location.href = "/checkout";
+                                router.push("/checkout");
                             }
                         }}
                         fullWidth

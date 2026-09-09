@@ -149,7 +149,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
 
         const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { cache: "no-store" });
         if (!response.ok) return { products: [], rawProducts: [] };
-        const body = await response.json() as { data: StorefrontProduct[]; meta: any };
+        const body = await response.json() as { data: StorefrontProduct[]; meta?: { current_page: number; last_page: number; per_page: number; total: number } };
         return {
             products: (body.data || []).map(toProduct),
             rawProducts: body.data || [],
@@ -201,14 +201,14 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
 
         const collectionsMap: Record<string, Product[]> = {};
         if (Array.isArray(data.collections)) {
-            data.collections.forEach((col: any) => {
+            data.collections.forEach((col: { slug?: string; products?: StorefrontProduct[] }) => {
                 if (col.slug && Array.isArray(col.products)) {
                     collectionsMap[col.slug] = col.products.map(toProduct);
                 }
             });
         }
 
-        const brands = (data.brands || []).map((b: any) => ({
+        const brands = (data.brands || []).map((b: { id: number; name: string; slug?: string; classification?: string; logo?: string; logo_url?: string }) => ({
             id: b.id,
             name: b.name,
             slug: b.slug || b.name.toLowerCase().replace(/ /g, "-"),
@@ -216,21 +216,21 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
             logo: b.logo || b.logo_url || undefined,
         }));
 
-        const banners = (data.banners || []).map((b: any) => ({
+        const banners = (data.banners || []).map((b: { id: number; name?: string; image_url?: string; image?: string; url?: string }) => ({
             id: b.id,
             name: b.name || "Banner",
-            image_url: b.image_url || b.image,
+            image_url: b.image_url || b.image || "",
             url: b.url || "/shop",
         }));
 
         const middleBanner = data.middle_banner ? {
             id: data.middle_banner.id,
             name: data.middle_banner.name || "Middle Banner",
-            image_url: data.middle_banner.image_url || data.middle_banner.image,
+            image_url: data.middle_banner.image_url || data.middle_banner.image || "",
             url: data.middle_banner.url || "/shop",
         } : null;
 
-        const whyChooseUs = (data.why_choose_us || []).map((w: any) => ({
+        const whyChooseUs = (data.why_choose_us || []).map((w: { id: number; title: string; description: string; icon?: string }) => ({
             id: w.id,
             title: w.title,
             description: w.description,
@@ -285,7 +285,7 @@ export async function getStorefrontReels(): Promise<FragranceReelItem[]> {
         if (!response.ok) return [];
         const data = await response.json();
         if (Array.isArray(data)) {
-            return data.map((item: any) => ({
+            return data.map((item: { id: number; title: string; subtitle?: string; video_url: string; thumbnail?: string; badge?: string; button_text?: string; button_link?: string; product?: StorefrontProduct }) => ({
                 id: item.id,
                 title: item.title,
                 subtitle: item.subtitle,
@@ -309,7 +309,7 @@ export async function getFragranceFamilies(): Promise<FragranceFamilyItem[]> {
         if (!response.ok) return [];
         const data = await response.json();
         if (Array.isArray(data)) {
-            return data.map((item: any) => ({
+            return data.map((item: { id: number; name: string; slug: string; image?: string; description?: string; product_count?: number; href?: string }) => ({
                 id: item.id,
                 name: item.name,
                 slug: item.slug,

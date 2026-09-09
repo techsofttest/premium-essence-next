@@ -15,14 +15,16 @@ export default function AddToCartModal() {
 
     useEffect(() => {
         if (isModalOpen && selectedProduct) {
-            setQuantity(1);
-            const firstVariant = selectedProduct.variants?.[0];
-            setSelectedSize(firstVariant?.label || firstVariant?.size || "100ml");
-            setImgSrc(selectedProduct.image || "/logo/logo-black.png");
+            queueMicrotask(() => {
+                setQuantity(1);
+                const firstVariant = selectedProduct.variants?.[0];
+                setSelectedSize(firstVariant?.label || firstVariant?.size || "100ml");
+                setImgSrc(selectedProduct.image || "/logo/logo-black.png");
+            });
         }
     }, [isModalOpen, selectedProduct]);
 
-    const variants: ProductVariantItem[] = selectedProduct?.variants || [];
+    const variants: ProductVariantItem[] = useMemo(() => selectedProduct?.variants || [], [selectedProduct]);
 
     const selectedVariant = useMemo(() => {
         if (!variants.length) return null;
@@ -49,9 +51,9 @@ export default function AddToCartModal() {
 
     useEffect(() => {
         if (remainingStock > 0 && quantity > remainingStock) {
-            setQuantity(remainingStock);
+            queueMicrotask(() => setQuantity(remainingStock));
         }
-    }, [remainingStock]);
+    }, [remainingStock, quantity]);
 
     if (!isModalOpen || !selectedProduct) return null;
 

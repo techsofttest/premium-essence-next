@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useAuth } from "./AuthContext";
@@ -23,25 +23,25 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const refreshWishlist = async () => {
+    const refreshWishlist = useCallback(async () => {
         if (!customer) {
             setWishlistProducts([]);
             return;
         }
         setLoading(true);
         try {
-            const rawWishlist = await api<any[]>("/customer/wishlist");
-            const formatted = (rawWishlist || []).map((item: any) => ({
-                id: String(item.id),
-                slug: item.slug,
-                brand: item.brand || "Premium Essence",
-                name: item.title || item.name,
-                price: item.price,
-                originalPrice: item.originalPrice,
-                rating: item.rating || 5.0,
-                reviews: item.reviews || 0,
-                image: item.image || "/logo/logo-black.png",
-                badge: item.badge,
+            const rawWishlist = await api<Array<Record<string, unknown>>>("/customer/wishlist");
+            const formatted: Product[] = (rawWishlist || []).map((item) => ({
+                id: String(item.id ?? ""),
+                slug: String(item.slug ?? ""),
+                brand: String(item.brand ?? "Premium Essence"),
+                name: String(item.title ?? item.name ?? ""),
+                price: Number(item.price ?? 0),
+                originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
+                rating: Number(item.rating ?? 5.0),
+                reviews: Number(item.reviews ?? 0),
+                image: String(item.image ?? "/logo/logo-black.png"),
+                badge: item.badge ? (item.badge as Product["badge"]) : undefined,
             }));
             setWishlistProducts(formatted);
         } catch {
@@ -49,10 +49,46 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [customer]);
 
     useEffect(() => {
-        void refreshWishlist();
+        let isMounted = true;
+        if (!customer) {
+            queueMicrotask(() => {
+                if (isMounted) setWishlistProducts([]);
+            });
+            return;
+        }
+        queueMicrotask(() => {
+            if (isMounted) setLoading(true);
+        });
+        api<Array<Record<string, unknown>>>("/customer/wishlist")
+            .then((rawWishlist) => {
+                if (!isMounted) return;
+                const formatted: Product[] = (rawWishlist || []).map((item) => ({
+                    id: String(item.id ?? ""),
+                    slug: String(item.slug ?? ""),
+                    brand: String(item.brand ?? "Premium Essence"),
+                    name: String(item.title ?? item.name ?? ""),
+                    price: Number(item.price ?? 0),
+                    originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
+                    rating: Number(item.rating ?? 5.0),
+                    reviews: Number(item.reviews ?? 0),
+                    image: String(item.image ?? "/logo/logo-black.png"),
+                    badge: item.badge ? (item.badge as Product["badge"]) : undefined,
+                }));
+                setWishlistProducts(formatted);
+            })
+            .catch(() => {
+                if (isMounted) setWishlistProducts([]);
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
     }, [customer]);
 
     const wishlistIds = useMemo(() => {
