@@ -76,11 +76,16 @@ export default function ProductDetailPage() {
         stock: v.stock,
     })) || [];
 
+    const concentrationName = typeof productDetail?.concentration === "string" 
+        ? productDetail.concentration 
+        : (productDetail?.fragrance_concentration?.name || (typeof productDetail?.concentration === "object" ? (productDetail?.concentration as any)?.name : undefined));
+
     const formattedProduct = {
         id: String(productDetail?.id || id),
         slug: productDetail?.slug,
         brand: productDetail?.brand?.name || "PREMIUM ESSENCE",
         name: productDetail?.name || "Perfume",
+        concentration: concentrationName || "Eau de Parfum",
         price: productDetail?.price || 0,
         originalPrice: productDetail?.max_price && productDetail.max_price > (productDetail.price || 0) ? productDetail.max_price : undefined,
         rating: productDetail?.rating || 5.0,

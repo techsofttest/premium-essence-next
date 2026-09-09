@@ -80,12 +80,17 @@ export default function AddToCartModal() {
                         </button>
 
                         <div className="flex flex-col gap-2 mb-6">
-                            <span className="text-[10px] tracking-[0.4em] uppercase text-[#C5A059] font-bold">{selectedProduct.brand}</span>
-                            <h2 className="font-serif text-2xl md:text-3xl text-dark leading-tight">{selectedProduct.name}</h2>
+                            <span className="text-xs sm:text-sm tracking-[0.4em] uppercase text-[#C5A059] font-black">{selectedProduct.brand}</span>
+                            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase tracking-wider text-dark leading-tight">{selectedProduct.name}</h2>
+                            {Boolean(selectedProduct.concentration) && (
+                                <span className="text-xs sm:text-sm font-extrabold text-mauve uppercase tracking-widest block mt-0.5">
+                                    {selectedProduct.concentration}
+                                </span>
+                            )}
                             <div className="flex items-baseline gap-3 mt-1">
-                                <span className="font-serif text-2xl text-dark font-medium">{currentPrice} AED</span>
+                                <span className="font-serif text-2xl sm:text-3xl text-dark font-bold">{currentPrice} AED</span>
                                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                                    <span className="text-sm text-dark/40 line-through font-light">{currentOriginalPrice} AED</span>
+                                    <span className="text-sm sm:text-base text-dark/40 line-through font-semibold">{currentOriginalPrice} AED</span>
                                 )}
                             </div>
                         </div>

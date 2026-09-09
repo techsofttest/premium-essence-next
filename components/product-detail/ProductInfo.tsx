@@ -13,6 +13,7 @@ interface ProductInfoProps {
         id: string;
         brand: string;
         name: string;
+        concentration?: string;
         price: number;
         originalPrice?: number;
         rating: number;
@@ -55,6 +56,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         id: product.id,
         brand: product.brand,
         name: product.name,
+        concentration: product.concentration,
         price: currentPrice,
         originalPrice: currentOriginalPrice,
         rating: product.rating,
@@ -87,14 +89,19 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
     return (
         <div className="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-32 h-fit font-sans">
-            {/* Brand, Title & Reviews */}
+            {/* Brand, Title, Concentration & Reviews */}
             <div className="flex flex-col gap-2">
-                <span className="text-xs sm:text-sm tracking-[0.4em] uppercase text-dark font-extrabold opacity-90">
+                <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
                     {product.brand}
                 </span>
-                <h1 className="font-serif text-4xl md:text-5xl uppercase font-bold text-dark leading-tight tracking-wider">
+                <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl uppercase font-black text-dark leading-tight tracking-wider">
                     {product.name}
                 </h1>
+                {Boolean(product.concentration) && (
+                    <span className="text-sm sm:text-base font-extrabold text-mauve uppercase tracking-widest block -mt-1">
+                        {product.concentration}
+                    </span>
+                )}
                 <div className="flex items-center gap-4 mt-2">
                     {product.rating && product.reviews ? (
                         <>
