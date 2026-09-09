@@ -184,11 +184,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const existingIndex = cartItems.findIndex(item => item.id === newItem.id && item.size === newItem.size);
         let updated: CartItem[];
         if (existingIndex > -1) {
-            updated = cartItems.map((item, idx) =>
-                idx === existingIndex
-                    ? { ...item, quantity: item.quantity + newItem.quantity, stock: newItem.stock ?? item.stock }
-                    : item
-            );
+            updated = cartItems.map((item, idx) => {
+                if (idx === existingIndex) {
+                    const maxStock = newItem.stock ?? item.stock ?? 99;
+                    const combinedQty = Math.min(maxStock, item.quantity + newItem.quantity);
+                    return { ...item, quantity: combinedQty, stock: maxStock };
+                }
+                return item;
+            });
         } else {
             updated = [newItem, ...cartItems];
         }
@@ -239,7 +242,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const updateQuantity = (id: string, size: string, delta: number) => {
         const targetItem = cartItems.find((item) => item.id === id && item.size === size);
         if (!targetItem) return;
-        const newQuantity = Math.max(1, targetItem.quantity + delta);
+        const maxStock = targetItem.stock ?? 99;
+        const newQuantity = Math.max(1, Math.min(maxStock, targetItem.quantity + delta));
 
         const updated = cartItems.map((item) =>
             item.id === id && item.size === size

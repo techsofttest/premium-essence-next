@@ -8,7 +8,7 @@ import GlowingButton from "./GlowingButton";
 import { ProductVariantItem } from "./ProductCard";
 
 export default function AddToCartModal() {
-    const { isModalOpen, setIsModalOpen, selectedProduct, addToCart } = useCart();
+    const { isModalOpen, setIsModalOpen, selectedProduct, addToCart, cartItems } = useCart();
     const [selectedSize, setSelectedSize] = useState("100ml");
     const [quantity, setQuantity] = useState(1);
     const [imgSrc, setImgSrc] = useState(selectedProduct?.image || "/logo/logo-black.png");
@@ -33,14 +33,36 @@ export default function AddToCartModal() {
         );
     }, [variants, selectedSize]);
 
+    const maxStock = selectedVariant?.stock ?? 99;
+    const existingCartItem = useMemo(() => {
+        if (!selectedProduct) return null;
+        return cartItems.find(
+            (item) =>
+                (item.id === String(selectedProduct.id) || item.productId === Number(selectedProduct.id)) &&
+                (item.variantId === selectedVariant?.id || item.size?.toLowerCase() === selectedSize.toLowerCase())
+        );
+    }, [cartItems, selectedProduct, selectedVariant, selectedSize]);
+
+    const existingCartQty = existingCartItem ? existingCartItem.quantity : 0;
+    const remainingStock = Math.max(0, maxStock - existingCartQty);
+    const isOutOfStock = (selectedVariant ? (selectedVariant.stock ?? 0) <= 0 : false) || maxStock <= 0;
+
+    useEffect(() => {
+        if (remainingStock > 0 && quantity > remainingStock) {
+            setQuantity(remainingStock);
+        }
+    }, [remainingStock]);
+
     if (!isModalOpen || !selectedProduct) return null;
 
     const currentPrice = selectedVariant?.price ?? selectedProduct.price;
     const currentOriginalPrice = selectedVariant?.originalPrice ?? selectedProduct.originalPrice;
-    const isOutOfStock = selectedVariant ? (selectedVariant.stock ?? 0) <= 0 : false;
 
     const handleAddToCart = () => {
-        if (isOutOfStock) return;
+        if (isOutOfStock || remainingStock <= 0) return;
+        const finalQty = Math.min(quantity, remainingStock);
+        if (finalQty <= 0) return;
+
         addToCart({
             id: selectedProduct.id,
             brand: selectedProduct.brand,
@@ -48,7 +70,8 @@ export default function AddToCartModal() {
             price: currentPrice,
             size: selectedSize,
             image: imgSrc || selectedProduct.image || "/logo/logo-black.png",
-            quantity: quantity,
+            quantity: finalQty,
+            stock: maxStock,
             productId: Number(selectedProduct.id),
             variantId: selectedVariant?.id,
         });
@@ -100,11 +123,19 @@ export default function AddToCartModal() {
                             <div className="flex flex-col gap-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-dark">Select Size</span>
-                                    {isOutOfStock && (
+                                    {isOutOfStock ? (
                                         <span className="text-[10px] text-rose-600 font-bold uppercase tracking-wider flex items-center gap-1">
                                             <AlertCircle size={12} /> Out of Stock
                                         </span>
-                                    )}
+                                    ) : remainingStock <= 0 ? (
+                                        <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                                            <AlertCircle size={12} /> Max stock in bag ({existingCartQty})
+                                        </span>
+                                    ) : remainingStock < 10 ? (
+                                        <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">
+                                            {remainingStock} available
+                                        </span>
+                                    ) : null}
                                 </div>
                                 <div className="flex flex-wrap gap-2.5">
                                     {(variants.length
@@ -137,20 +168,27 @@ export default function AddToCartModal() {
 
                             {/* Quantity Selection */}
                             <div className="flex flex-col gap-3">
-                                <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-dark">Quantity</span>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-dark">Quantity</span>
+                                    {remainingStock > 0 && quantity >= remainingStock && (
+                                        <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider">
+                                            Max stock limit reached ({remainingStock})
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center border border-dark/20 w-fit bg-white">
                                     <button 
-                                        disabled={isOutOfStock}
+                                        disabled={quantity <= 1 || isOutOfStock || remainingStock <= 0}
                                         onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                        className="px-5 py-3 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30"
+                                        className="px-5 py-3 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                         <Minus size={14} strokeWidth={2.5} />
                                     </button>
                                     <span className="w-12 text-center text-sm font-bold text-dark">{quantity}</span>
                                     <button 
-                                        disabled={isOutOfStock}
-                                        onClick={() => setQuantity(q => q + 1)}
-                                        className="px-5 py-3 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30"
+                                        disabled={quantity >= remainingStock || isOutOfStock || remainingStock <= 0}
+                                        onClick={() => setQuantity(q => Math.min(remainingStock, q + 1))}
+                                        className="px-5 py-3 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                         <Plus size={14} strokeWidth={2.5} />
                                     </button>
@@ -159,12 +197,12 @@ export default function AddToCartModal() {
                         </div>
 
                         <div className="mt-8">
-                            {isOutOfStock ? (
+                            {isOutOfStock || remainingStock <= 0 ? (
                                 <button
                                     disabled
                                     className="w-full h-14 bg-dark/20 text-dark/50 border border-dark/10 font-bold text-[11px] tracking-[0.3em] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
                                 >
-                                    <AlertCircle size={16} /> Out of Stock
+                                    <AlertCircle size={16} /> {isOutOfStock ? "Out of Stock" : `Max Stock in Bag (${existingCartQty})`}
                                 </button>
                             ) : (
                                 <GlowingButton 

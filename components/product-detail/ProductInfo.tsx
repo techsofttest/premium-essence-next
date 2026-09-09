@@ -26,7 +26,7 @@ interface ProductInfoProps {
 }
 
 export default function ProductInfo({ product }: ProductInfoProps) {
-    const { addToCart } = useCart();
+    const { cartItems, addToCart } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
 
     const variants = product.variants || [];
@@ -48,7 +48,30 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     // Calculate dynamic pricing & stock status for selected variant
     const currentPrice = selectedVariant?.price ?? product.price;
     const currentOriginalPrice = selectedVariant?.originalPrice ?? product.originalPrice;
-    const isOutOfStock = selectedVariant ? (selectedVariant.stock ?? 0) <= 0 : false;
+    
+    // Calculate stock limits accounting for items already in cart
+    const maxStock = selectedVariant?.stock ?? 99;
+    const existingCartQty = useMemo(() => {
+        const item = cartItems.find((ci) => {
+            if (selectedVariant?.id) {
+                return String(ci.productId) === String(product.id) && ci.variantId === selectedVariant.id;
+            }
+            return String(ci.productId) === String(product.id) && ci.size === selectedSize;
+        });
+        return item ? item.quantity : 0;
+    }, [cartItems, product.id, selectedVariant?.id, selectedSize]);
+
+    const remainingStock = Math.max(0, maxStock - existingCartQty);
+    const isOutOfStock = maxStock <= 0 || remainingStock <= 0;
+
+    // Clamp state quantity if remaining stock changes
+    useEffect(() => {
+        if (remainingStock <= 0) {
+            setQuantity(1);
+        } else if (quantity > remainingStock) {
+            setQuantity(remainingStock);
+        }
+    }, [remainingStock, quantity]);
 
     const isWishlisted = isInWishlist(product.id);
 
@@ -66,7 +89,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     };
 
     const handleAddToCart = () => {
-        if (isOutOfStock) return;
+        if (isOutOfStock || remainingStock <= 0) return;
+        const qtyToAdd = Math.min(quantity, remainingStock);
+        if (qtyToAdd <= 0) return;
         addToCart({
             id: product.id,
             brand: product.brand,
@@ -74,7 +99,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             price: currentPrice,
             size: selectedSize,
             image: product.images?.[0] || "/logo/logo-black.png",
-            quantity: quantity,
+            quantity: qtyToAdd,
             productId: Number(product.id),
             variantId: selectedVariant?.id,
         });
@@ -189,10 +214,22 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 {/* Stock status indicator */}
                 <div className="flex items-center gap-2">
                     <span
-                        className={`w-2 h-2 rounded-full ${isOutOfStock ? "bg-red-500" : "bg-emerald-500 animate-pulse"}`}
+                        className={`w-2 h-2 rounded-full ${
+                            maxStock <= 0
+                                ? "bg-red-500"
+                                : remainingStock <= 0
+                                ? "bg-amber-500"
+                                : "bg-emerald-500 animate-pulse"
+                        }`}
                     />
                     <span className="text-xs text-dark/70 font-medium">
-                        {isOutOfStock ? "Out of Stock" : "In Stock — Ready to Ship"}
+                        {maxStock <= 0
+                            ? "Out of Stock"
+                            : remainingStock <= 0
+                            ? `Max stock limit reached (${existingCartQty} in bag)`
+                            : existingCartQty > 0
+                            ? `${remainingStock} available (${existingCartQty} already in bag)`
+                            : "In Stock — Ready to Ship"}
                     </span>
                 </div>
 
@@ -200,29 +237,29 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     {/* Quantity Selector */}
                     <div className="flex items-center border border-dark/20 bg-white h-[56px]">
                         <button
-                            disabled={quantity <= 1 || isOutOfStock}
+                            disabled={quantity <= 1 || isOutOfStock || remainingStock <= 0}
                             onClick={() => setQuantity(quantity - 1)}
-                            className="px-4 py-2 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30"
+                            className="px-4 py-2 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <Minus size={16} strokeWidth={2.5} />
                         </button>
                         <span className="w-10 text-center text-sm font-bold text-dark">{quantity}</span>
                         <button
-                            disabled={isOutOfStock}
+                            disabled={quantity >= remainingStock || isOutOfStock || remainingStock <= 0}
                             onClick={() => setQuantity(quantity + 1)}
-                            className="px-4 py-2 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30"
+                            className="px-4 py-2 hover:bg-dark/5 transition-colors text-dark disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             <Plus size={16} strokeWidth={2.5} />
                         </button>
                     </div>
 
                     {/* Add to Shopping Bag Button / Out of Stock Button */}
-                    {isOutOfStock ? (
+                    {maxStock <= 0 || remainingStock <= 0 ? (
                         <button
                             disabled
                             className="flex-1 h-[56px] text-[11px] tracking-[0.2em] uppercase font-bold bg-dark/20 text-dark/50 border border-dark/10 cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            <AlertCircle size={16} /> Out of Stock
+                            <AlertCircle size={16} /> {maxStock <= 0 ? "Out of Stock" : "Limit Reached"}
                         </button>
                     ) : (
                         <GlowingButton
