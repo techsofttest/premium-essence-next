@@ -119,7 +119,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
                     {product.brand}
                 </span>
-                <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl uppercase font-black text-dark leading-tight tracking-wider">
+                <h1 className="font-serif text-4xl md:text-5xl uppercase text-dark leading-tight">
                     {product.name}
                 </h1>
                 {Boolean(product.concentration) && (
