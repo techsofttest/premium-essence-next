@@ -48,7 +48,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     // Calculate dynamic pricing & stock status for selected variant
     const currentPrice = selectedVariant?.price ?? product.price;
     const currentOriginalPrice = selectedVariant?.originalPrice ?? product.originalPrice;
-    
+
     // Calculate stock limits accounting for items already in cart
     const maxStock = selectedVariant?.stock ?? 99;
     const existingCartQty = useMemo(() => {
@@ -119,7 +119,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
                     {product.brand}
                 </span>
-                <h1 className="font-serif text-4xl md:text-5xl uppercase text-dark leading-tight">
+                <h1 className="font-serif text-3xl md:text-4xl uppercase text-dark leading-tight">
                     {product.name}
                 </h1>
                 {Boolean(product.concentration) && (
@@ -185,10 +185,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <div className="flex flex-wrap gap-3">
                     {(variants.length
                         ? variants.map((v) => ({
-                              label: v.label || v.size || `${v.id}`,
-                              price: v.price,
-                              outOfStock: (v.stock ?? 0) <= 0,
-                          }))
+                            label: v.label || v.size || `${v.id}`,
+                            price: v.price,
+                            outOfStock: (v.stock ?? 0) <= 0,
+                        }))
                         : product.sizes.map((s) => ({ label: s, price: product.price, outOfStock: false }))
                     ).map((variantItem) => {
                         const isSelected = selectedSize.toLowerCase() === variantItem.label.toLowerCase();
@@ -196,11 +196,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                             <button
                                 key={variantItem.label}
                                 onClick={() => setSelectedSize(variantItem.label)}
-                                className={`px-5 py-2.5 text-xs font-semibold tracking-wider transition-all relative ${
-                                    isSelected
-                                        ? "bg-dark text-cream shadow-md"
-                                        : "bg-[#F7F3F4] text-dark/80 border border-dark/20 hover:border-dark"
-                                } ${variantItem.outOfStock ? "opacity-40 cursor-not-allowed line-through" : ""}`}
+                                className={`px-5 py-2.5 text-xs font-semibold tracking-wider transition-all relative ${isSelected
+                                    ? "bg-dark text-cream shadow-md"
+                                    : "bg-[#F7F3F4] text-dark/80 border border-dark/20 hover:border-dark"
+                                    } ${variantItem.outOfStock ? "opacity-40 cursor-not-allowed line-through" : ""}`}
                             >
                                 {variantItem.label}
                             </button>
@@ -214,22 +213,21 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 {/* Stock status indicator */}
                 <div className="flex items-center gap-2">
                     <span
-                        className={`w-2 h-2 rounded-full ${
-                            maxStock <= 0
-                                ? "bg-red-500"
-                                : remainingStock <= 0
+                        className={`w-2 h-2 rounded-full ${maxStock <= 0
+                            ? "bg-red-500"
+                            : remainingStock <= 0
                                 ? "bg-amber-500"
                                 : "bg-emerald-500 animate-pulse"
-                        }`}
+                            }`}
                     />
                     <span className="text-xs text-dark/70 font-medium">
                         {maxStock <= 0
                             ? "Out of Stock"
                             : remainingStock <= 0
-                            ? `Max stock limit reached (${existingCartQty} in bag)`
-                            : existingCartQty > 0
-                            ? `${remainingStock} available (${existingCartQty} already in bag)`
-                            : "In Stock — Ready to Ship"}
+                                ? `Max stock limit reached (${existingCartQty} in bag)`
+                                : existingCartQty > 0
+                                    ? `${remainingStock} available (${existingCartQty} already in bag)`
+                                    : "In Stock — Ready to Ship"}
                     </span>
                 </div>
 
