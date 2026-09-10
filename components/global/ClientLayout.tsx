@@ -10,6 +10,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { ContactProvider } from "@/context/ContactContext";
 import AddToCartModal from "@/components/ui/AddToCartModal";
 import CartDrawer from "@/components/ui/CartDrawer";
+import FloatingWhatsApp from "@/components/global/FloatingWhatsApp";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -31,6 +32,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         {!isAuthPage && <Footer />}
                         <AddToCartModal />
                         <CartDrawer />
+                        <FloatingWhatsApp />
                     </CartProvider>
                 </WishlistProvider>
             </ContactProvider>
