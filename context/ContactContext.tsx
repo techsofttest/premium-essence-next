@@ -15,6 +15,7 @@ export interface ContactSettingsData {
     google_maps_link: string;
     facebook_url?: string | null;
     instagram_url?: string | null;
+    threads_url?: string | null;
     twitter_url?: string | null;
     linkedin_url?: string | null;
     youtube_url?: string | null;
@@ -23,6 +24,7 @@ export interface ContactSettingsData {
     social_links?: {
         facebook?: string | null;
         instagram?: string | null;
+        threads?: string | null;
         twitter?: string | null;
         linkedin?: string | null;
         youtube?: string | null;
@@ -43,6 +45,7 @@ const DEFAULT_CONTACT_SETTINGS: ContactSettingsData = {
     google_maps_link: "https://maps.google.com/?q=Musaffah+M9+Abu+Dhabi+UAE",
     facebook_url: "https://facebook.com",
     instagram_url: "https://instagram.com",
+    threads_url: "https://threads.net",
     twitter_url: "https://twitter.com",
     linkedin_url: "https://linkedin.com",
     youtube_url: "https://youtube.com",

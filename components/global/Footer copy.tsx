@@ -295,6 +295,19 @@ export default function Footer() {
                                         <Instagram size={20} strokeWidth={1.5} />
                                     </a>
                                 )}
+                                {contactSettings.threads_url && contactSettings.threads_url.trim() !== "" && (
+                                    <a href={contactSettings.threads_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300" title="Threads">
+                                        <svg
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M12.186 24c-3.262 0-6.107-.984-8.15-2.82C2.08 19.423 1 16.634 1 13.125c0-3.693 1.187-6.586 3.435-8.596C6.67 2.528 9.775 1.5 13.682 1.5c3.844 0 6.942 1.01 9.208 3.003C25.109 6.467 26.23 9.3 26.23 12.87c0 3.328-1.047 5.922-3.116 7.712-1.996 1.727-4.707 2.602-8.058 2.602h-.002zm-.124-2.454c2.518 0 4.542-.667 6.015-1.982 1.458-1.303 2.197-3.176 2.197-5.568 0-2.613-.807-4.664-2.401-6.096-1.577-1.417-3.79-2.135-6.577-2.135-2.881 0-5.148.74-6.738 2.2-1.572 1.444-2.37 3.518-2.37 6.16 0 2.603.805 4.673 2.392 6.151 1.569 1.46 3.792 2.198 6.61 2.198l.872-.928zm.052-4.148c-1.892 0-3.196-.92-3.196-2.278 0-1.381 1.344-2.28 3.253-2.28 1.94 0 3.23.901 3.23 2.28 0 1.356-1.304 2.278-3.287 2.278z" />
+                                        </svg>
+                                    </a>
+                                )}
                                 {contactSettings.youtube_url && contactSettings.youtube_url.trim() !== "" && (
                                     <a href={contactSettings.youtube_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
                                         <Youtube size={20} strokeWidth={1.5} />
