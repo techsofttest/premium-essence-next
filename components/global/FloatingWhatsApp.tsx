@@ -21,7 +21,7 @@ export default function FloatingWhatsApp() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-[90] flex items-center gap-3 group"
+                className="fixed bottom-25 right-6 z-[90] flex items-center gap-3 group"
                 title={`Chat with us on WhatsApp (${rawWhatsapp})`}
                 aria-label={`Chat with us on WhatsApp (${rawWhatsapp})`}
             >
