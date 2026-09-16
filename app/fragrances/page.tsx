@@ -58,6 +58,45 @@ function FragranceCatalogContent() {
         }
     };
 
+    const renderPaginationNumbers = () => {
+        if (totalPages <= 1) return null;
+        return (
+            <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                    onClick={() => handlePageChange(validPage - 1)}
+                    disabled={validPage === 1}
+                    className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                    aria-label="Previous page"
+                >
+                    <ChevronLeft size={16} />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-9 h-9 text-xs font-bold transition-all ${
+                            pageNum === validPage
+                                ? "bg-dark text-white border border-dark shadow-sm"
+                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                        }`}
+                    >
+                        {pageNum}
+                    </button>
+                ))}
+
+                <button
+                    onClick={() => handlePageChange(validPage + 1)}
+                    disabled={validPage === totalPages}
+                    className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
+                    aria-label="Next page"
+                >
+                    <ChevronRight size={16} />
+                </button>
+            </div>
+        );
+    };
+
     // Fetch Taxonomy Filters (Families & Concentrations)
     useEffect(() => {
         api<FilterMetadata>("/storefront/fragrance-filters")
@@ -130,16 +169,19 @@ function FragranceCatalogContent() {
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans py-12 px-6 md:px-12">
             <div className="max-w-screen-2xl mx-auto">
                 {/* Hero Header */}
-                <div className="text-center py-10 mb-10 border-b border-dark/10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">
-                        Olfactive Excellence
-                    </span>
-                    <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-dark">
-                        The Fragrance Collection
-                    </h1>
-                    <p className="text-xs md:text-sm text-dark/70 mt-3 max-w-xl mx-auto leading-relaxed">
-                        Explore masterfully crafted perfumes curated by fragrance family, olfactive concentration, and bespoke notes.
-                    </p>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-center md:text-left py-10 mb-10 border-b border-dark/10">
+                    <div className="flex flex-col items-center md:items-start">
+                        <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">
+                            Olfactive Excellence
+                        </span>
+                        <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-dark">
+                            The Fragrance Collection
+                        </h1>
+                        <p className="text-xs md:text-sm text-dark/70 mt-3 max-w-xl mx-auto md:mx-0 leading-relaxed">
+                            Explore masterfully crafted perfumes curated by fragrance family, olfactive concentration, and bespoke notes.
+                        </p>
+                    </div>
+                    {renderPaginationNumbers()}
                 </div>
 
                 {/* Filter & Controls Bar */}
@@ -344,39 +386,7 @@ function FragranceCatalogContent() {
                                             Showing <span className="font-bold text-dark">{startIndex + 1}</span>–<span className="font-bold text-dark">{Math.min(startIndex + ITEMS_PER_PAGE, totalProducts)}</span> of <span className="font-bold text-dark">{totalProducts}</span> Fragrances
                                         </span>
 
-                                        <div className="flex items-center gap-1.5">
-                                            <button
-                                                onClick={() => handlePageChange(validPage - 1)}
-                                                disabled={validPage === 1}
-                                                className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
-                                                aria-label="Previous page"
-                                            >
-                                                <ChevronLeft size={16} />
-                                            </button>
-
-                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                                                <button
-                                                    key={pageNum}
-                                                    onClick={() => handlePageChange(pageNum)}
-                                                    className={`w-9 h-9 text-xs font-bold transition-all ${
-                                                        pageNum === validPage
-                                                            ? "bg-dark text-white border border-dark shadow-sm"
-                                                            : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
-                                                    }`}
-                                                >
-                                                    {pageNum}
-                                                </button>
-                                            ))}
-
-                                            <button
-                                                onClick={() => handlePageChange(validPage + 1)}
-                                                disabled={validPage === totalPages}
-                                                className="p-2.5 border border-dark/20 text-dark disabled:opacity-30 disabled:cursor-not-allowed hover:bg-dark hover:text-white transition-colors"
-                                                aria-label="Next page"
-                                            >
-                                                <ChevronRight size={16} />
-                                            </button>
-                                        </div>
+                                        {renderPaginationNumbers()}
                                     </div>
                                 )}
                             </>
