@@ -94,6 +94,7 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                                         size: reel.product.variants?.[0]?.size || "100ml",
                                                         image: reel.product.image,
                                                         quantity: 1,
+                                                        stock: reel.product.variants?.[0]?.stock ?? 99,
                                                         productId: Number(reel.product.id),
                                                         variantId: reel.product.variants?.[0]?.id,
                                                     });
@@ -223,6 +224,7 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                                             size: selectedReel.product.variants?.[0]?.size || "100ml",
                                                             image: selectedReel.product.image,
                                                             quantity: 1,
+                                                            stock: selectedReel.product.variants?.[0]?.stock ?? 99,
                                                             productId: Number(selectedReel.product.id),
                                                             variantId: selectedReel.product.variants?.[0]?.id,
                                                         });

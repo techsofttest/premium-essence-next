@@ -338,7 +338,18 @@ export default function Header() {
                         <nav className="flex items-center gap-5 xl:gap-8 h-full">
                             {categoriesList.map((category) => (
                                 <div key={category.name} className="h-full flex items-center" onMouseEnter={() => setActiveDropdown(category.name)}>
-                                    <Link href={getCategoryHref(category)} onClick={closeAllMenus} className={`text-xs font-black tracking-[0.18em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/85 hover:text-dark"}`}>
+                                    <Link 
+                                        href={category.name === "Fragrances" ? "#" : getCategoryHref(category)} 
+                                        onClick={(e) => {
+                                            if (category.name === "Fragrances") {
+                                                e.preventDefault();
+                                                setActiveDropdown(activeDropdown === category.name ? null : category.name);
+                                            } else {
+                                                closeAllMenus();
+                                            }
+                                        }} 
+                                        className={`text-xs font-black tracking-[0.18em] uppercase transition-colors h-full flex items-center border-b-2 pt-0.5 ${activeDropdown === category.name ? "border-dark text-dark" : "border-transparent text-dark/85 hover:text-dark"}`}
+                                    >
                                         {category.name}
                                     </Link>
                                     {category.hasDropdown && activeDropdown === category.name && (

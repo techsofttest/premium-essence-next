@@ -100,6 +100,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             size: selectedSize,
             image: product.images?.[0] || "/logo/logo-black.png",
             quantity: qtyToAdd,
+            stock: maxStock,
             productId: Number(product.id),
             variantId: selectedVariant?.id,
         });

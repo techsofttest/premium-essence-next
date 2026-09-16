@@ -126,6 +126,7 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                 size: "100ml",
                 image: activeProduct.image,
                 quantity: 1,
+                stock: activeProduct.variants?.[0]?.stock ?? 99,
                 productId: Number(activeProduct.id),
             });
         }

@@ -16,7 +16,7 @@ export default function ShopPage() {
             <ProductCatalogView
                 title="All Perfumes & Fragrances"
                 subtitle="Browse our complete collection of luxury fragrances, Eau de Parfum, Extrait de Parfum, and Niche perfume houses."
-                bannerImage="/product-banner/Montblanc-B.png"
+                bannerImage=""
             />
         </Suspense>
     );
