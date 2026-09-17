@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
@@ -10,7 +11,19 @@ import SeoHead from "@/components/seo/SeoHead";
 export default function NewArrivalsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(1);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const initialPage = Number(searchParams.get("page")) || 1;
+    const [page, setPage] = useState(initialPage);
+
+    useEffect(() => {
+        const pageFromUrl = Number(searchParams.get("page")) || 1;
+        if (pageFromUrl !== page) {
+            setPage(pageFromUrl);
+        }
+    }, [searchParams]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalProducts, setTotalProducts] = useState(0);
 
@@ -41,6 +54,13 @@ export default function NewArrivalsPage() {
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
+        const params = new URLSearchParams(searchParams.toString());
+        if (newPage > 1) {
+            params.set("page", newPage.toString());
+        } else {
+            params.delete("page");
+        }
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
