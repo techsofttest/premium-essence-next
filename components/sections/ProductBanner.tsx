@@ -17,7 +17,7 @@ export default function ProductBanner({
     if (!imageUrl) return null;
 
     return (
-        <section className="relative w-full aspect-[2172/620] overflow-hidden bg-dark/5 cursor-pointer">
+        <section className="relative w-full aspect-[1500/540] overflow-hidden bg-dark/5 cursor-pointer">
             <Link href={linkUrl} className="block w-full h-full relative">
                 <Image
                     src={imageUrl}
