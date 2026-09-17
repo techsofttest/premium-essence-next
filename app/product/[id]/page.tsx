@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import ProductGallery from "@/components/product-detail/ProductGallery";
 import ProductInfo from "@/components/product-detail/ProductInfo";
@@ -129,8 +129,8 @@ export default function ProductDetailPage() {
                 }
             `}</style>
 
-            {/* Breadcrumbs */}
-            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 py-6">
+            {/* Breadcrumbs & Back */}
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 py-6 flex items-center justify-between">
                 <nav className="flex items-center gap-3 text-[10px] tracking-widest uppercase text-dark font-bold">
                     <Link href="/" className="hover:text-dark/60 transition-colors">Home</Link>
                     <ArrowRight size={10} strokeWidth={2.5} />
@@ -138,6 +138,10 @@ export default function ProductDetailPage() {
                     <ArrowRight size={10} strokeWidth={2.5} />
                     <span className="text-dark/50">{formattedProduct.name}</span>
                 </nav>
+                <button onClick={() => window.history.back()} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-dark/70 hover:text-dark transition-colors">
+                    <ArrowLeft size={14} strokeWidth={2.5} />
+                    Back
+                </button>
             </div>
 
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">

@@ -147,11 +147,29 @@ export default function ProductCatalogView({
 
     // Pagination State (12 products per page)
     const ITEMS_PER_PAGE = 12;
-    const [currentPage, setCurrentPage] = useState(1);
+    const initialPage = Number(searchParams.get("page")) || 1;
+    const [currentPage, setCurrentPage] = useState(initialPage);
 
-    // Reset pagination when active filters change
+    // Sync currentPage if URL changes (like when clicking Back)
     useEffect(() => {
-        setCurrentPage(1);
+        const pageFromUrl = Number(searchParams.get("page")) || 1;
+        if (pageFromUrl !== currentPage) {
+            setCurrentPage(pageFromUrl);
+        }
+    }, [searchParams]);
+
+    // Reset pagination when active filters change (excluding page itself)
+    useEffect(() => {
+        const pageFromUrl = Number(searchParams.get("page")) || 1;
+        if (currentPage !== pageFromUrl && pageFromUrl === 1) {
+             setCurrentPage(1);
+        } else if (pageFromUrl === 1 && currentPage !== 1) {
+             // If filters change but we are not listening to page change, we should reset to 1
+             setCurrentPage(1);
+             const params = new URLSearchParams(searchParams.toString());
+             params.delete("page");
+             router.push(`?${params.toString()}`, { scroll: false });
+        }
     }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam, selectedSizeParam, maxPriceParam]);
 
     const totalProducts = filteredProducts.length;
@@ -162,6 +180,14 @@ export default function ProductCatalogView({
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
+        const params = new URLSearchParams(searchParams.toString());
+        if (page > 1) {
+            params.set("page", page.toString());
+        } else {
+            params.delete("page");
+        }
+        router.push(`?${params.toString()}`, { scroll: false });
+        
         const catalogElem = document.getElementById("catalog-products-top");
         if (catalogElem) {
             catalogElem.scrollIntoView({ behavior: "smooth" });
