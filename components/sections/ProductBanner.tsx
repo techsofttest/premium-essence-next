@@ -25,7 +25,7 @@ export default function ProductBanner({
                     fill
                     priority={priority}
                     unoptimized={imageUrl.startsWith("http")}
-                    className="object-contain object-center transition-transform duration-1000 hover:scale-105"
+                    className="object-cover object-center transition-transform duration-1000 hover:scale-105"
                     sizes="100vw"
                 />
             </Link>
