@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 function BrandCatalogContent() {
     const params = useParams();
     const slug = params.slug as string;
-    const [bannerImage, setBannerImage] = useState("/product-banner/Montblanc-B.png");
+    const [bannerImage, setBannerImage] = useState("");
 
     useEffect(() => {
         if (!slug) return;
@@ -19,9 +19,13 @@ function BrandCatalogContent() {
                 const brand = brands.find((b: any) => b.slug === slug);
                 if (brand && brand.banner_image_url) {
                     setBannerImage(brand.banner_image_url);
+                } else {
+                    setBannerImage("/product-banner/Montblanc-B.png");
                 }
             })
-            .catch(() => {});
+            .catch(() => {
+                setBannerImage("/product-banner/Montblanc-B.png");
+            });
     }, [slug]);
 
     const brandTitle = slug
