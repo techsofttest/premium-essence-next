@@ -17,16 +17,15 @@ export default function ProductBanner({
     if (!imageUrl) return null;
 
     return (
-        <section className="relative w-full overflow-hidden bg-dark/5 cursor-pointer">
-            <Link href={linkUrl} className="block w-full">
+        <section className="relative w-full aspect-[1500/450] overflow-hidden bg-dark/5 cursor-pointer">
+            <Link href={linkUrl} className="block w-full h-full relative">
                 <Image
                     src={imageUrl}
                     alt={altText}
-                    width={1500}
-                    height={540}
+                    fill
                     priority={priority}
                     unoptimized={imageUrl.startsWith("http")}
-                    className="w-full h-auto object-cover object-center transition-transform duration-1000 hover:scale-105"
+                    className="object-fill object-center transition-transform duration-1000 hover:scale-[1.03]"
                     sizes="100vw"
                 />
             </Link>
