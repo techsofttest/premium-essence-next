@@ -339,7 +339,7 @@ export default function ProductCatalogView({
         selectedArray: string[],
         isFixed?: boolean
     ) => {
-        if (isFixed || items.length === 0) return null;
+        if (isFixed || items.length <= 1 || filterKey === "category") return null;
 
         return (
             <div className="border-b border-dark/10 pb-6">
@@ -595,7 +595,6 @@ export default function ProductCatalogView({
                     <aside className="hidden lg:block lg:col-span-3 space-y-6 bg-white border border-dark/10 p-6 h-fit shadow-sm">
                         {renderPriceSlider()}
                         {renderFilterSection("Bottle Sizes", "size", availableSizes, selectedSizes)}
-                        {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
                         {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
                         {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}
                         {renderFilterSection("Fragrance Family (Multi-Select)", "family", meta.families, selectedFamilies, Boolean(fixedFamily))}
@@ -683,7 +682,6 @@ export default function ProductCatalogView({
                         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
                             {renderPriceSlider()}
                             {renderFilterSection("Bottle Sizes", "size", availableSizes, selectedSizes)}
-                            {renderFilterSection("Categories", "category", meta.categories, selectedCategories, Boolean(fixedCategory))}
                             {renderFilterSection("Brands & Houses", "brand", meta.brands, selectedBrands, Boolean(fixedBrand))}
                             {renderFilterSection("Gender", "gender", meta.genders, selectedGenders, Boolean(fixedGender))}
                             {renderFilterSection("Fragrance Family", "family", meta.families, selectedFamilies, Boolean(fixedFamily))}
