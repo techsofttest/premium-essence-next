@@ -122,20 +122,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         <div className="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-32 h-fit font-sans">
             {/* Brand, Title, Concentration, Gender & Reviews */}
             <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
-                        {product.brand}
-                    </span>
-                    {genderInfo && (
-                        <Link
-                            href={`/fragrances?gender=${encodeURIComponent(genderInfo.label)}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] bg-white border border-dark/15 text-dark hover:bg-dark hover:text-white hover:border-dark transition-all shadow-xs group"
-                        >
-                            <Sparkles size={11} className="text-[#C5A059] group-hover:text-gold" />
-                            <span>{genderInfo.tag}</span>
-                        </Link>
-                    )}
-                </div>
+                <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
+                    {product.brand}
+                </span>
 
                 <h1 className="font-serif text-4xl md:text-5xl uppercase text-dark leading-tight">
                     {product.name}
