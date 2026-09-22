@@ -197,28 +197,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 )}
             </div>
 
-            {/* Olfactive Profile & Key Specification Card */}
-            <div className="grid grid-cols-3 gap-2.5 p-3.5 sm:p-4 bg-white border border-dark/10 shadow-xs text-xs">
-                <div className="flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Classification</span>
-                    <span className="font-serif font-bold text-dark text-xs sm:text-sm flex items-center gap-1">
-                        <User size={13} className="text-[#C5A059] shrink-0" /> {genderInfo?.label || "Unisex"}
-                    </span>
-                </div>
-                <div className="flex flex-col gap-1 border-x border-dark/10 px-2.5 sm:px-3">
-                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Concentration</span>
-                    <span className="font-serif font-bold text-dark text-xs sm:text-sm truncate">
-                        {product.concentration || "Eau de Parfum"}
-                    </span>
-                </div>
-                <div className="flex flex-col gap-1 pl-1">
-                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Guarantee</span>
-                    <span className="font-serif font-bold text-dark text-xs sm:text-sm flex items-center gap-1">
-                        <ShieldCheck size={13} className="text-[#C5A059] shrink-0" /> Authentic
-                    </span>
-                </div>
-            </div>
-
             {/* Size Selector with Stock & Price Indicator */}
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-end border-b border-dark/10 pb-2">
