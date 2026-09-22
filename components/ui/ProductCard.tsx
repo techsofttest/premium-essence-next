@@ -23,6 +23,7 @@ export interface Product {
     brand: string;
     name: string;
     concentration?: string;
+    gender?: string;
     price: number;
     originalPrice?: number;
     rating: number;
@@ -32,6 +33,21 @@ export interface Product {
     slug?: string;
     variants?: ProductVariantItem[];
     sizes?: string[];
+}
+
+export function getGenderBadgeInfo(gender?: string) {
+    if (!gender) return null;
+    const g = gender.trim().toLowerCase();
+    if (g === "men" || g === "man" || g === "male" || g === "for men" || g === "for him") {
+        return { label: "For Men", tag: "FOR HIM" };
+    }
+    if (g === "women" || g === "woman" || g === "female" || g === "for women" || g === "for her") {
+        return { label: "For Women", tag: "FOR HER" };
+    }
+    if (g === "unisex" || g === "all" || g === "shared" || g === "universal") {
+        return { label: "Unisex", tag: "UNISEX" };
+    }
+    return { label: gender, tag: gender.toUpperCase() };
 }
 
 interface ProductCardProps {
@@ -44,6 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     const [imgSrc, setImgSrc] = useState(product.image || "/logo/logo-black.png");
 
     const isWishlisted = isInWishlist(product.id);
+    const genderInfo = getGenderBadgeInfo(product.gender);
 
     const handleQuickAdd = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -77,16 +94,22 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </button>
 
                 {/* Elegant Minimalist Badges */}
-                {product.badge && (
-                    <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col gap-2">
-                        <span className="bg-white/90 backdrop-blur-sm border border-dark/5 text-dark text-[8px] sm:text-[10px] font-medium tracking-widest uppercase px-2 py-1 sm:px-3 sm:py-1.5 rounded-none flex items-center gap-1">
-                            {product.badge === "Bestseller" && <TrendingUp size={10} strokeWidth={1.5} />}
-                            {product.badge === "New" && <Sparkles size={10} strokeWidth={1.5} />}
-                            {product.badge === "Limited Edition" && <Gem size={10} strokeWidth={1.5} />}
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col gap-1.5">
+                    {product.badge && (
+                        <span className="bg-white/90 backdrop-blur-sm border border-dark/5 text-dark text-[9px] sm:text-[11px] font-bold tracking-widest uppercase px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-none flex items-center gap-1 shadow-xs">
+                            {product.badge === "Bestseller" && <TrendingUp size={11} strokeWidth={1.5} />}
+                            {product.badge === "New" && <Sparkles size={11} strokeWidth={1.5} />}
+                            {product.badge === "Limited Edition" && <Gem size={11} strokeWidth={1.5} />}
                             {product.badge}
                         </span>
-                    </div>
-                )}
+                    )}
+
+                    {genderInfo && (
+                        <span className="bg-[#1B1315]/95 text-[#F7F3F4] border border-white/15 text-[9px] sm:text-[11px] font-extrabold tracking-[0.18em] uppercase px-2.5 py-1 sm:px-3 sm:py-1 rounded-none shadow-xs w-fit">
+                            {genderInfo.tag}
+                        </span>
+                    )}
+                </div>
 
                 <Image
                     src={imgSrc || "/logo/logo-black.png"}
@@ -132,12 +155,22 @@ export default function ProductCard({ product }: ProductCardProps) {
                     </h3>
                 </Link>
 
-                {/* Fragrance Concentration Display right under the name */}
-                {Boolean(product.concentration) && (
-                    <span className="text-[10px] sm:text-xs font-bold text-mauve uppercase tracking-widest block truncate -mt-0.5">
-                        {product.concentration}
-                    </span>
-                )}
+                {/* Fragrance Concentration & Gender Display */}
+                <div className="flex items-center gap-2 flex-wrap -mt-0.5">
+                    {Boolean(product.concentration) && (
+                        <span className="text-xs sm:text-sm font-extrabold text-mauve uppercase tracking-widest block truncate">
+                            {product.concentration}
+                        </span>
+                    )}
+                    {Boolean(product.concentration && genderInfo) && (
+                        <span className="text-dark/30 text-xs font-light">&bull;</span>
+                    )}
+                    {genderInfo && (
+                        <span className="text-[10px] sm:text-xs font-extrabold text-dark/80 uppercase tracking-wider bg-dark/5 px-2 py-0.5 border border-dark/10">
+                            {genderInfo.label}
+                        </span>
+                    )}
+                </div>
 
                 {/* Size count display */}
                 {(() => {

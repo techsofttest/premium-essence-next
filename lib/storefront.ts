@@ -23,6 +23,7 @@ export type StorefrontProduct = {
     rating: number;
     review_count: number;
     is_featured: boolean;
+    gender?: string | null;
     brand: { id?: number; name: string; slug?: string; classification?: string } | null;
     category: { id?: number; name: string; slug?: string } | null;
     variants: { id: number; size: string | null; unit: string | null; label?: string; price: number; buying_price?: number; original_price?: number; stock: number }[];
@@ -59,6 +60,7 @@ export function toProduct(product: StorefrontProduct): Product {
         brand: product.brand?.name || "Premium Essence",
         name: product.name,
         concentration: concentrationName || "Eau de Parfum",
+        gender: product.gender || undefined,
         price: product.price,
         originalPrice: originalPrice,
         rating: product.rating,

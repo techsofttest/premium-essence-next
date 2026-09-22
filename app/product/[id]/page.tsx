@@ -86,6 +86,7 @@ export default function ProductDetailPage() {
         brand: productDetail?.brand?.name || "PREMIUM ESSENCE",
         name: productDetail?.name || "Perfume",
         concentration: concentrationName || "Eau de Parfum",
+        gender: productDetail?.gender || undefined,
         price: productDetail?.price || 0,
         originalPrice: productDetail?.max_price && productDetail.max_price > (productDetail.price || 0) ? productDetail.max_price : undefined,
         rating: productDetail?.rating || 5.0,

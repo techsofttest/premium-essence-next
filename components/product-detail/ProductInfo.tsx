@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Star, Info, Minus, Plus, Truck, ShieldCheck, RotateCcw, Heart, AlertCircle, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { Star, Info, Minus, Plus, Truck, ShieldCheck, RotateCcw, Heart, AlertCircle, ShoppingCart, Sparkles, User } from "lucide-react";
 import GlowingButton from "@/components/ui/GlowingButton";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
-import { Product, ProductVariantItem } from "@/components/ui/ProductCard";
+import { Product, ProductVariantItem, getGenderBadgeInfo } from "@/components/ui/ProductCard";
 
 interface ProductInfoProps {
     product: {
@@ -14,6 +15,7 @@ interface ProductInfoProps {
         brand: string;
         name: string;
         concentration?: string;
+        gender?: string;
         price: number;
         originalPrice?: number;
         rating: number;
@@ -28,6 +30,8 @@ interface ProductInfoProps {
 export default function ProductInfo({ product }: ProductInfoProps) {
     const { cartItems, addToCart } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
+
+    const genderInfo = getGenderBadgeInfo(product.gender);
 
     const variants = product.variants || [];
     const [selectedSize, setSelectedSize] = useState<string>(
@@ -80,6 +84,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         brand: product.brand,
         name: product.name,
         concentration: product.concentration,
+        gender: product.gender,
         price: currentPrice,
         originalPrice: currentOriginalPrice,
         rating: product.rating,
@@ -115,19 +120,41 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
     return (
         <div className="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-32 h-fit font-sans">
-            {/* Brand, Title, Concentration & Reviews */}
+            {/* Brand, Title, Concentration, Gender & Reviews */}
             <div className="flex flex-col gap-2">
-                <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
-                    {product.brand}
-                </span>
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <span className="text-sm sm:text-base tracking-[0.4em] uppercase text-[#C5A059] font-black">
+                        {product.brand}
+                    </span>
+                    {genderInfo && (
+                        <Link
+                            href={`/fragrances?gender=${encodeURIComponent(genderInfo.label)}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] bg-white border border-dark/15 text-dark hover:bg-dark hover:text-white hover:border-dark transition-all shadow-xs group"
+                        >
+                            <Sparkles size={11} className="text-[#C5A059] group-hover:text-gold" />
+                            <span>{genderInfo.tag}</span>
+                        </Link>
+                    )}
+                </div>
+
                 <h1 className="font-serif text-4xl md:text-5xl uppercase text-dark leading-tight">
                     {product.name}
                 </h1>
-                {Boolean(product.concentration) && (
-                    <span className="text-sm sm:text-base font-extrabold text-mauve uppercase tracking-widest block -mt-1">
-                        {product.concentration}
-                    </span>
-                )}
+
+                <div className="flex items-center gap-2 flex-wrap text-sm sm:text-base font-extrabold text-mauve uppercase tracking-widest -mt-1">
+                    {Boolean(product.concentration) && (
+                        <span>{product.concentration}</span>
+                    )}
+                    {Boolean(product.concentration && genderInfo) && (
+                        <span className="text-dark/30 font-light">&bull;</span>
+                    )}
+                    {genderInfo && (
+                        <span className="text-dark/70 text-xs font-bold tracking-widest">
+                            {genderInfo.label}
+                        </span>
+                    )}
+                </div>
+
                 <div className="flex items-center gap-4 mt-2">
                     {product.rating && product.reviews ? (
                         <>
@@ -168,6 +195,28 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}% OFF
                     </span>
                 )}
+            </div>
+
+            {/* Olfactive Profile & Key Specification Card */}
+            <div className="grid grid-cols-3 gap-2.5 p-3.5 sm:p-4 bg-white border border-dark/10 shadow-xs text-xs">
+                <div className="flex flex-col gap-1">
+                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Classification</span>
+                    <span className="font-serif font-bold text-dark text-xs sm:text-sm flex items-center gap-1">
+                        <User size={13} className="text-[#C5A059] shrink-0" /> {genderInfo?.label || "Unisex"}
+                    </span>
+                </div>
+                <div className="flex flex-col gap-1 border-x border-dark/10 px-2.5 sm:px-3">
+                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Concentration</span>
+                    <span className="font-serif font-bold text-dark text-xs sm:text-sm truncate">
+                        {product.concentration || "Eau de Parfum"}
+                    </span>
+                </div>
+                <div className="flex flex-col gap-1 pl-1">
+                    <span className="text-[9px] uppercase tracking-widest text-dark/40 font-bold">Guarantee</span>
+                    <span className="font-serif font-bold text-dark text-xs sm:text-sm flex items-center gap-1">
+                        <ShieldCheck size={13} className="text-[#C5A059] shrink-0" /> Authentic
+                    </span>
+                </div>
             </div>
 
             {/* Size Selector with Stock & Price Indicator */}

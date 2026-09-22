@@ -5,13 +5,15 @@ import Image from "next/image";
 import { X, Plus, Minus, ShoppingCart, AlertCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import GlowingButton from "./GlowingButton";
-import { ProductVariantItem } from "./ProductCard";
+import { ProductVariantItem, getGenderBadgeInfo } from "./ProductCard";
 
 export default function AddToCartModal() {
     const { isModalOpen, setIsModalOpen, selectedProduct, addToCart, cartItems } = useCart();
     const [selectedSize, setSelectedSize] = useState("100ml");
     const [quantity, setQuantity] = useState(1);
     const [imgSrc, setImgSrc] = useState(selectedProduct?.image || "/logo/logo-black.png");
+
+    const genderInfo = getGenderBadgeInfo(selectedProduct?.gender);
 
     useEffect(() => {
         if (isModalOpen && selectedProduct) {
@@ -85,6 +87,13 @@ export default function AddToCartModal() {
                 <div className="flex flex-col md:flex-row h-full">
                     {/* Left: Product Image */}
                     <div className="w-full md:w-5/12 bg-[#F7F3F4] relative aspect-[4/5] md:aspect-auto">
+                        {genderInfo && (
+                            <div className="absolute top-3 left-3 z-10">
+                                <span className="bg-[#1B1315]/95 text-[#F7F3F4] text-[9px] sm:text-[10px] font-extrabold tracking-[0.18em] uppercase px-2.5 py-1 border border-white/10 shadow-xs">
+                                    {genderInfo.tag}
+                                </span>
+                            </div>
+                        )}
                         <Image 
                             src={imgSrc || "/logo/logo-black.png"} 
                             alt={selectedProduct.name} 
@@ -105,13 +114,28 @@ export default function AddToCartModal() {
                         </button>
 
                         <div className="flex flex-col gap-2 mb-6">
-                            <span className="text-xs sm:text-sm tracking-[0.4em] uppercase text-[#C5A059] font-black">{selectedProduct.brand}</span>
+                            <div className="flex items-center justify-between gap-4 flex-wrap pr-6">
+                                <span className="text-xs sm:text-sm tracking-[0.4em] uppercase text-[#C5A059] font-black">{selectedProduct.brand}</span>
+                                {genderInfo && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.18em] bg-dark text-white border border-dark shadow-xs">
+                                        {genderInfo.tag}
+                                    </span>
+                                )}
+                            </div>
                             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase tracking-wider text-dark leading-tight">{selectedProduct.name}</h2>
-                            {Boolean(selectedProduct.concentration) && (
-                                <span className="text-xs sm:text-sm font-extrabold text-mauve uppercase tracking-widest block mt-0.5">
-                                    {selectedProduct.concentration}
-                                </span>
-                            )}
+                            <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm font-extrabold text-mauve uppercase tracking-widest mt-0.5">
+                                {Boolean(selectedProduct.concentration) && (
+                                    <span>{selectedProduct.concentration}</span>
+                                )}
+                                {Boolean(selectedProduct.concentration && genderInfo) && (
+                                    <span className="text-dark/30 font-light">&bull;</span>
+                                )}
+                                {genderInfo && (
+                                    <span className="text-dark/80 text-xs font-bold tracking-widest">
+                                        {genderInfo.label}
+                                    </span>
+                                )}
+                            </div>
                             <div className="flex items-baseline gap-3 mt-1">
                                 <span className="font-serif text-2xl sm:text-3xl text-dark font-bold">{currentPrice} AED</span>
                                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
