@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,7 +8,7 @@ import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
 import SeoHead from "@/components/seo/SeoHead";
 
-export default function NewArrivalsPage() {
+function NewArrivalsContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const searchParams = useSearchParams();
@@ -172,5 +172,17 @@ export default function NewArrivalsPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function NewArrivalsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#F7F3F4] flex items-center justify-center">
+                <Loader2 className="animate-spin text-dark" size={32} />
+            </div>
+        }>
+            <NewArrivalsContent />
+        </Suspense>
     );
 }
