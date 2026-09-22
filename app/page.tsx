@@ -32,8 +32,8 @@ export default async function Home() {
   const trendingList = collections["trending"] || collections["featured"] || fallbackProducts.slice(0, 6);
 
   // Best Choice & Special Deals from DB
-  const bestChoicesList = collections["best-choice"] || collections["bestchoice"] || fallbackProducts.slice(0, 4);
-  const specialDealsList = collections["special-deals"] || collections["specialdeals"] || fallbackProducts.slice(0, 4);
+  const bestChoicesList = collections["best-choice"] || collections["bestchoice"] || fallbackProducts.slice(0, 8);
+  const specialDealsList = collections["special-deals"] || collections["specialdeals"] || fallbackProducts.slice(0, 8);
 
   const showcaseProducts: Record<"bestsellers" | "newArrivals", Product[]> = {
     bestsellers: bestsellersList.length ? bestsellersList.slice(0, 4) : fallbackProducts.slice(0, 4),
@@ -41,8 +41,8 @@ export default async function Home() {
   };
 
   const bestChoicesGridData: Record<"bestsellers" | "newArrivals", Product[]> = {
-    bestsellers: bestChoicesList.length ? bestChoicesList.slice(0, 4) : showcaseProducts.bestsellers,
-    newArrivals: specialDealsList.length ? specialDealsList.slice(0, 4) : showcaseProducts.newArrivals,
+    bestsellers: bestChoicesList.length ? bestChoicesList.slice(0, 8) : showcaseProducts.bestsellers,
+    newArrivals: specialDealsList.length ? specialDealsList.slice(0, 8) : showcaseProducts.newArrivals,
   };
 
   // Featured collection from DB for 3D Showcase section

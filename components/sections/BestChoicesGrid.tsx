@@ -7,10 +7,10 @@ interface BestChoicesGridProps {
 }
 
 export default function BestChoicesGrid({ products }: BestChoicesGridProps) {
-    // Combine bestsellers and new arrivals uniquely to showcase luxury items in grid
+    // Combine bestsellers and new arrivals uniquely to showcase luxury items in grid (max 8 items)
     const allProducts = Array.from(
         new Map([...(products.bestsellers || []), ...(products.newArrivals || [])].map((p) => [p.id, p])).values()
-    );
+    ).slice(0, 8);
 
     return (
         <section className="pt-10 pb-24 px-8 bg-[#F7F3F4] border-t border-dark/5">
