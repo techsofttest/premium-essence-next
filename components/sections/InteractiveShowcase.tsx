@@ -175,7 +175,6 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                                         src={product.image || "/logo/logo-black.png"}
                                         alt={product.name}
                                         fill
-                                        unoptimized
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             if (target) target.src = "/logo/logo-black.png";

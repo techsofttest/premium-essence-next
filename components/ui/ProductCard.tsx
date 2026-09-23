@@ -115,7 +115,6 @@ export default function ProductCard({ product }: ProductCardProps) {
                     src={imgSrc || "/logo/logo-black.png"}
                     alt={product.name}
                     fill
-                    unoptimized
                     onError={() => setImgSrc("/logo/logo-black.png")}
                     className="object-contain p-3 sm:p-6 transition-transform duration-1000 ease-out group-hover:scale-105"
                     sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"

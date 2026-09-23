@@ -124,7 +124,7 @@ export async function getStorefrontProducts(options: FetchProductsOptions = {}):
         if (options.page) query.set("page", String(options.page));
         query.set("per_page", String(options.per_page || 24));
 
-        const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { next: { revalidate: 60 } });
         if (!response.ok) return [];
         const body = await response.json() as { data: StorefrontProduct[] };
         return (body.data || []).map(toProduct);
@@ -149,7 +149,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
         if (options.page) query.set("page", String(options.page));
         query.set("per_page", String(options.per_page || 24));
 
-        const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { next: { revalidate: 60 } });
         if (!response.ok) return { products: [], rawProducts: [] };
         const body = await response.json() as { data: StorefrontProduct[]; meta?: { current_page: number; last_page: number; per_page: number; total: number } };
         return {
@@ -164,7 +164,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
 
 export async function getStorefrontProductDetail(idOrSlug: string): Promise<StorefrontProduct | null> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/products/${encodeURIComponent(idOrSlug)}`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/products/${encodeURIComponent(idOrSlug)}`, { next: { revalidate: 60 } });
         if (!response.ok) return null;
         return (await response.json()) as StorefrontProduct;
     } catch {
@@ -283,7 +283,7 @@ export type FragranceFamilyItem = {
 
 export async function getStorefrontReels(): Promise<FragranceReelItem[]> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/reels`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/reels`, { next: { revalidate: 60 } });
         if (!response.ok) return [];
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -307,7 +307,7 @@ export async function getStorefrontReels(): Promise<FragranceReelItem[]> {
 
 export async function getFragranceFamilies(): Promise<FragranceFamilyItem[]> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/fragrance-families`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/fragrance-families`, { next: { revalidate: 60 } });
         if (!response.ok) return [];
         const data = await response.json();
         if (Array.isArray(data)) {

@@ -19,9 +19,9 @@ function CartDrawerItemImage({ src, name }: { src: string; name: string }) {
             src={imgSrc || "/logo/logo-black.png"}
             alt={name}
             fill
-            unoptimized
             onError={() => setImgSrc("/logo/logo-black.png")}
             className="object-contain p-3"
+            sizes="96px"
         />
     );
 }

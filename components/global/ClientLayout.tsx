@@ -8,9 +8,11 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ContactProvider } from "@/context/ContactContext";
-import AddToCartModal from "@/components/ui/AddToCartModal";
-import CartDrawer from "@/components/ui/CartDrawer";
-import FloatingWhatsApp from "@/components/global/FloatingWhatsApp";
+import dynamic from "next/dynamic";
+
+const AddToCartModal = dynamic(() => import("@/components/ui/AddToCartModal"), { ssr: false });
+const CartDrawer = dynamic(() => import("@/components/ui/CartDrawer"), { ssr: false });
+const FloatingWhatsApp = dynamic(() => import("@/components/global/FloatingWhatsApp"), { ssr: false });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

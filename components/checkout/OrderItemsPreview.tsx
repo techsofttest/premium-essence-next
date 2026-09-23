@@ -27,9 +27,9 @@ function OrderItemImage({ src, name }: { src: string; name: string }) {
             src={imgSrc || "/logo/logo-black.png"}
             alt={name}
             fill
-            unoptimized
             onError={() => setImgSrc("/logo/logo-black.png")}
             className="object-contain p-2"
+            sizes="64px"
         />
     );
 }

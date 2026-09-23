@@ -53,7 +53,7 @@ export default function FragranceFamilySection({ families }: FragranceFamilySect
                                         alt={family.name}
                                         fill
                                         className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                                        unoptimized={imgUrl.startsWith("http")}
+                                        sizes="96px"
                                     />
                                     <div className="absolute inset-0 bg-dark/5 group-hover:bg-transparent transition-colors" />
                                 </div>

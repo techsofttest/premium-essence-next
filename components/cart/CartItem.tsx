@@ -40,9 +40,9 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                     src={imgSrc || "/logo/logo-black.png"} 
                     alt={item.name} 
                     fill 
-                    unoptimized
                     onError={() => setImgSrc("/logo/logo-black.png")}
                     className="object-contain p-4" 
+                    sizes="128px"
                 />
             </Link>
 

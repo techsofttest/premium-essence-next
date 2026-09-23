@@ -67,7 +67,7 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                         alt={reel.title}
                                         fill
                                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        unoptimized={coverImg.startsWith("http")}
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                                     />
                                     {/* Vignette Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#140F11] via-[#140F11]/30 to-transparent z-10" />

@@ -114,7 +114,6 @@ function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
                 src={imgSrc}
                 alt={name}
                 fill
-                unoptimized
                 onError={() => setImgSrc(DEFAULT_AVATAR)}
                 className="object-cover"
                 sizes="56px"

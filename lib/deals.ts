@@ -156,7 +156,7 @@ const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/p
 
 export async function getStorefrontCuratedDeals(): Promise<CuratedDeal[]> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/curated-deals`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/curated-deals`, { next: { revalidate: 60 } });
         if (!response.ok) return Object.values(CURATED_DEALS);
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) return data;
@@ -168,7 +168,7 @@ export async function getStorefrontCuratedDeals(): Promise<CuratedDeal[]> {
 
 export async function getStorefrontCuratedDeal(slug: string): Promise<CuratedDeal | undefined> {
     try {
-        const response = await fetch(`${baseUrl}/storefront/curated-deals/${encodeURIComponent(slug)}`, { cache: "no-store" });
+        const response = await fetch(`${baseUrl}/storefront/curated-deals/${encodeURIComponent(slug)}`, { next: { revalidate: 60 } });
         if (!response.ok) return CURATED_DEALS[slug];
         const data = await response.json();
         if (data && data.slug) return data as CuratedDeal;

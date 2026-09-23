@@ -85,7 +85,6 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
                             alt={slide.alt}
                             fill
                             priority={index === 0}
-                            unoptimized
                             className="object-cover object-center"
                             sizes="100vw"
                         />

@@ -31,7 +31,7 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
                         onMouseEnter={() => setActiveImage(img)}
                         className={`relative w-20 md:w-28 aspect-[4/5] bg-white border transition-all duration-300 shrink-0 ${activeImage === img ? "border-dark border-2 shadow-md opacity-100" : "border-dark/10 opacity-60 hover:opacity-100"}`}
                     >
-                        <Image src={img} alt={`${name} ${i}`} fill className="object-contain p-2" />
+                        <Image src={img} alt={`${name} ${i}`} fill className="object-contain p-2" sizes="112px" />
                     </button>
                 ))}
             </div>
@@ -55,9 +55,9 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
                         alt={name}
                         fill
                         priority
-                        unoptimized
                         onError={() => setActiveImage("/logo/logo-black.png")}
                         className="object-contain p-12"
+                        sizes="(max-width: 768px) 100vw, 600px"
                     />
                 </div>
             </div>

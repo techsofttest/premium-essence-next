@@ -98,9 +98,9 @@ export default function AddToCartModal() {
                             src={imgSrc || "/logo/logo-black.png"} 
                             alt={selectedProduct.name} 
                             fill 
-                            unoptimized
                             onError={() => setImgSrc("/logo/logo-black.png")}
                             className="object-contain p-8"
+                            sizes="(max-width: 768px) 100vw, 400px"
                         />
                     </div>
 
