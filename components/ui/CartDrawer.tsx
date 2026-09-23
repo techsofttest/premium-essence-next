@@ -124,7 +124,7 @@ export default function CartDrawer() {
                                                 <Plus size={10} strokeWidth={3} />
                                             </button>
                                         </div>
-                                        <span className="text-sm font-bold text-dark">{(item.price * item.quantity).toLocaleString()} AED</span>
+                                        <span className="text-sm font-bold text-dark">AED {(item.price * item.quantity).toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +141,7 @@ export default function CartDrawer() {
                     )}
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Estimated Subtotal</span>
-                        <span className="font-serif text-xl text-dark">{subtotal.toLocaleString()} AED</span>
+                        <span className="font-serif text-xl text-dark">AED {subtotal.toLocaleString()}</span>
                     </div>
                     
                     <GlowingButton

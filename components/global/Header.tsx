@@ -75,8 +75,8 @@ function getMenuLinkHref(categoryName: string, subTitle: string | undefined, lin
 }
 
 const ANNOUNCEMENTS = [
-    { text: "Complimentary Engraving on Orders Above 500 AED", icon: PenTool },
-    { text: "Free Shipping on All Orders Over 300 AED", icon: Truck },
+    { text: "Complimentary Engraving on Orders Above AED 500", icon: PenTool },
+    { text: "Free Shipping on All Orders Over AED 300", icon: Truck },
     { text: "Discover Our Exclusive Summer Collection", icon: Sparkles }
 ];
 
@@ -607,7 +607,7 @@ export default function Header() {
                                                 {p.in_stock === false && (
                                                     <span className="text-[9px] uppercase tracking-widest bg-red-100 text-red-700 px-2 py-0.5 font-bold rounded-sm">Out of Stock</span>
                                                 )}
-                                                <span className="text-xs font-bold text-dark font-mono">{p.price} AED</span>
+                                                <span className="text-xs font-bold text-dark font-mono">AED {p.price}</span>
                                             </div>
                                         </Link>
                                     ))}

@@ -313,11 +313,11 @@ export default function ProductCatalogView({
             </div>
             <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center text-xs font-semibold text-dark/70">
-                    <span>10 AED</span>
+                    <span>AED 10</span>
                     <span className="font-bold text-dark bg-[#F7F3F4] px-2 py-0.5 border border-dark/10">
-                        Up to {maxPriceParam} AED
+                        Up to AED {maxPriceParam}
                     </span>
-                    <span>1000 AED</span>
+                    <span>AED 1000</span>
                 </div>
                 <input
                     type="range"
@@ -513,7 +513,7 @@ export default function ProductCatalogView({
 
                         {maxPriceParam < 1000 && (
                             <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Max Price: {maxPriceParam} AED
+                                Max Price: AED {maxPriceParam}
                                 <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateSingleFilter("max_price", "")} />
                             </span>
                         )}

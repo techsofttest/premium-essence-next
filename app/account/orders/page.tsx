@@ -235,7 +235,7 @@ function OrdersContent() {
                                         <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-dark/5">
                                             <div className="text-left md:text-right">
                                                 <span className="text-[10px] uppercase font-bold tracking-widest text-dark/50 block">Total</span>
-                                                <span className="font-serif text-xl text-dark">{order.grand_total.toFixed(2)} AED</span>
+                                                <span className="font-serif text-xl text-dark">AED {order.grand_total.toFixed(2)}</span>
                                             </div>
 
                                             <div className="flex items-center gap-3">
@@ -282,7 +282,7 @@ function OrdersContent() {
                                                                     {item.variant_details}
                                                                 </p>
                                                             )}
-                                                            <p className="text-[10px] text-dark/60">Qty: {item.quantity} &bull; {item.line_total} AED</p>
+                                                            <p className="text-[10px] text-dark/60">Qty: {item.quantity} &bull; AED {item.line_total}</p>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -303,24 +303,24 @@ function OrdersContent() {
                                                     {order.subtotal !== undefined && (
                                                         <div>
                                                             <span className="text-[9px] uppercase font-semibold text-dark/50 block">Subtotal</span>
-                                                            <span>{order.subtotal.toFixed(2)} AED</span>
+                                                            <span>AED {order.subtotal.toFixed(2)}</span>
                                                         </div>
                                                     )}
                                                     {order.shipping_cost !== undefined && (
                                                         <div>
                                                             <span className="text-[9px] uppercase font-semibold text-dark/50 block">Shipping</span>
-                                                            <span>{order.shipping_cost > 0 ? `${order.shipping_cost.toFixed(2)} AED` : "Free"}</span>
+                                                            <span>{order.shipping_cost > 0 ? `AED ${order.shipping_cost.toFixed(2)}` : "Free"}</span>
                                                         </div>
                                                     )}
                                                     {order.discount !== undefined && order.discount > 0 && (
                                                         <div>
                                                             <span className="text-[9px] uppercase font-semibold text-emerald-600 block">Discount</span>
-                                                            <span className="text-emerald-700">-{order.discount.toFixed(2)} AED</span>
+                                                            <span className="text-emerald-700">-AED {order.discount.toFixed(2)}</span>
                                                         </div>
                                                     )}
                                                     <div>
                                                         <span className="text-[9px] uppercase font-bold tracking-widest text-dark block">Grand Total</span>
-                                                        <span className="font-bold font-serif text-sm text-dark">{order.grand_total.toFixed(2)} AED</span>
+                                                        <span className="font-bold font-serif text-sm text-dark">AED {order.grand_total.toFixed(2)}</span>
                                                     </div>
                                                 </div>
                                             </div>

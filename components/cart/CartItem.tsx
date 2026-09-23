@@ -92,7 +92,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                             <Plus size={12} strokeWidth={2.5} />
                         </button>
                     </div>
-                    <span className="font-serif text-lg md:text-xl text-dark">{item.price * item.quantity} AED</span>
+                    <span className="font-serif text-lg md:text-xl text-dark">AED {item.price * item.quantity}</span>
                 </div>
             </div>
         </div>

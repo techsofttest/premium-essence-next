@@ -170,11 +170,11 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
             {/* Dynamic Price & Strikeoff Price based on selected variant */}
             <div className="flex flex-wrap items-baseline gap-4">
-                <span className="text-3xl font-serif text-dark">{currentPrice} AED</span>
+                <span className="text-3xl font-serif text-dark">AED {currentPrice}</span>
 
                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
                     <span className="text-lg text-dark/40 line-through font-light">
-                        {currentOriginalPrice} AED
+                        AED {currentOriginalPrice}
                     </span>
                 )}
 

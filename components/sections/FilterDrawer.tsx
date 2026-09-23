@@ -88,9 +88,9 @@ export default function FilterDrawer({
                                 className="w-full h-[2px] bg-dark/20 appearance-none cursor-pointer accent-dark"
                             />
                             <div className="flex justify-between mt-6 text-[11px] tracking-widest text-dark font-bold uppercase">
-                                <span className="opacity-40">0 AED</span>
+                                <span className="opacity-40">AED 0</span>
                                 <span className="text-dark bg-[#F7F3F4] px-3 py-1.5">
-                                    Up to {priceRange} AED
+                                    Up to AED {priceRange}
                                 </span>
                             </div>
                         </div>

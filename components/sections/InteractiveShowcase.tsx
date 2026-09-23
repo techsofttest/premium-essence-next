@@ -214,11 +214,11 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
                         <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 mb-8 sm:mb-10">
                             <div className="flex items-baseline gap-2 sm:gap-3">
                                 <span className="font-serif text-2xl sm:text-3xl text-dark">
-                                    {activeProduct.price} <span className="text-lg sm:text-xl font-sans">AED</span>
+                                    <span className="text-lg sm:text-xl font-sans">AED</span> {activeProduct.price}
                                 </span>
                                 {activeProduct.originalPrice && activeProduct.originalPrice > activeProduct.price && (
                                     <span className="text-sm sm:text-base text-dark/40 line-through font-light">
-                                        {activeProduct.originalPrice} AED
+                                        AED {activeProduct.originalPrice}
                                     </span>
                                 )}
                             </div>

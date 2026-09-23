@@ -48,7 +48,7 @@ export default function PromoCode() {
                             <CheckCircle2 size={13} /> {appliedCoupon.code}
                         </span>
                         <span className="text-[10px] text-emerald-800">
-                            Discount: {appliedCoupon.discount} AED
+                            Discount: AED {appliedCoupon.discount}
                         </span>
                     </div>
                     <button

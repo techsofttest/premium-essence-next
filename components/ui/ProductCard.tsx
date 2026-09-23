@@ -94,22 +94,16 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </button>
 
                 {/* Elegant Minimalist Badges */}
-                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col gap-1.5">
-                    {product.badge && (
+                {product.badge && (
+                    <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 flex flex-col gap-1.5">
                         <span className="bg-white/90 backdrop-blur-sm border border-dark/5 text-dark text-[9px] sm:text-[11px] font-bold tracking-widest uppercase px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-none flex items-center gap-1 shadow-xs">
                             {product.badge === "Bestseller" && <TrendingUp size={11} strokeWidth={1.5} />}
                             {product.badge === "New" && <Sparkles size={11} strokeWidth={1.5} />}
                             {product.badge === "Limited Edition" && <Gem size={11} strokeWidth={1.5} />}
                             {product.badge}
                         </span>
-                    )}
-
-                    {genderInfo && (
-                        <span className="bg-[#1B1315]/95 text-[#F7F3F4] border border-white/15 text-[9px] sm:text-[11px] font-extrabold tracking-[0.18em] uppercase px-2.5 py-1 sm:px-3 sm:py-1 rounded-none shadow-xs w-fit">
-                            {genderInfo.tag}
-                        </span>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <Image
                     src={imgSrc || "/logo/logo-black.png"}
@@ -165,7 +159,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         <span className="text-dark/30 text-xs font-light">&bull;</span>
                     )}
                     {genderInfo && (
-                        <span className="text-[10px] sm:text-xs font-extrabold text-dark/80 uppercase tracking-wider bg-dark/5 px-2 py-0.5 border border-dark/10">
+                        <span className="text-xs sm:text-sm font-semibold text-dark/70 uppercase tracking-widest">
                             {genderInfo.label}
                         </span>
                     )}
@@ -185,11 +179,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
                         <span className="font-bold text-sm sm:text-lg text-dark">
-                            {product.price} AED
+                            AED {product.price}
                         </span>
                         {product.originalPrice && (
                             <span className="text-xs sm:text-sm font-semibold text-dark/50 line-through">
-                                {product.originalPrice} AED
+                                AED {product.originalPrice}
                             </span>
                         )}
                     </div>

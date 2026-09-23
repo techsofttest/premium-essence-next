@@ -59,7 +59,7 @@ export default function OrderSummary({ subtotal, shipping, total, showCheckoutBu
             <div className="flex flex-col gap-4 mb-8">
                 <div className="flex justify-between items-center text-xs">
                     <span className="text-dark/80 font-bold uppercase tracking-widest">Subtotal</span>
-                    <span className="text-dark font-bold">{subtotal.toLocaleString()} AED</span>
+                    <span className="text-dark font-bold">AED {subtotal.toLocaleString()}</span>
                 </div>
 
                 {discount > 0 && (
@@ -68,7 +68,7 @@ export default function OrderSummary({ subtotal, shipping, total, showCheckoutBu
                             <Tag size={12} /> Coupon ({appliedCoupon?.code})
                         </div>
                         <div className="flex items-center gap-2 font-bold">
-                            <span>-{discount.toLocaleString()} AED</span>
+                            <span>-AED {discount.toLocaleString()}</span>
                             <button
                                 onClick={removeCoupon}
                                 className="text-dark/40 hover:text-dark transition-colors"
@@ -92,18 +92,18 @@ export default function OrderSummary({ subtotal, shipping, total, showCheckoutBu
                         )}
                         {!isFreeShipping && shippingSettings.free_shipping_threshold > 0 && (
                             <span className="text-[9px] text-dark/50 font-medium">
-                                Add {(shippingSettings.free_shipping_threshold - subtotal).toLocaleString()} AED more for FREE shipping
+                                Add AED {(shippingSettings.free_shipping_threshold - subtotal).toLocaleString()} more for FREE shipping
                             </span>
                         )}
                     </div>
-                    <span className="text-dark font-bold">{actualShipping === 0 ? "FREE" : `${actualShipping} AED`}</span>
+                    <span className="text-dark font-bold">{actualShipping === 0 ? "FREE" : `AED ${actualShipping}`}</span>
                 </div>
             </div>
 
             <div className="pt-6 border-t border-dark/20 mb-8">
                 <div className="flex justify-between items-center">
                     <span className="font-serif text-xl text-dark">Total</span>
-                    <span className="font-serif text-2xl text-dark">{finalTotal.toLocaleString()} AED</span>
+                    <span className="font-serif text-2xl text-dark">AED {finalTotal.toLocaleString()}</span>
                 </div>
                 <p className="text-[9px] text-dark/70 mt-2 tracking-widest uppercase text-right font-bold italic">
                     VAT inclusive

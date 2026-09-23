@@ -137,9 +137,9 @@ export default function AddToCartModal() {
                                 )}
                             </div>
                             <div className="flex items-baseline gap-3 mt-1">
-                                <span className="font-serif text-2xl sm:text-3xl text-dark font-bold">{currentPrice} AED</span>
+                                <span className="font-serif text-2xl sm:text-3xl text-dark font-bold">AED {currentPrice}</span>
                                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                                    <span className="text-sm sm:text-base text-dark/40 line-through font-semibold">{currentOriginalPrice} AED</span>
+                                    <span className="text-sm sm:text-base text-dark/40 line-through font-semibold">AED {currentOriginalPrice}</span>
                                 )}
                             </div>
                         </div>
@@ -237,7 +237,7 @@ export default function AddToCartModal() {
                                     className="h-14 text-[11px] tracking-[0.3em] uppercase flex items-center justify-center gap-3"
                                 >
                                     <ShoppingCart size={16} />
-                                    Add to Bag — {(currentPrice * quantity).toLocaleString()} AED
+                                    Add to Bag — AED {(currentPrice * quantity).toLocaleString()}
                                 </GlowingButton>
                             )}
                         </div>

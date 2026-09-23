@@ -99,7 +99,7 @@ function SuccessContent() {
                                     {isCod ? "Amount Payable on Delivery" : "Total Paid"}
                                 </span>
                                 <span className={`font-serif text-2xl ${isCod ? "text-amber-900" : "text-dark"}`}>
-                                    {statusData.grand_total} AED
+                                    AED {statusData.grand_total}
                                 </span>
                             </div>
                         )}

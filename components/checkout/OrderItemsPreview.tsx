@@ -51,7 +51,7 @@ export default function OrderItemsPreview({ items }: OrderItemsPreviewProps) {
                         <div className="flex flex-col gap-0.5 overflow-hidden">
                             <span className="text-[9px] tracking-widest uppercase text-[#C5A059] font-bold">{item.brand}</span>
                             <span className="text-xs font-bold text-dark truncate">{item.name}</span>
-                            <span className="text-[10px] text-dark/80 font-bold">{item.price} AED ({item.size})</span>
+                            <span className="text-[10px] text-dark/80 font-bold">AED {item.price} ({item.size})</span>
                         </div>
                     </div>
                 ))}

@@ -174,7 +174,7 @@ function TrackOrderContent() {
                             </div>
                             <div className="text-left md:text-right">
                                 <span className="text-[10px] uppercase tracking-widest text-dark/50 block font-bold">Total Amount</span>
-                                <span className="font-serif text-2xl text-dark">{trackingData.grand_total} AED</span>
+                                <span className="font-serif text-2xl text-dark">AED {trackingData.grand_total}</span>
                             </div>
                         </div>
 
@@ -258,10 +258,10 @@ function TrackOrderContent() {
                                                     {item.brand ? `${item.brand} • ` : ""}
                                                     Size/Variant: {item.variant_details || "Standard Edition"}
                                                 </p>
-                                                <p className="text-xs text-dark/80 mt-1">Qty: {item.quantity} &times; {item.price} AED</p>
+                                                <p className="text-xs text-dark/80 mt-1">Qty: {item.quantity} &times; AED {item.price}</p>
                                             </div>
                                             <div className="text-right font-serif text-sm text-dark font-medium">
-                                                {item.line_total} AED
+                                                AED {item.line_total}
                                             </div>
                                         </div>
                                     ))}
