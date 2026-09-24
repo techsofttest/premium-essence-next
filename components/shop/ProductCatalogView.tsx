@@ -231,7 +231,7 @@ export default function ProductCatalogView({
             search: selectedSearch,
             sort: selectedSort,
             filter: selectedFilterParam,
-            per_page: 48,
+            per_page: 1000,
         })
             .then((res) => {
                 let list = res.products || [];
@@ -388,6 +388,25 @@ export default function ProductCatalogView({
 
     const renderPaginationNumbers = () => {
         if (totalPages <= 1) return null;
+
+        const pages: (number | string)[] = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            if (validPage > 3) pages.push("...");
+
+            const start = Math.max(2, validPage - 1);
+            const end = Math.min(totalPages - 1, validPage + 1);
+
+            for (let i = start; i <= end; i++) {
+                if (!pages.includes(i)) pages.push(i);
+            }
+
+            if (validPage < totalPages - 2) pages.push("...");
+            if (!pages.includes(totalPages)) pages.push(totalPages);
+        }
+
         return (
             <div className="flex items-center gap-1.5 shrink-0">
                 <button
@@ -399,18 +418,24 @@ export default function ProductCatalogView({
                     <ChevronLeft size={16} />
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`w-9 h-9 text-xs font-bold transition-all ${
-                            pageNum === validPage
-                                ? "bg-dark text-white border border-dark shadow-sm"
-                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
-                        }`}
-                    >
-                        {pageNum}
-                    </button>
+                {pages.map((item, idx) => (
+                    typeof item === "number" ? (
+                        <button
+                            key={item}
+                            onClick={() => handlePageChange(item)}
+                            className={`w-9 h-9 text-xs font-bold transition-all ${
+                                item === validPage
+                                    ? "bg-dark text-white border border-dark shadow-sm"
+                                    : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                            }`}
+                        >
+                            {item}
+                        </button>
+                    ) : (
+                        <span key={`ellipsis-${idx}`} className="w-8 text-center text-dark/40 font-bold text-xs select-none">
+                            ...
+                        </span>
+                    )
                 ))}
 
                 <button

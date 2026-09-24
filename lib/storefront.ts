@@ -122,7 +122,7 @@ export async function getStorefrontProducts(options: FetchProductsOptions = {}):
         if (options.sort) query.set("sort", options.sort);
         if (options.filter) query.set("filter", options.filter);
         if (options.page) query.set("page", String(options.page));
-        query.set("per_page", String(options.per_page || 24));
+        query.set("per_page", String(options.per_page || 1000));
 
         const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { next: { revalidate: 60 } });
         if (!response.ok) return [];
@@ -147,7 +147,7 @@ export async function getStorefrontProductsWithMeta(options: FetchProductsOption
         if (options.sort) query.set("sort", options.sort);
         if (options.filter) query.set("filter", options.filter);
         if (options.page) query.set("page", String(options.page));
-        query.set("per_page", String(options.per_page || 24));
+        query.set("per_page", String(options.per_page || 1000));
 
         const response = await fetch(`${baseUrl}/storefront/products?${query.toString()}`, { next: { revalidate: 60 } });
         if (!response.ok) return { products: [], rawProducts: [] };
