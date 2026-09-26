@@ -214,17 +214,17 @@ function FragranceCatalogContent() {
         const targetUrl = query ? `/fragrances?${query}` : "/fragrances";
 
         if (typeof window !== "undefined") {
-            window.history.pushState(null, "", targetUrl);
+            window.history.replaceState(null, "", targetUrl);
         }
-        router.push(targetUrl, { scroll: false });
+        router.replace(targetUrl, { scroll: false });
         setUrlVersion((v) => v + 1);
     };
 
     const clearAllFilters = () => {
         if (typeof window !== "undefined") {
-            window.history.pushState(null, "", "/fragrances");
+            window.history.replaceState(null, "", "/fragrances");
         }
-        router.push("/fragrances", { scroll: false });
+        router.replace("/fragrances", { scroll: false });
         setUrlVersion((v) => v + 1);
     };
 

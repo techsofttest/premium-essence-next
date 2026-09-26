@@ -221,9 +221,9 @@ export default function ProductCatalogView({
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
         if (typeof window !== "undefined") {
-            window.history.pushState(null, "", targetUrl);
+            window.history.replaceState(null, "", targetUrl);
         }
-        router.push(targetUrl, { scroll: false });
+        router.replace(targetUrl, { scroll: false });
         setUrlVersion((v) => v + 1);
     };
 
@@ -238,9 +238,9 @@ export default function ProductCatalogView({
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
         if (typeof window !== "undefined") {
-            window.history.pushState(null, "", targetUrl);
+            window.history.replaceState(null, "", targetUrl);
         }
-        router.push(targetUrl, { scroll: false });
+        router.replace(targetUrl, { scroll: false });
         setUrlVersion((v) => v + 1);
         
         const catalogElem = document.getElementById("catalog-products-top");
