@@ -183,6 +183,12 @@ export default function ProductCatalogView({
     } else if (isNewArrivalsFilter) {
         displayTitle = "New Arrivals Collection";
         displaySubtitle = "Explore the latest fragrance releases and newest perfume creations.";
+    } else if (selectedFamilyParam.toLowerCase() === "niche" || selectedFamilyParam.toLowerCase() === "niche-fragrances") {
+        displayTitle = "Niche Fragrances Collection";
+        displaySubtitle = "Explore rare, artisanal perfumes from world-renowned Prestige & Niche fragrance houses.";
+    } else if (selectedFamilyParam.toLowerCase() === "oud") {
+        displayTitle = "Signature Oud Collection";
+        displaySubtitle = "Discover dark, opulent, and majestic Oud perfumes crafted with precious agarwood resin.";
     } else if (selectedCollectionParam) {
         if (selectedCollectionParam.includes("gift") || selectedCollectionParam.includes("box")) {
             displayTitle = "Perfumes with Gift Box";

@@ -291,6 +291,21 @@ function FragranceCatalogContent() {
 
     const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration || selectedCollection);
 
+    let displayTitle = "The Fragrance Collection";
+    let displaySubtitle = "Explore masterfully crafted perfumes curated by fragrance family, olfactive concentration, and bespoke notes.";
+
+    const famLower = selectedFamily.toLowerCase().trim();
+    if (famLower === "niche" || famLower === "niche-fragrances") {
+        displayTitle = "Niche Fragrances Collection";
+        displaySubtitle = "Explore rare, artisanal perfumes from world-renowned Prestige & Niche fragrance houses.";
+    } else if (famLower === "oud") {
+        displayTitle = "Signature Oud Collection";
+        displaySubtitle = "Discover dark, opulent, and majestic Oud perfumes crafted with precious agarwood resin.";
+    } else if (selectedFamily) {
+        displayTitle = `${selectedFamily.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Collection`;
+        displaySubtitle = `Handcrafted perfumes categorized under the ${selectedFamily.replace(/-/g, ' ')} olfactive family.`;
+    }
+
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans py-12 px-6 md:px-12">
             <div className="max-w-screen-2xl mx-auto">
@@ -301,10 +316,10 @@ function FragranceCatalogContent() {
                             Olfactive Excellence
                         </span>
                         <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-dark">
-                            The Fragrance Collection
+                            {displayTitle}
                         </h1>
                         <p className="text-xs md:text-sm text-dark/70 mt-3 max-w-xl mx-auto md:mx-0 leading-relaxed">
-                            Explore masterfully crafted perfumes curated by fragrance family, olfactive concentration, and bespoke notes.
+                            {displaySubtitle}
                         </p>
                     </div>
                     {renderPaginationNumbers()}
@@ -331,7 +346,7 @@ function FragranceCatalogContent() {
 
                         {selectedFamily && (
                             <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                                Family: {selectedFamily}
+                                {famLower === "niche" || famLower === "niche-fragrances" ? "Collection: Niche Fragrances" : famLower === "oud" ? "Collection: Signature Oud" : `Family: ${selectedFamily}`}
                                 <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateFilter("family", "")} />
                             </span>
                         )}
