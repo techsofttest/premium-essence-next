@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -48,27 +48,21 @@ export default function ProductCatalogView({
     const router = useRouter();
     const pathname = usePathname();
 
-    const [urlVersion, setUrlVersion] = useState(0);
+    // Keep URL state in one place. Next.js searchParams is the rendered source of truth,
+    // while this ref prevents rapid consecutive clicks from reading a stale render snapshot.
+    const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
 
     useEffect(() => {
-        const handlePopState = () => setUrlVersion((v) => v + 1);
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
+        latestParamsRef.current = new URLSearchParams(searchParams.toString());
+    }, [searchParams]);
 
-    const activeSearchParams = useMemo(() => {
-        if (typeof window !== "undefined") {
-            return new URLSearchParams(window.location.search);
-        }
-        return new URLSearchParams(searchParams.toString());
-    }, [searchParams, urlVersion]);
+    const activeSearchParams = useMemo(
+        () => new URLSearchParams(searchParams.toString()),
+        [searchParams]
+    );
 
-    const getLiveSearchParams = () => {
-        if (typeof window !== "undefined") {
-            return new URLSearchParams(window.location.search);
-        }
-        return new URLSearchParams(searchParams.toString());
-    };
+    const getLiveSearchParams = () =>
+        new URLSearchParams(latestParamsRef.current.toString());
 
     const selectedCategoryParam = fixedCategory || activeSearchParams.get("category") || "";
     const selectedBrandParam = fixedBrand || activeSearchParams.get("brand") || "";
@@ -218,13 +212,14 @@ export default function ProductCatalogView({
 
     const applyUrlParams = (params: URLSearchParams) => {
         params.delete("page");
+
+        // Update the ref immediately so another filter click before the Next.js
+        // navigation finishes still works with the newest query parameters.
+        latestParamsRef.current = new URLSearchParams(params.toString());
+
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
-        if (typeof window !== "undefined") {
-            window.history.replaceState(null, "", targetUrl);
-        }
         router.replace(targetUrl, { scroll: false });
-        setUrlVersion((v) => v + 1);
     };
 
     const handlePageChange = (page: number) => {
@@ -235,14 +230,12 @@ export default function ProductCatalogView({
         } else {
             params.delete("page");
         }
+        latestParamsRef.current = new URLSearchParams(params.toString());
+
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
-        if (typeof window !== "undefined") {
-            window.history.replaceState(null, "", targetUrl);
-        }
         router.replace(targetUrl, { scroll: false });
-        setUrlVersion((v) => v + 1);
-        
+
         const catalogElem = document.getElementById("catalog-products-top");
         if (catalogElem) {
             catalogElem.scrollIntoView({ behavior: "smooth" });
@@ -301,7 +294,7 @@ export default function ProductCatalogView({
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam, urlVersion]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam]);
 
     // Multi-select toggle function
     const toggleFilterOption = (key: string, value: string) => {
@@ -325,13 +318,28 @@ export default function ProductCatalogView({
         applyUrlParams(liveParams);
     };
 
+    const PARAM_ALIASES: Record<string, string[]> = {
+        search: ["search", "q"],
+        filter: ["filter", "type"],
+        collection: ["collection", "collection_slug"],
+    };
+
+    const removeFilterParam = (params: URLSearchParams, key: string) => {
+        const aliases = PARAM_ALIASES[key] || [key];
+        aliases.forEach((alias) => params.delete(alias));
+    };
+
     const updateSingleFilter = (key: string, value: string) => {
         const liveParams = getLiveSearchParams();
+
+        // Remove all aliases first so old URL keys such as `type`, `q`, or
+        // `collection_slug` can never resurrect a filter after it is cleared.
+        removeFilterParam(liveParams, key);
+
         if (value) {
             liveParams.set(key, value);
-        } else {
-            liveParams.delete(key);
         }
+
         applyUrlParams(liveParams);
     };
 
@@ -430,14 +438,12 @@ export default function ProductCatalogView({
                                     e.preventDefault();
                                     toggleFilterOption(filterKey, val);
                                 }}
-                                className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider cursor-pointer rounded transition-colors ${
-                                    isChecked ? "bg-dark text-white font-bold" : "hover:bg-[#F7F3F4] text-dark/80"
-                                }`}
+                                className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider cursor-pointer rounded transition-colors ${isChecked ? "bg-dark text-white font-bold" : "hover:bg-[#F7F3F4] text-dark/80"
+                                    }`}
                             >
                                 <div
-                                    className={`w-4 h-4 border flex items-center justify-center rounded-sm shrink-0 transition-colors ${
-                                        isChecked ? "bg-[#C5A059] border-[#C5A059] text-dark" : "border-dark/30 bg-white"
-                                    }`}
+                                    className={`w-4 h-4 border flex items-center justify-center rounded-sm shrink-0 transition-colors ${isChecked ? "bg-[#C5A059] border-[#C5A059] text-dark" : "border-dark/30 bg-white"
+                                        }`}
                                 >
                                     {isChecked && <Check size={12} strokeWidth={3} />}
                                 </div>
@@ -487,11 +493,10 @@ export default function ProductCatalogView({
                         <button
                             key={item}
                             onClick={() => handlePageChange(item)}
-                            className={`w-9 h-9 text-xs font-bold transition-all ${
-                                item === validPage
+                            className={`w-9 h-9 text-xs font-bold transition-all ${item === validPage
                                     ? "bg-dark text-white border border-dark shadow-sm"
                                     : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
-                            }`}
+                                }`}
                         >
                             {item}
                         </button>

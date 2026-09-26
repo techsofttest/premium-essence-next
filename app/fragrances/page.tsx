@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,27 +24,21 @@ function FragranceCatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const [urlVersion, setUrlVersion] = useState(0);
+    // Next.js searchParams is the rendered source of truth. The ref keeps the
+    // newest query available immediately during rapid consecutive filter clicks.
+    const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
 
     useEffect(() => {
-        const handlePopState = () => setUrlVersion((v) => v + 1);
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
+        latestParamsRef.current = new URLSearchParams(searchParams.toString());
+    }, [searchParams]);
 
-    const activeSearchParams = useMemo(() => {
-        if (typeof window !== "undefined") {
-            return new URLSearchParams(window.location.search);
-        }
-        return new URLSearchParams(searchParams.toString());
-    }, [searchParams, urlVersion]);
+    const activeSearchParams = useMemo(
+        () => new URLSearchParams(searchParams.toString()),
+        [searchParams]
+    );
 
-    const getLiveSearchParams = () => {
-        if (typeof window !== "undefined") {
-            return new URLSearchParams(window.location.search);
-        }
-        return new URLSearchParams(searchParams.toString());
-    };
+    const getLiveSearchParams = () =>
+        new URLSearchParams(latestParamsRef.current.toString());
 
     const selectedFamily = activeSearchParams.get("family") || "";
     const selectedGender = activeSearchParams.get("gender") || "";
@@ -117,11 +111,10 @@ function FragranceCatalogContent() {
                         <button
                             key={item}
                             onClick={() => handlePageChange(item)}
-                            className={`w-9 h-9 text-xs font-bold transition-all ${
-                                item === validPage
+                            className={`w-9 h-9 text-xs font-bold transition-all ${item === validPage
                                     ? "bg-dark text-white border border-dark shadow-sm"
                                     : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
-                            }`}
+                                }`}
                         >
                             {item}
                         </button>
@@ -194,7 +187,7 @@ function FragranceCatalogContent() {
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort, urlVersion]);
+    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
 
     const updateFilter = (key: string, value: string) => {
         const params = getLiveSearchParams();
@@ -210,22 +203,19 @@ function FragranceCatalogContent() {
         }
         params.delete("page");
 
+        // Commit the new params synchronously so a second click cannot use
+        // the previous render's searchParams snapshot.
+        latestParamsRef.current = new URLSearchParams(params.toString());
+
         const query = params.toString();
         const targetUrl = query ? `/fragrances?${query}` : "/fragrances";
-
-        if (typeof window !== "undefined") {
-            window.history.replaceState(null, "", targetUrl);
-        }
         router.replace(targetUrl, { scroll: false });
-        setUrlVersion((v) => v + 1);
     };
 
     const clearAllFilters = () => {
-        if (typeof window !== "undefined") {
-            window.history.replaceState(null, "", "/fragrances");
-        }
+        const params = new URLSearchParams();
+        latestParamsRef.current = params;
         router.replace("/fragrances", { scroll: false });
-        setUrlVersion((v) => v + 1);
     };
 
     const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration);
@@ -329,9 +319,8 @@ function FragranceCatalogContent() {
                             <div className="space-y-2">
                                 <button
                                     onClick={() => updateFilter("gender", "")}
-                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                        !selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                    }`}
+                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
                                 >
                                     All Genders
                                     {!selectedGender && <Check size={14} />}
@@ -340,9 +329,8 @@ function FragranceCatalogContent() {
                                     <button
                                         key={g}
                                         onClick={() => updateFilter("gender", g)}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                            }`}
                                     >
                                         {g}
                                         {selectedGender.toLowerCase() === g.toLowerCase() && <Check size={14} />}
@@ -359,9 +347,8 @@ function FragranceCatalogContent() {
                             <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
                                 <button
                                     onClick={() => updateFilter("family", "")}
-                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                        !selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                    }`}
+                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
                                 >
                                     All Olfactive Families
                                     {!selectedFamily && <Check size={14} />}
@@ -372,9 +359,8 @@ function FragranceCatalogContent() {
                                         <button
                                             key={fam.id}
                                             onClick={() => updateFilter("family", fam.slug)}
-                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                            }`}
+                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                }`}
                                         >
                                             {fam.name}
                                             {isSelected && <Check size={14} />}
@@ -392,9 +378,8 @@ function FragranceCatalogContent() {
                             <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
                                 <button
                                     onClick={() => updateFilter("concentration", "")}
-                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                        !selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                    }`}
+                                    className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                        }`}
                                 >
                                     All Concentrations
                                     {!selectedConcentration && <Check size={14} />}
@@ -405,9 +390,8 @@ function FragranceCatalogContent() {
                                         <button
                                             key={conc.id}
                                             onClick={() => updateFilter("concentration", conc.slug)}
-                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                            }`}
+                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                }`}
                                         >
                                             {conc.name}
                                             {isSelected && <Check size={14} />}
@@ -496,9 +480,8 @@ function FragranceCatalogContent() {
                                 <div className="space-y-2">
                                     <button
                                         onClick={() => updateFilter("gender", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedGender ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                            }`}
                                     >
                                         All Genders
                                         {!selectedGender && <Check size={14} />}
@@ -507,9 +490,8 @@ function FragranceCatalogContent() {
                                         <button
                                             key={g}
                                             onClick={() => updateFilter("gender", g)}
-                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                            }`}
+                                            className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${selectedGender.toLowerCase() === g.toLowerCase() ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                }`}
                                         >
                                             {g}
                                             {selectedGender.toLowerCase() === g.toLowerCase() && <Check size={14} />}
@@ -526,9 +508,8 @@ function FragranceCatalogContent() {
                                 <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
                                     <button
                                         onClick={() => updateFilter("family", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedFamily ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                            }`}
                                     >
                                         All Olfactive Families
                                         {!selectedFamily && <Check size={14} />}
@@ -539,9 +520,8 @@ function FragranceCatalogContent() {
                                             <button
                                                 key={fam.id}
                                                 onClick={() => updateFilter("family", fam.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
+                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                    }`}
                                             >
                                                 {fam.name}
                                                 {isSelected && <Check size={14} />}
@@ -559,9 +539,8 @@ function FragranceCatalogContent() {
                                 <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
                                     <button
                                         onClick={() => updateFilter("concentration", "")}
-                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                            !selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                        }`}
+                                        className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${!selectedConcentration ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                            }`}
                                     >
                                         All Concentrations
                                         {!selectedConcentration && <Check size={14} />}
@@ -572,9 +551,8 @@ function FragranceCatalogContent() {
                                             <button
                                                 key={conc.id}
                                                 onClick={() => updateFilter("concentration", conc.slug)}
-                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${
-                                                    isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
-                                                }`}
+                                                className={`w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-between ${isSelected ? "bg-dark text-white" : "hover:bg-[#F7F3F4] text-dark/80"
+                                                    }`}
                                             >
                                                 {conc.name}
                                                 {isSelected && <Check size={14} />}
