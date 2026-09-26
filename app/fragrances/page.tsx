@@ -181,6 +181,7 @@ function FragranceCatalogContent() {
         } else {
             params.delete(key);
         }
+        params.delete("page");
         router.push(`/fragrances?${params.toString()}`);
     };
 

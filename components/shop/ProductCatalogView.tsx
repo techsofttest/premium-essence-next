@@ -127,8 +127,21 @@ export default function ProductCatalogView({
     }, [products]);
 
     // Local client-side filtered products based on Size & Price range
+    // Local client-side filtered products based on Size, Price range & Concentration safety
     const filteredProducts = useMemo(() => {
         return products.filter((p) => {
+            // Concentration safety filter (exact name or exact slug match)
+            if (selectedConcentrations.length > 0) {
+                const pConcName = (p.concentration || "").toLowerCase().trim();
+                const pConcSlug = pConcName.replace(/\s+/g, "-");
+                const matchesConc = selectedConcentrations.some((conc) => {
+                    const cLower = conc.toLowerCase().trim();
+                    const cSlug = cLower.replace(/\s+/g, "-");
+                    return pConcName === cLower || pConcSlug === cSlug;
+                });
+                if (!matchesConc) return false;
+            }
+
             // Price filter: check if base price or any variant price <= maxPriceParam
             const pPrice = p.price;
             const matchesPrice = pPrice <= maxPriceParam || (p.variants && p.variants.some((v) => (v.price ?? pPrice) <= maxPriceParam));
@@ -143,7 +156,7 @@ export default function ProductCatalogView({
 
             return true;
         });
-    }, [products, maxPriceParam, selectedSizes]);
+    }, [products, maxPriceParam, selectedSizes, selectedConcentrations]);
 
     // Pagination State (12 products per page)
     const ITEMS_PER_PAGE = 12;
@@ -158,18 +171,9 @@ export default function ProductCatalogView({
         }
     }, [searchParams]);
 
-    // Reset pagination when active filters change (excluding page itself)
+    // Reset pagination state to 1 whenever active filters or sorting change
     useEffect(() => {
-        const pageFromUrl = Number(searchParams.get("page")) || 1;
-        if (currentPage !== pageFromUrl && pageFromUrl === 1) {
-             setCurrentPage(1);
-        } else if (pageFromUrl === 1 && currentPage !== 1) {
-             // If filters change but we are not listening to page change, we should reset to 1
-             setCurrentPage(1);
-             const params = new URLSearchParams(searchParams.toString());
-             params.delete("page");
-             router.push(`?${params.toString()}`, { scroll: false });
-        }
+        setCurrentPage(1);
     }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam, selectedSizeParam, maxPriceParam]);
 
     const totalProducts = filteredProducts.length;
@@ -267,6 +271,7 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
+        params.delete("page");
         router.push(`?${params.toString()}`, { scroll: false });
     };
 
@@ -277,6 +282,7 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
+        params.delete("page");
         router.push(`?${params.toString()}`, { scroll: false });
     };
 
