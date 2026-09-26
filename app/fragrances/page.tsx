@@ -27,10 +27,27 @@ function FragranceCatalogContent() {
     // Next.js searchParams is the rendered source of truth. The ref keeps the
     // newest query available immediately during rapid consecutive filter clicks.
     const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
+    const pendingParamsRef = useRef<string | null>(null);
 
     useEffect(() => {
-        latestParamsRef.current = new URLSearchParams(searchParams.toString());
+        const renderedQuery = searchParams.toString();
+        // A rapid click can start another navigation before Next has rendered
+        // the previous one. Don't let that older snapshot roll our live state back.
+        if (pendingParamsRef.current !== null) {
+            if (renderedQuery !== pendingParamsRef.current) return;
+            pendingParamsRef.current = null;
+        }
+        latestParamsRef.current = new URLSearchParams(renderedQuery);
     }, [searchParams]);
+
+    useEffect(() => {
+        const syncAfterHistoryNavigation = () => {
+            pendingParamsRef.current = null;
+            latestParamsRef.current = new URLSearchParams(window.location.search);
+        };
+        window.addEventListener("popstate", syncAfterHistoryNavigation);
+        return () => window.removeEventListener("popstate", syncAfterHistoryNavigation);
+    }, []);
 
     const activeSearchParams = useMemo(
         () => new URLSearchParams(searchParams.toString()),
@@ -206,6 +223,7 @@ function FragranceCatalogContent() {
         // Commit the new params synchronously so a second click cannot use
         // the previous render's searchParams snapshot.
         latestParamsRef.current = new URLSearchParams(params.toString());
+        pendingParamsRef.current = params.toString();
 
         const query = params.toString();
         const targetUrl = query ? `/fragrances?${query}` : "/fragrances";
@@ -215,10 +233,11 @@ function FragranceCatalogContent() {
     const clearAllFilters = () => {
         const params = new URLSearchParams();
         latestParamsRef.current = params;
+        pendingParamsRef.current = params.toString();
         router.replace("/fragrances", { scroll: false });
     };
 
-    const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration);
+    const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration || selectedCollection);
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans py-12 px-6 md:px-12">

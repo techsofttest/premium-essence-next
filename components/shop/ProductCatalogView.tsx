@@ -51,10 +51,26 @@ export default function ProductCatalogView({
     // Keep URL state in one place. Next.js searchParams is the rendered source of truth,
     // while this ref prevents rapid consecutive clicks from reading a stale render snapshot.
     const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
+    const pendingParamsRef = useRef<string | null>(null);
 
     useEffect(() => {
-        latestParamsRef.current = new URLSearchParams(searchParams.toString());
+        const renderedQuery = searchParams.toString();
+        // Ignore an older render while a newer filter URL is still navigating.
+        if (pendingParamsRef.current !== null) {
+            if (renderedQuery !== pendingParamsRef.current) return;
+            pendingParamsRef.current = null;
+        }
+        latestParamsRef.current = new URLSearchParams(renderedQuery);
     }, [searchParams]);
+
+    useEffect(() => {
+        const syncAfterHistoryNavigation = () => {
+            pendingParamsRef.current = null;
+            latestParamsRef.current = new URLSearchParams(window.location.search);
+        };
+        window.addEventListener("popstate", syncAfterHistoryNavigation);
+        return () => window.removeEventListener("popstate", syncAfterHistoryNavigation);
+    }, []);
 
     const activeSearchParams = useMemo(
         () => new URLSearchParams(searchParams.toString()),
@@ -216,6 +232,7 @@ export default function ProductCatalogView({
         // Update the ref immediately so another filter click before the Next.js
         // navigation finishes still works with the newest query parameters.
         latestParamsRef.current = new URLSearchParams(params.toString());
+        pendingParamsRef.current = params.toString();
 
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
@@ -231,6 +248,7 @@ export default function ProductCatalogView({
             params.delete("page");
         }
         latestParamsRef.current = new URLSearchParams(params.toString());
+        pendingParamsRef.current = params.toString();
 
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
