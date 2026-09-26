@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,11 +24,33 @@ function FragranceCatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const selectedFamily = searchParams.get("family") || "";
-    const selectedGender = searchParams.get("gender") || "";
-    const selectedConcentration = searchParams.get("concentration") || "";
-    const selectedCollection = searchParams.get("collection") || searchParams.get("collection_slug") || "";
-    const selectedSort = searchParams.get("sort") || "sort_order";
+    const [urlVersion, setUrlVersion] = useState(0);
+
+    useEffect(() => {
+        const handlePopState = () => setUrlVersion((v) => v + 1);
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
+
+    const activeSearchParams = useMemo(() => {
+        if (typeof window !== "undefined") {
+            return new URLSearchParams(window.location.search);
+        }
+        return new URLSearchParams(searchParams.toString());
+    }, [searchParams, urlVersion]);
+
+    const getLiveSearchParams = () => {
+        if (typeof window !== "undefined") {
+            return new URLSearchParams(window.location.search);
+        }
+        return new URLSearchParams(searchParams.toString());
+    };
+
+    const selectedFamily = activeSearchParams.get("family") || "";
+    const selectedGender = activeSearchParams.get("gender") || "";
+    const selectedConcentration = activeSearchParams.get("concentration") || "";
+    const selectedCollection = activeSearchParams.get("collection") || activeSearchParams.get("collection_slug") || "";
+    const selectedSort = activeSearchParams.get("sort") || "sort_order";
 
     const [products, setProducts] = useState<Product[]>([]);
     const [filterMeta, setFilterMeta] = useState<FilterMetadata>({ families: [], concentrations: [], genders: ["Men", "Women", "Unisex"] });
@@ -172,21 +194,38 @@ function FragranceCatalogContent() {
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
+    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort, urlVersion]);
 
     const updateFilter = (key: string, value: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (value) {
+        const params = getLiveSearchParams();
+        const currentVal = params.get(key) || "";
+
+        // Toggle logic: if user clicks on an already selected filter value, uncheck it
+        if (value && currentVal.toLowerCase() === value.toLowerCase()) {
+            params.delete(key);
+        } else if (value) {
             params.set(key, value);
         } else {
             params.delete(key);
         }
         params.delete("page");
-        router.push(`/fragrances?${params.toString()}`);
+
+        const query = params.toString();
+        const targetUrl = query ? `/fragrances?${query}` : "/fragrances";
+
+        if (typeof window !== "undefined") {
+            window.history.pushState(null, "", targetUrl);
+        }
+        router.push(targetUrl, { scroll: false });
+        setUrlVersion((v) => v + 1);
     };
 
     const clearAllFilters = () => {
-        router.push("/fragrances");
+        if (typeof window !== "undefined") {
+            window.history.pushState(null, "", "/fragrances");
+        }
+        router.push("/fragrances", { scroll: false });
+        setUrlVersion((v) => v + 1);
     };
 
     const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration);

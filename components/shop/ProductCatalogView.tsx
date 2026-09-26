@@ -48,24 +48,46 @@ export default function ProductCatalogView({
     const router = useRouter();
     const pathname = usePathname();
 
-    const selectedCategoryParam = fixedCategory || searchParams.get("category") || "";
-    const selectedBrandParam = fixedBrand || searchParams.get("brand") || "";
-    const selectedFamilyParam = fixedFamily || searchParams.get("family") || "";
-    const selectedGenderParam = fixedGender || searchParams.get("gender") || "";
-    const selectedConcentrationParam = fixedConcentration || searchParams.get("concentration") || "";
-    const selectedSearch = searchParams.get("search") || searchParams.get("q") || "";
-    const selectedSort = searchParams.get("sort") || "sort_order";
-    const selectedFilterParam = searchParams.get("filter") || searchParams.get("type") || "";
+    const [urlVersion, setUrlVersion] = useState(0);
 
-    const selectedSizeParam = searchParams.get("size") || "";
-    const maxPriceParam = searchParams.get("max_price") ? Number(searchParams.get("max_price")) : 1000;
+    useEffect(() => {
+        const handlePopState = () => setUrlVersion((v) => v + 1);
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
+
+    const activeSearchParams = useMemo(() => {
+        if (typeof window !== "undefined") {
+            return new URLSearchParams(window.location.search);
+        }
+        return new URLSearchParams(searchParams.toString());
+    }, [searchParams, urlVersion]);
+
+    const getLiveSearchParams = () => {
+        if (typeof window !== "undefined") {
+            return new URLSearchParams(window.location.search);
+        }
+        return new URLSearchParams(searchParams.toString());
+    };
+
+    const selectedCategoryParam = fixedCategory || activeSearchParams.get("category") || "";
+    const selectedBrandParam = fixedBrand || activeSearchParams.get("brand") || "";
+    const selectedFamilyParam = fixedFamily || activeSearchParams.get("family") || "";
+    const selectedGenderParam = fixedGender || activeSearchParams.get("gender") || "";
+    const selectedConcentrationParam = fixedConcentration || activeSearchParams.get("concentration") || "";
+    const selectedSearch = activeSearchParams.get("search") || activeSearchParams.get("q") || "";
+    const selectedSort = activeSearchParams.get("sort") || "sort_order";
+    const selectedFilterParam = activeSearchParams.get("filter") || activeSearchParams.get("type") || "";
+
+    const selectedSizeParam = activeSearchParams.get("size") || "";
+    const maxPriceParam = activeSearchParams.get("max_price") ? Number(activeSearchParams.get("max_price")) : 1000;
 
     const selectedSizes = selectedSizeParam ? selectedSizeParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
 
-    const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || searchParams.get("bestseller") === "true";
-    const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || searchParams.get("new") === "true";
+    const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || activeSearchParams.get("bestseller") === "true";
+    const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || activeSearchParams.get("new") === "true";
 
-    const selectedCollectionParam = searchParams.get("collection") || searchParams.get("collection_slug") || "";
+    const selectedCollectionParam = activeSearchParams.get("collection") || activeSearchParams.get("collection_slug") || "";
 
     // Dynamic Title & Subtitle overrides
     let displayTitle = title;
@@ -198,12 +220,16 @@ export default function ProductCatalogView({
         params.delete("page");
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
+        if (typeof window !== "undefined") {
+            window.history.pushState(null, "", targetUrl);
+        }
         router.push(targetUrl, { scroll: false });
+        setUrlVersion((v) => v + 1);
     };
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        const params = new URLSearchParams(searchParams.toString());
+        const params = getLiveSearchParams();
         if (page > 1) {
             params.set("page", page.toString());
         } else {
@@ -211,7 +237,11 @@ export default function ProductCatalogView({
         }
         const query = params.toString();
         const targetUrl = query ? `${pathname}?${query}` : pathname;
+        if (typeof window !== "undefined") {
+            window.history.pushState(null, "", targetUrl);
+        }
         router.push(targetUrl, { scroll: false });
+        setUrlVersion((v) => v + 1);
         
         const catalogElem = document.getElementById("catalog-products-top");
         if (catalogElem) {
@@ -271,11 +301,12 @@ export default function ProductCatalogView({
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam]);
+    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam, urlVersion]);
 
     // Multi-select toggle function
     const toggleFilterOption = (key: string, value: string) => {
-        const currentParam = searchParams.get(key) || "";
+        const liveParams = getLiveSearchParams();
+        const currentParam = liveParams.get(key) || "";
         const currentList = currentParam ? currentParam.split(",").map(s => s.trim()).filter(Boolean) : [];
         const targetValue = value.trim();
 
@@ -286,23 +317,22 @@ export default function ProductCatalogView({
             newList = [...currentList, targetValue];
         }
 
-        const params = new URLSearchParams(searchParams.toString());
         if (newList.length > 0) {
-            params.set(key, newList.join(","));
+            liveParams.set(key, newList.join(","));
         } else {
-            params.delete(key);
+            liveParams.delete(key);
         }
-        applyUrlParams(params);
+        applyUrlParams(liveParams);
     };
 
     const updateSingleFilter = (key: string, value: string) => {
-        const params = new URLSearchParams(searchParams.toString());
+        const liveParams = getLiveSearchParams();
         if (value) {
-            params.set(key, value);
+            liveParams.set(key, value);
         } else {
-            params.delete(key);
+            liveParams.delete(key);
         }
-        applyUrlParams(params);
+        applyUrlParams(liveParams);
     };
 
     const clearAllFilters = () => {
@@ -396,7 +426,10 @@ export default function ProductCatalogView({
                         return (
                             <label
                                 key={val}
-                                onClick={() => toggleFilterOption(filterKey, val)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleFilterOption(filterKey, val);
+                                }}
                                 className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider cursor-pointer rounded transition-colors ${
                                     isChecked ? "bg-dark text-white font-bold" : "hover:bg-[#F7F3F4] text-dark/80"
                                 }`}
