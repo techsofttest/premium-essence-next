@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { X, Loader2, Sparkles, SlidersHorizontal, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
@@ -90,6 +90,38 @@ function FragranceCatalogContent() {
     const [currentPage, setCurrentPage] = useState<number>(() =>
         getInitialFragrancePage(pathname, searchParams)
     );
+
+    const isInternalCleanRef = useRef(false);
+    const prevQueryRef = useRef(searchParams.toString());
+
+    // Clean URL bar on user filter actions to prevent URL parameter clutter
+    const cleanUrl = () => {
+        if (typeof window !== "undefined") {
+            isInternalCleanRef.current = true;
+            router.replace(pathname, { scroll: false });
+        }
+    };
+
+    // Synchronize activeFilters when external navigation links (e.g. footer/nav links) change searchParams
+    useEffect(() => {
+        const currentQuery = searchParams.toString();
+        if (currentQuery !== prevQueryRef.current) {
+            prevQueryRef.current = currentQuery;
+            if (isInternalCleanRef.current) {
+                isInternalCleanRef.current = false;
+                return;
+            }
+            const urlFilters: ActiveFragranceFilters = {
+                family: searchParams.get("family") || "",
+                gender: searchParams.get("gender") || "",
+                concentration: searchParams.get("concentration") || "",
+                collection: searchParams.get("collection") || searchParams.get("collection_slug") || "",
+                sort: searchParams.get("sort") || "sort_order",
+            };
+            setActiveFilters(urlFilters);
+            setCurrentPage(1);
+        }
+    }, [searchParams, pathname]);
 
     // Save state to sessionStorage on any filter or pagination change
     useEffect(() => {
@@ -253,12 +285,6 @@ function FragranceCatalogContent() {
             isCancelled = true;
         };
     }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
-
-    const cleanUrl = () => {
-        if (typeof window !== "undefined") {
-            router.replace(pathname, { scroll: false });
-        }
-    };
 
     const updateFilter = (key: keyof ActiveFragranceFilters, value: string) => {
         setActiveFilters((prev) => {

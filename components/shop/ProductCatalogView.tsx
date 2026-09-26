@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -128,7 +128,7 @@ export default function ProductCatalogView({
 
     const storageKey = `catalog_state_${pathname}`;
 
-    // React State is initialized synchronously with restored filters on client mount
+    // React State initialized synchronously on client mount
     const [activeFilters, setActiveFilters] = useState<ActiveFilters>(() =>
         getInitialFilters(pathname, searchParams, { fixedCategory, fixedBrand, fixedFamily, fixedGender, fixedConcentration })
     );
@@ -138,6 +138,44 @@ export default function ProductCatalogView({
     const [currentPage, setCurrentPage] = useState<number>(() =>
         getInitialPage(pathname, searchParams)
     );
+
+    const isInternalCleanRef = useRef(false);
+    const prevQueryRef = useRef(searchParams.toString());
+
+    // Clean URL bar on user filter actions to prevent URL parameter clutter
+    const cleanUrl = () => {
+        if (typeof window !== "undefined") {
+            isInternalCleanRef.current = true;
+            router.replace(pathname, { scroll: false });
+        }
+    };
+
+    // Synchronize activeFilters when external navigation links (e.g. footer/nav links) change searchParams
+    useEffect(() => {
+        const currentQuery = searchParams.toString();
+        if (currentQuery !== prevQueryRef.current) {
+            prevQueryRef.current = currentQuery;
+            if (isInternalCleanRef.current) {
+                isInternalCleanRef.current = false;
+                return;
+            }
+            const urlFilters: ActiveFilters = {
+                category: fixedCategory || searchParams.get("category") || "",
+                brand: fixedBrand || searchParams.get("brand") || "",
+                family: fixedFamily || searchParams.get("family") || "",
+                gender: fixedGender || searchParams.get("gender") || "",
+                concentration: fixedConcentration || searchParams.get("concentration") || "",
+                collection: searchParams.get("collection") || searchParams.get("collection_slug") || "",
+                search: searchParams.get("search") || searchParams.get("q") || "",
+                sort: searchParams.get("sort") || "sort_order",
+                filter: searchParams.get("filter") || searchParams.get("type") || "",
+                size: searchParams.get("size") || "",
+                maxPrice: searchParams.get("max_price") ? Number(searchParams.get("max_price")) : 1000,
+            };
+            setActiveFilters(urlFilters);
+            setCurrentPage(1);
+        }
+    }, [searchParams, pathname, fixedCategory, fixedBrand, fixedFamily, fixedGender, fixedConcentration]);
 
     // Save state to sessionStorage on any filter or pagination change
     useEffect(() => {
@@ -375,13 +413,6 @@ export default function ProductCatalogView({
             isCancelled = true;
         };
     }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam]);
-
-    // Clean URL bar on user filter actions to prevent URL parameter clutter
-    const cleanUrl = () => {
-        if (typeof window !== "undefined") {
-            router.replace(pathname, { scroll: false });
-        }
-    };
 
     // Multi-select toggle function
     const toggleFilterOption = (key: keyof ActiveFilters, value: string) => {
