@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
@@ -46,6 +46,7 @@ export default function ProductCatalogView({
 }: ProductCatalogViewProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
 
     const selectedCategoryParam = fixedCategory || searchParams.get("category") || "";
     const selectedBrandParam = fixedBrand || searchParams.get("brand") || "";
@@ -104,29 +105,34 @@ export default function ProductCatalogView({
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
 
-    // Dynamic Sizes extracted from products
+    // Dynamic Sizes extracted & normalized from products (deduplicates "90ml" vs "90 ml")
     const availableSizes = useMemo(() => {
         const set = new Set<string>();
         products.forEach((p) => {
+            const rawList: string[] = [];
             if (p.variants && p.variants.length > 0) {
                 p.variants.forEach((v) => {
-                    const label = (v.label || v.size || "").trim();
-                    if (label) set.add(label);
+                    const label = (v.label || `${v.size || ''} ${v.unit || ''}`).trim();
+                    if (label) rawList.push(label);
                 });
             } else if (p.sizes && p.sizes.length > 0) {
                 p.sizes.forEach((s) => {
-                    if (s.trim()) set.add(s.trim());
+                    if (s.trim()) rawList.push(s.trim());
                 });
             }
+
+            rawList.forEach((s) => {
+                const normalized = s.replace(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)$/i, (_, num, unit) => `${num} ${unit.toLowerCase()}`).trim();
+                if (normalized) set.add(normalized);
+            });
         });
         return Array.from(set).sort((a, b) => {
-            const numA = parseInt(a) || 0;
-            const numB = parseInt(b) || 0;
+            const numA = parseFloat(a) || 0;
+            const numB = parseFloat(b) || 0;
             return numA - numB;
         });
     }, [products]);
 
-    // Local client-side filtered products based on Size & Price range
     // Local client-side filtered products based on Size, Price range & Concentration safety
     const filteredProducts = useMemo(() => {
         return products.filter((p) => {
@@ -147,10 +153,16 @@ export default function ProductCatalogView({
             const matchesPrice = pPrice <= maxPriceParam || (p.variants && p.variants.some((v) => (v.price ?? pPrice) <= maxPriceParam));
             if (!matchesPrice) return false;
 
-            // Size filter: check if any variant or product size matches selectedSizes
+            // Size filter: check if any variant or product size matches selectedSizes (flexible space matching)
             if (selectedSizes.length > 0) {
-                const productSizeLabels = p.variants?.map((v) => (v.label || v.size || "").toLowerCase().trim()).filter(Boolean) || p.sizes?.map((s) => s.toLowerCase().trim()) || [];
-                const matchesSize = selectedSizes.some((sz) => productSizeLabels.includes(sz));
+                const productSizeLabels = (p.variants?.map((v) => (v.label || `${v.size || ''} ${v.unit || ''}`).trim()) || p.sizes || [])
+                    .map((s) => s.replace(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)$/i, (_, num, unit) => `${num} ${unit.toLowerCase()}`).toLowerCase().trim())
+                    .filter(Boolean);
+
+                const matchesSize = selectedSizes.some((sz) => {
+                    const normSz = sz.replace(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)$/i, (_, num, unit) => `${num} ${unit.toLowerCase()}`).toLowerCase().trim();
+                    return productSizeLabels.includes(normSz) || productSizeLabels.some((pSz) => pSz.replace(/\s+/g, '') === normSz.replace(/\s+/g, ''));
+                });
                 if (!matchesSize) return false;
             }
 
@@ -182,6 +194,13 @@ export default function ProductCatalogView({
     const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
     const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+    const applyUrlParams = (params: URLSearchParams) => {
+        params.delete("page");
+        const query = params.toString();
+        const targetUrl = query ? `${pathname}?${query}` : pathname;
+        router.push(targetUrl, { scroll: false });
+    };
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
         const params = new URLSearchParams(searchParams.toString());
@@ -190,7 +209,9 @@ export default function ProductCatalogView({
         } else {
             params.delete("page");
         }
-        router.push(`?${params.toString()}`, { scroll: false });
+        const query = params.toString();
+        const targetUrl = query ? `${pathname}?${query}` : pathname;
+        router.push(targetUrl, { scroll: false });
         
         const catalogElem = document.getElementById("catalog-products-top");
         if (catalogElem) {
@@ -271,8 +292,7 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
-        params.delete("page");
-        router.push(`?${params.toString()}`, { scroll: false });
+        applyUrlParams(params);
     };
 
     const updateSingleFilter = (key: string, value: string) => {
@@ -282,12 +302,17 @@ export default function ProductCatalogView({
         } else {
             params.delete(key);
         }
-        params.delete("page");
-        router.push(`?${params.toString()}`, { scroll: false });
+        applyUrlParams(params);
     };
 
     const clearAllFilters = () => {
-        router.push(window.location.pathname, { scroll: false });
+        const params = new URLSearchParams();
+        if (fixedCategory) params.set("category", fixedCategory);
+        if (fixedBrand) params.set("brand", fixedBrand);
+        if (fixedFamily) params.set("family", fixedFamily);
+        if (fixedGender) params.set("gender", fixedGender);
+        if (fixedConcentration) params.set("concentration", fixedConcentration);
+        applyUrlParams(params);
     };
 
     const hasActiveFilters = Boolean(

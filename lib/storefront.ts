@@ -69,11 +69,14 @@ export function toProduct(product: StorefrontProduct): Product {
         badge: product.is_featured ? "Bestseller" : undefined,
         variants: (product.variants || []).map((variant) => {
             const vBuying = variant.buying_price ?? variant.original_price;
+            const sizeStr = (variant.size || "").trim();
+            const unitStr = (variant.unit || "").trim();
+            const fallbackLabel = sizeStr ? (unitStr ? `${sizeStr} ${unitStr}` : sizeStr) : unitStr;
             return {
                 id: variant.id,
-                size: variant.size || "",
-                unit: variant.unit || "",
-                label: variant.label || `${variant.size || ""}${variant.unit || ""}`.trim(),
+                size: sizeStr,
+                unit: unitStr,
+                label: variant.label || fallbackLabel,
                 price: variant.price,
                 originalPrice: (vBuying && vBuying > variant.price) ? vBuying : undefined,
                 stock: variant.stock,
