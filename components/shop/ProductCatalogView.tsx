@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Filter, X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import ProductBanner from "@/components/sections/ProductBanner";
 import { api } from "@/lib/api";
@@ -34,6 +34,84 @@ interface ProductCatalogViewProps {
     fixedConcentration?: string;
 }
 
+interface ActiveFilters {
+    category: string;
+    brand: string;
+    family: string;
+    gender: string;
+    concentration: string;
+    collection: string;
+    search: string;
+    sort: string;
+    filter: string;
+    size: string;
+    maxPrice: number;
+}
+
+const getInitialFilters = (
+    pathname: string,
+    searchParams: URLSearchParams,
+    fixedProps: { fixedCategory?: string; fixedBrand?: string; fixedFamily?: string; fixedGender?: string; fixedConcentration?: string }
+): ActiveFilters => {
+    const defaults: ActiveFilters = {
+        category: fixedProps.fixedCategory || searchParams.get("category") || "",
+        brand: fixedProps.fixedBrand || searchParams.get("brand") || "",
+        family: fixedProps.fixedFamily || searchParams.get("family") || "",
+        gender: fixedProps.fixedGender || searchParams.get("gender") || "",
+        concentration: fixedProps.fixedConcentration || searchParams.get("concentration") || "",
+        collection: searchParams.get("collection") || searchParams.get("collection_slug") || "",
+        search: searchParams.get("search") || searchParams.get("q") || "",
+        sort: searchParams.get("sort") || "sort_order",
+        filter: searchParams.get("filter") || searchParams.get("type") || "",
+        size: searchParams.get("size") || "",
+        maxPrice: searchParams.get("max_price") ? Number(searchParams.get("max_price")) : 1000,
+    };
+
+    if (typeof window !== "undefined") {
+        const hasUrlParams = searchParams.toString().length > 0;
+        if (!hasUrlParams) {
+            try {
+                const savedRaw = sessionStorage.getItem(`catalog_state_${pathname}`);
+                if (savedRaw) {
+                    const saved = JSON.parse(savedRaw);
+                    if (saved && saved.activeFilters) {
+                        return {
+                            ...defaults,
+                            ...saved.activeFilters,
+                            category: fixedProps.fixedCategory || saved.activeFilters.category || "",
+                            brand: fixedProps.fixedBrand || saved.activeFilters.brand || "",
+                            family: fixedProps.fixedFamily || saved.activeFilters.family || "",
+                            gender: fixedProps.fixedGender || saved.activeFilters.gender || "",
+                            concentration: fixedProps.fixedConcentration || saved.activeFilters.concentration || "",
+                        };
+                    }
+                }
+            } catch {
+                // Ignore parse errors
+            }
+        }
+    }
+    return defaults;
+};
+
+const getInitialPage = (pathname: string, searchParams: URLSearchParams): number => {
+    if (typeof window !== "undefined") {
+        const hasUrlParams = searchParams.toString().length > 0;
+        if (!hasUrlParams) {
+            try {
+                const savedRaw = sessionStorage.getItem(`catalog_state_${pathname}`);
+                if (savedRaw) {
+                    const saved = JSON.parse(savedRaw);
+                    if (saved && typeof saved.currentPage === "number") {
+                        return saved.currentPage;
+                    }
+                }
+            } catch {}
+        }
+    }
+    return 1;
+};
+
 export default function ProductCatalogView({
     title = "The Full Perfume Collection",
     subtitle = "Explore our portfolio of authentic French, Italian & Niche fragrance houses.",
@@ -48,56 +126,52 @@ export default function ProductCatalogView({
     const router = useRouter();
     const pathname = usePathname();
 
-    // Keep URL state in one place. Next.js searchParams is the rendered source of truth,
-    // while this ref prevents rapid consecutive clicks from reading a stale render snapshot.
-    const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
-    const pendingParamsRef = useRef<string | null>(null);
+    const storageKey = `catalog_state_${pathname}`;
 
-    useEffect(() => {
-        const renderedQuery = searchParams.toString();
-        // Ignore an older render while a newer filter URL is still navigating.
-        if (pendingParamsRef.current !== null) {
-            if (renderedQuery !== pendingParamsRef.current) return;
-            pendingParamsRef.current = null;
-        }
-        latestParamsRef.current = new URLSearchParams(renderedQuery);
-    }, [searchParams]);
-
-    useEffect(() => {
-        const syncAfterHistoryNavigation = () => {
-            pendingParamsRef.current = null;
-            latestParamsRef.current = new URLSearchParams(window.location.search);
-        };
-        window.addEventListener("popstate", syncAfterHistoryNavigation);
-        return () => window.removeEventListener("popstate", syncAfterHistoryNavigation);
-    }, []);
-
-    const activeSearchParams = useMemo(
-        () => new URLSearchParams(searchParams.toString()),
-        [searchParams]
+    // React State is initialized synchronously with restored filters on client mount
+    const [activeFilters, setActiveFilters] = useState<ActiveFilters>(() =>
+        getInitialFilters(pathname, searchParams, { fixedCategory, fixedBrand, fixedFamily, fixedGender, fixedConcentration })
     );
 
-    const getLiveSearchParams = () =>
-        new URLSearchParams(latestParamsRef.current.toString());
+    // Pagination State initialized synchronously
+    const ITEMS_PER_PAGE = 12;
+    const [currentPage, setCurrentPage] = useState<number>(() =>
+        getInitialPage(pathname, searchParams)
+    );
 
-    const selectedCategoryParam = fixedCategory || activeSearchParams.get("category") || "";
-    const selectedBrandParam = fixedBrand || activeSearchParams.get("brand") || "";
-    const selectedFamilyParam = fixedFamily || activeSearchParams.get("family") || "";
-    const selectedGenderParam = fixedGender || activeSearchParams.get("gender") || "";
-    const selectedConcentrationParam = fixedConcentration || activeSearchParams.get("concentration") || "";
-    const selectedSearch = activeSearchParams.get("search") || activeSearchParams.get("q") || "";
-    const selectedSort = activeSearchParams.get("sort") || "sort_order";
-    const selectedFilterParam = activeSearchParams.get("filter") || activeSearchParams.get("type") || "";
+    // Save state to sessionStorage on any filter or pagination change
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            sessionStorage.setItem(
+                storageKey,
+                JSON.stringify({ activeFilters, currentPage })
+            );
+        } catch {
+            // Ignore quota errors
+        }
+    }, [activeFilters, currentPage, storageKey]);
 
-    const selectedSizeParam = activeSearchParams.get("size") || "";
-    const maxPriceParam = activeSearchParams.get("max_price") ? Number(activeSearchParams.get("max_price")) : 1000;
+    const selectedCategoryParam = fixedCategory || activeFilters.category;
+    const selectedBrandParam = fixedBrand || activeFilters.brand;
+    const selectedFamilyParam = fixedFamily || activeFilters.family;
+    const selectedGenderParam = fixedGender || activeFilters.gender;
+    const selectedConcentrationParam = fixedConcentration || activeFilters.concentration;
+    const selectedSearch = activeFilters.search;
+    const selectedSort = activeFilters.sort;
+    const selectedFilterParam = activeFilters.filter;
+    const selectedSizeParam = activeFilters.size;
+    const maxPriceParam = activeFilters.maxPrice;
 
-    const selectedSizes = selectedSizeParam ? selectedSizeParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedSizes = useMemo(
+        () => (selectedSizeParam ? selectedSizeParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedSizeParam]
+    );
 
-    const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || activeSearchParams.get("bestseller") === "true";
-    const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || activeSearchParams.get("new") === "true";
+    const isBestsellerFilter = selectedFilterParam === "bestsellers" || selectedFilterParam === "bestseller" || activeFilters.filter === "bestseller";
+    const isNewArrivalsFilter = selectedFilterParam === "new_arrivals" || selectedFilterParam === "new" || activeFilters.filter === "new";
 
-    const selectedCollectionParam = activeSearchParams.get("collection") || activeSearchParams.get("collection_slug") || "";
+    const selectedCollectionParam = activeFilters.collection;
 
     // Dynamic Title & Subtitle overrides
     let displayTitle = title;
@@ -120,11 +194,26 @@ export default function ProductCatalogView({
     }
 
     // Arrays of selected items for multi-selection
-    const selectedCategories = selectedCategoryParam ? selectedCategoryParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
-    const selectedBrands = selectedBrandParam ? selectedBrandParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
-    const selectedFamilies = selectedFamilyParam ? selectedFamilyParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
-    const selectedGenders = selectedGenderParam ? selectedGenderParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
-    const selectedConcentrations = selectedConcentrationParam ? selectedConcentrationParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+    const selectedCategories = useMemo(
+        () => (selectedCategoryParam ? selectedCategoryParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedCategoryParam]
+    );
+    const selectedBrands = useMemo(
+        () => (selectedBrandParam ? selectedBrandParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedBrandParam]
+    );
+    const selectedFamilies = useMemo(
+        () => (selectedFamilyParam ? selectedFamilyParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedFamilyParam]
+    );
+    const selectedGenders = useMemo(
+        () => (selectedGenderParam ? selectedGenderParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedGenderParam]
+    );
+    const selectedConcentrations = useMemo(
+        () => (selectedConcentrationParam ? selectedConcentrationParam.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) : []),
+        [selectedConcentrationParam]
+    );
 
     const [products, setProducts] = useState<Product[]>([]);
     const [meta, setMeta] = useState<CatalogMeta>({
@@ -137,7 +226,7 @@ export default function ProductCatalogView({
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
 
-    // Dynamic Sizes extracted & normalized from products (deduplicates "90ml" vs "90 ml")
+    // Dynamic Sizes extracted & normalized from products
     const availableSizes = useMemo(() => {
         const set = new Set<string>();
         products.forEach((p) => {
@@ -168,7 +257,7 @@ export default function ProductCatalogView({
     // Local client-side filtered products based on Size, Price range & Concentration safety
     const filteredProducts = useMemo(() => {
         return products.filter((p) => {
-            // Concentration safety filter (exact name or exact slug match)
+            // Concentration safety filter
             if (selectedConcentrations.length > 0) {
                 const pConcName = (p.concentration || "").toLowerCase().trim();
                 const pConcSlug = pConcName.replace(/\s+/g, "-");
@@ -180,12 +269,12 @@ export default function ProductCatalogView({
                 if (!matchesConc) return false;
             }
 
-            // Price filter: check if base price or any variant price <= maxPriceParam
+            // Price filter
             const pPrice = p.price;
             const matchesPrice = pPrice <= maxPriceParam || (p.variants && p.variants.some((v) => (v.price ?? pPrice) <= maxPriceParam));
             if (!matchesPrice) return false;
 
-            // Size filter: check if any variant or product size matches selectedSizes (flexible space matching)
+            // Size filter
             if (selectedSizes.length > 0) {
                 const productSizeLabels = (p.variants?.map((v) => (v.label || `${v.size || ''} ${v.unit || ''}`).trim()) || p.sizes || [])
                     .map((s) => s.replace(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)$/i, (_, num, unit) => `${num} ${unit.toLowerCase()}`).toLowerCase().trim())
@@ -202,58 +291,14 @@ export default function ProductCatalogView({
         });
     }, [products, maxPriceParam, selectedSizes, selectedConcentrations]);
 
-    // Pagination State (12 products per page)
-    const ITEMS_PER_PAGE = 12;
-    const initialPage = Number(searchParams.get("page")) || 1;
-    const [currentPage, setCurrentPage] = useState(initialPage);
-
-    // Sync currentPage if URL changes (like when clicking Back)
-    useEffect(() => {
-        const pageFromUrl = Number(searchParams.get("page")) || 1;
-        if (pageFromUrl !== currentPage) {
-            setCurrentPage(pageFromUrl);
-        }
-    }, [searchParams]);
-
-    // Reset pagination state to 1 whenever active filters or sorting change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedSearch, selectedSort, selectedFilterParam, selectedSizeParam, maxPriceParam]);
-
     const totalProducts = filteredProducts.length;
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
     const validPage = Math.min(Math.max(currentPage, 1), totalPages);
     const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
     const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const applyUrlParams = (params: URLSearchParams) => {
-        params.delete("page");
-
-        // Update the ref immediately so another filter click before the Next.js
-        // navigation finishes still works with the newest query parameters.
-        latestParamsRef.current = new URLSearchParams(params.toString());
-        pendingParamsRef.current = params.toString();
-
-        const query = params.toString();
-        const targetUrl = query ? `${pathname}?${query}` : pathname;
-        router.replace(targetUrl, { scroll: false });
-    };
-
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        const params = getLiveSearchParams();
-        if (page > 1) {
-            params.set("page", page.toString());
-        } else {
-            params.delete("page");
-        }
-        latestParamsRef.current = new URLSearchParams(params.toString());
-        pendingParamsRef.current = params.toString();
-
-        const query = params.toString();
-        const targetUrl = query ? `${pathname}?${query}` : pathname;
-        router.replace(targetUrl, { scroll: false });
-
         const catalogElem = document.getElementById("catalog-products-top");
         if (catalogElem) {
             catalogElem.scrollIntoView({ behavior: "smooth" });
@@ -284,9 +329,11 @@ export default function ProductCatalogView({
         fetchMeta();
     }, []);
 
-    // Fetch Filtered Products from API
+    // Fetch Filtered Products from API based on activeFilters (with cancellation cleanup)
     useEffect(() => {
+        let isCancelled = false;
         setLoading(true);
+
         getStorefrontProductsWithMeta({
             category: selectedCategoryParam,
             brand: selectedBrandParam,
@@ -300,6 +347,7 @@ export default function ProductCatalogView({
             per_page: 1000,
         })
             .then((res) => {
+                if (isCancelled) return;
                 let list = res.products || [];
                 if (isBestsellerFilter) {
                     const filtered = list.filter((p: any) => p.badge === "Bestseller" || p.is_bestseller || p.is_featured);
@@ -310,65 +358,78 @@ export default function ProductCatalogView({
                 }
                 setProducts(list);
             })
-            .catch(() => setProducts([]))
-            .finally(() => setLoading(false));
+            .catch(() => {
+                if (!isCancelled) setProducts([]);
+            })
+            .finally(() => {
+                if (!isCancelled) setLoading(false);
+            });
+
+        return () => {
+            isCancelled = true;
+        };
     }, [selectedCategoryParam, selectedBrandParam, selectedFamilyParam, selectedGenderParam, selectedConcentrationParam, selectedCollectionParam, selectedSearch, selectedSort, selectedFilterParam]);
 
+    // Clean URL bar on user filter actions to prevent URL parameter clutter
+    const cleanUrl = () => {
+        if (typeof window !== "undefined") {
+            router.replace(pathname, { scroll: false });
+        }
+    };
+
     // Multi-select toggle function
-    const toggleFilterOption = (key: string, value: string) => {
-        const liveParams = getLiveSearchParams();
-        const currentParam = liveParams.get(key) || "";
-        const currentList = currentParam ? currentParam.split(",").map(s => s.trim()).filter(Boolean) : [];
-        const targetValue = value.trim();
+    const toggleFilterOption = (key: keyof ActiveFilters, value: string) => {
+        setActiveFilters((prev) => {
+            const currentVal = String(prev[key] || "");
+            const currentList = currentVal ? currentVal.split(",").map(s => s.trim()).filter(Boolean) : [];
+            const targetVal = value.trim();
 
-        let newList: string[];
-        if (currentList.some(item => item.toLowerCase() === targetValue.toLowerCase())) {
-            newList = currentList.filter(item => item.toLowerCase() !== targetValue.toLowerCase());
-        } else {
-            newList = [...currentList, targetValue];
-        }
+            let newList: string[];
+            if (currentList.some(item => item.toLowerCase() === targetVal.toLowerCase())) {
+                newList = currentList.filter(item => item.toLowerCase() !== targetVal.toLowerCase());
+            } else {
+                newList = [...currentList, targetVal];
+            }
 
-        if (newList.length > 0) {
-            liveParams.set(key, newList.join(","));
-        } else {
-            liveParams.delete(key);
-        }
-        applyUrlParams(liveParams);
+            return {
+                ...prev,
+                [key]: newList.join(","),
+            };
+        });
+        setCurrentPage(1);
+        cleanUrl();
     };
 
-    const PARAM_ALIASES: Record<string, string[]> = {
-        search: ["search", "q"],
-        filter: ["filter", "type"],
-        collection: ["collection", "collection_slug"],
-    };
-
-    const removeFilterParam = (params: URLSearchParams, key: string) => {
-        const aliases = PARAM_ALIASES[key] || [key];
-        aliases.forEach((alias) => params.delete(alias));
-    };
-
-    const updateSingleFilter = (key: string, value: string) => {
-        const liveParams = getLiveSearchParams();
-
-        // Remove all aliases first so old URL keys such as `type`, `q`, or
-        // `collection_slug` can never resurrect a filter after it is cleared.
-        removeFilterParam(liveParams, key);
-
-        if (value) {
-            liveParams.set(key, value);
-        }
-
-        applyUrlParams(liveParams);
+    const updateSingleFilter = (key: keyof ActiveFilters, value: any) => {
+        setActiveFilters((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
+        setCurrentPage(1);
+        cleanUrl();
     };
 
     const clearAllFilters = () => {
-        const params = new URLSearchParams();
-        if (fixedCategory) params.set("category", fixedCategory);
-        if (fixedBrand) params.set("brand", fixedBrand);
-        if (fixedFamily) params.set("family", fixedFamily);
-        if (fixedGender) params.set("gender", fixedGender);
-        if (fixedConcentration) params.set("concentration", fixedConcentration);
-        applyUrlParams(params);
+        setActiveFilters({
+            category: fixedCategory || "",
+            brand: fixedBrand || "",
+            family: fixedFamily || "",
+            gender: fixedGender || "",
+            concentration: fixedConcentration || "",
+            collection: "",
+            search: "",
+            sort: "sort_order",
+            filter: "",
+            size: "",
+            maxPrice: 1000,
+        });
+        setCurrentPage(1);
+        if (typeof window !== "undefined") {
+            try {
+                sessionStorage.removeItem(storageKey);
+            } catch {}
+        }
+        cleanUrl();
     };
 
     const hasActiveFilters = Boolean(
@@ -391,7 +452,7 @@ export default function ProductCatalogView({
                 </h3>
                 {maxPriceParam < 1000 && (
                     <button
-                        onClick={() => updateSingleFilter("max_price", "")}
+                        onClick={() => updateSingleFilter("maxPrice", 1000)}
                         className="text-[10px] text-red-700 font-bold uppercase hover:underline"
                     >
                         Reset
@@ -412,7 +473,7 @@ export default function ProductCatalogView({
                     max="1000"
                     step="10"
                     value={maxPriceParam}
-                    onChange={(e) => updateSingleFilter("max_price", e.target.value)}
+                    onChange={(e) => updateSingleFilter("maxPrice", Number(e.target.value))}
                     className="w-full accent-dark cursor-pointer h-2 bg-[#F7F3F4] rounded-lg border border-dark/20"
                 />
             </div>
@@ -421,7 +482,7 @@ export default function ProductCatalogView({
 
     const renderFilterSection = (
         sectionTitle: string,
-        filterKey: string,
+        filterKey: keyof ActiveFilters,
         items: (FilterOption | string)[],
         selectedArray: string[],
         isFixed?: boolean
@@ -626,7 +687,7 @@ export default function ProductCatalogView({
                         {maxPriceParam < 1000 && (
                             <span className="inline-flex items-center gap-1.5 bg-[#F7F3F4] border border-dark/20 text-dark px-3 py-1 text-xs font-bold uppercase tracking-wider">
                                 Max Price: AED {maxPriceParam}
-                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateSingleFilter("max_price", "")} />
+                                <X size={12} className="cursor-pointer hover:text-red-600" onClick={() => updateSingleFilter("maxPrice", 1000)} />
                             </span>
                         )}
 
@@ -732,7 +793,7 @@ export default function ProductCatalogView({
                                         <p className="text-xs text-dark/60 mt-2 mb-6">Try selecting additional options or clearing active filters.</p>
                                         <button
                                             onClick={clearAllFilters}
-                                            className="bg-dark text-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors cursor-pointer"
+                                            className="bg-[#1B1315] text-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors cursor-pointer"
                                         >
                                             Reset All Filters
                                         </button>

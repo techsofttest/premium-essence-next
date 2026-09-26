@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { Filter, X, Loader2, Sparkles, SlidersHorizontal, ChevronDown, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { X, Loader2, Sparkles, SlidersHorizontal, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { api } from "@/lib/api";
 
@@ -20,62 +18,102 @@ interface FilterMetadata {
     genders: string[];
 }
 
+interface ActiveFragranceFilters {
+    family: string;
+    gender: string;
+    concentration: string;
+    collection: string;
+    sort: string;
+}
+
+const getInitialFragranceFilters = (pathname: string, searchParams: URLSearchParams): ActiveFragranceFilters => {
+    const defaults: ActiveFragranceFilters = {
+        family: searchParams.get("family") || "",
+        gender: searchParams.get("gender") || "",
+        concentration: searchParams.get("concentration") || "",
+        collection: searchParams.get("collection") || searchParams.get("collection_slug") || "",
+        sort: searchParams.get("sort") || "sort_order",
+    };
+
+    if (typeof window !== "undefined") {
+        const hasUrlParams = searchParams.toString().length > 0;
+        if (!hasUrlParams) {
+            try {
+                const savedRaw = sessionStorage.getItem(`catalog_state_${pathname}`);
+                if (savedRaw) {
+                    const saved = JSON.parse(savedRaw);
+                    if (saved && saved.activeFilters) {
+                        return {
+                            ...defaults,
+                            ...saved.activeFilters,
+                        };
+                    }
+                }
+            } catch {}
+        }
+    }
+    return defaults;
+};
+
+const getInitialFragrancePage = (pathname: string, searchParams: URLSearchParams): number => {
+    if (typeof window !== "undefined") {
+        const hasUrlParams = searchParams.toString().length > 0;
+        if (!hasUrlParams) {
+            try {
+                const savedRaw = sessionStorage.getItem(`catalog_state_${pathname}`);
+                if (savedRaw) {
+                    const saved = JSON.parse(savedRaw);
+                    if (saved && typeof saved.currentPage === "number") {
+                        return saved.currentPage;
+                    }
+                }
+            } catch {}
+        }
+    }
+    return 1;
+};
+
 function FragranceCatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
 
-    // Next.js searchParams is the rendered source of truth. The ref keeps the
-    // newest query available immediately during rapid consecutive filter clicks.
-    const latestParamsRef = useRef(new URLSearchParams(searchParams.toString()));
-    const pendingParamsRef = useRef<string | null>(null);
+    const storageKey = `catalog_state_${pathname}`;
 
-    useEffect(() => {
-        const renderedQuery = searchParams.toString();
-        // A rapid click can start another navigation before Next has rendered
-        // the previous one. Don't let that older snapshot roll our live state back.
-        if (pendingParamsRef.current !== null) {
-            if (renderedQuery !== pendingParamsRef.current) return;
-            pendingParamsRef.current = null;
-        }
-        latestParamsRef.current = new URLSearchParams(renderedQuery);
-    }, [searchParams]);
-
-    useEffect(() => {
-        const syncAfterHistoryNavigation = () => {
-            pendingParamsRef.current = null;
-            latestParamsRef.current = new URLSearchParams(window.location.search);
-        };
-        window.addEventListener("popstate", syncAfterHistoryNavigation);
-        return () => window.removeEventListener("popstate", syncAfterHistoryNavigation);
-    }, []);
-
-    const activeSearchParams = useMemo(
-        () => new URLSearchParams(searchParams.toString()),
-        [searchParams]
+    // React State initialized synchronously with restored session state
+    const [activeFilters, setActiveFilters] = useState<ActiveFragranceFilters>(() =>
+        getInitialFragranceFilters(pathname, searchParams)
     );
 
-    const getLiveSearchParams = () =>
-        new URLSearchParams(latestParamsRef.current.toString());
+    // Pagination State (12 products per page)
+    const ITEMS_PER_PAGE = 12;
+    const [currentPage, setCurrentPage] = useState<number>(() =>
+        getInitialFragrancePage(pathname, searchParams)
+    );
 
-    const selectedFamily = activeSearchParams.get("family") || "";
-    const selectedGender = activeSearchParams.get("gender") || "";
-    const selectedConcentration = activeSearchParams.get("concentration") || "";
-    const selectedCollection = activeSearchParams.get("collection") || activeSearchParams.get("collection_slug") || "";
-    const selectedSort = activeSearchParams.get("sort") || "sort_order";
+    // Save state to sessionStorage on any filter or pagination change
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            sessionStorage.setItem(
+                storageKey,
+                JSON.stringify({ activeFilters, currentPage })
+            );
+        } catch {
+            // Ignore quota errors
+        }
+    }, [activeFilters, currentPage, storageKey]);
+
+    const selectedFamily = activeFilters.family;
+    const selectedGender = activeFilters.gender;
+    const selectedConcentration = activeFilters.concentration;
+    const selectedCollection = activeFilters.collection;
+    const selectedSort = activeFilters.sort;
 
     const [products, setProducts] = useState<Product[]>([]);
     const [filterMeta, setFilterMeta] = useState<FilterMetadata>({ families: [], concentrations: [], genders: ["Men", "Women", "Unisex"] });
     const [loading, setLoading] = useState<boolean>(true);
     const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
-
-    // Pagination State (12 products per page)
-    const ITEMS_PER_PAGE = 12;
-    const [currentPage, setCurrentPage] = useState(1);
-
-    // Reset pagination when active filters change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
 
     const totalProducts = products.length;
     const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
@@ -169,8 +207,9 @@ function FragranceCatalogContent() {
             .catch(() => undefined);
     }, []);
 
-    // Fetch Products matching active filters
+    // Fetch Products matching active filters (with cancellation cleanup)
     useEffect(() => {
+        let isCancelled = false;
         setLoading(true);
         const queryParams = new URLSearchParams();
         if (selectedFamily) queryParams.set("family", selectedFamily);
@@ -182,6 +221,7 @@ function FragranceCatalogContent() {
 
         api<any>(`/storefront/products?${queryParams.toString()}`)
             .then((res) => {
+                if (isCancelled) return;
                 const rawList = Array.isArray(res) ? res : res?.data || [];
                 if (Array.isArray(rawList)) {
                     const mappedList: Product[] = rawList.map((prod: any) => ({
@@ -202,39 +242,51 @@ function FragranceCatalogContent() {
                     setProducts([]);
                 }
             })
-            .catch(() => setProducts([]))
-            .finally(() => setLoading(false));
+            .catch(() => {
+                if (!isCancelled) setProducts([]);
+            })
+            .finally(() => {
+                if (!isCancelled) setLoading(false);
+            });
+
+        return () => {
+            isCancelled = true;
+        };
     }, [selectedFamily, selectedGender, selectedConcentration, selectedCollection, selectedSort]);
 
-    const updateFilter = (key: string, value: string) => {
-        const params = getLiveSearchParams();
-        const currentVal = params.get(key) || "";
-
-        // Toggle logic: if user clicks on an already selected filter value, uncheck it
-        if (value && currentVal.toLowerCase() === value.toLowerCase()) {
-            params.delete(key);
-        } else if (value) {
-            params.set(key, value);
-        } else {
-            params.delete(key);
+    const cleanUrl = () => {
+        if (typeof window !== "undefined") {
+            router.replace(pathname, { scroll: false });
         }
-        params.delete("page");
+    };
 
-        // Commit the new params synchronously so a second click cannot use
-        // the previous render's searchParams snapshot.
-        latestParamsRef.current = new URLSearchParams(params.toString());
-        pendingParamsRef.current = params.toString();
-
-        const query = params.toString();
-        const targetUrl = query ? `/fragrances?${query}` : "/fragrances";
-        router.replace(targetUrl, { scroll: false });
+    const updateFilter = (key: keyof ActiveFragranceFilters, value: string) => {
+        setActiveFilters((prev) => {
+            const currentVal = prev[key] || "";
+            if (value && currentVal.toLowerCase() === value.toLowerCase()) {
+                return { ...prev, [key]: "" };
+            }
+            return { ...prev, [key]: value };
+        });
+        setCurrentPage(1);
+        cleanUrl();
     };
 
     const clearAllFilters = () => {
-        const params = new URLSearchParams();
-        latestParamsRef.current = params;
-        pendingParamsRef.current = params.toString();
-        router.replace("/fragrances", { scroll: false });
+        setActiveFilters({
+            family: "",
+            gender: "",
+            concentration: "",
+            collection: "",
+            sort: "sort_order",
+        });
+        setCurrentPage(1);
+        if (typeof window !== "undefined") {
+            try {
+                sessionStorage.removeItem(storageKey);
+            } catch {}
+        }
+        cleanUrl();
     };
 
     const hasActiveFilters = Boolean(selectedFamily || selectedGender || selectedConcentration || selectedCollection);
@@ -428,7 +480,7 @@ function FragranceCatalogContent() {
                                 <Loader2 className="animate-spin text-dark" size={24} /> Loading luxury fragrances...
                             </div>
                         ) : !Array.isArray(products) || products.length === 0 ? (
-                            <div className="bg-white border border-dark/10 p-16 text-center shadow-sm">
+                            <div className="bg-[#1B1315] text-white border border-dark/10 p-16 text-center shadow-sm">
                                 <Sparkles size={36} className="mx-auto text-dark/30 mb-4" />
                                 <p className="font-serif text-2xl text-dark">No perfumes match your selected filters</p>
                                 <p className="text-xs text-dark/60 mt-2 mb-6">Try clearing some filters to explore our full luxury collection.</p>
@@ -532,7 +584,7 @@ function FragranceCatalogContent() {
                                     >
                                         All Olfactive Families
                                         {!selectedFamily && <Check size={14} />}
-                                    </button>
+                                </button>
                                     {filterMeta.families.map((fam) => {
                                         const isSelected = selectedFamily.toLowerCase() === fam.slug.toLowerCase() || selectedFamily.toLowerCase() === fam.name.toLowerCase();
                                         return (
