@@ -23,6 +23,9 @@ export type StorefrontProduct = {
     rating: number;
     review_count: number;
     is_featured: boolean;
+    is_bestseller?: boolean;
+    is_new?: boolean;
+    badge?: string | null;
     gender?: string | null;
     brand: { id?: number; name: string; slug?: string; classification?: string } | null;
     category: { id?: number; name: string; slug?: string } | null;
@@ -54,6 +57,9 @@ export function toProduct(product: StorefrontProduct): Product {
         ? product.concentration 
         : (product.fragrance_concentration?.name || (typeof product.concentration === "object" ? product.concentration?.name : undefined));
 
+    const badge = product.badge
+        || (product.is_bestseller ? "Bestseller" : (product.is_new ? "New" : (product.is_featured ? "Featured" : undefined)));
+
     return {
         id: String(product.id),
         slug: product.slug,
@@ -66,7 +72,9 @@ export function toProduct(product: StorefrontProduct): Product {
         rating: product.rating,
         reviews: product.review_count,
         image: product.featured_image || "/images/placeholder.png",
-        badge: product.is_featured ? "Bestseller" : undefined,
+        badge: (badge as any) || undefined,
+        is_bestseller: product.is_bestseller,
+        is_new: product.is_new,
         variants: (product.variants || []).map((variant) => {
             const vBuying = variant.buying_price ?? variant.original_price;
             const sizeStr = (variant.size || "").trim();

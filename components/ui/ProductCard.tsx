@@ -29,7 +29,9 @@ export interface Product {
     rating: number;
     reviews: number;
     image: string;
-    badge?: "Bestseller" | "New" | "Limited Edition";
+    badge?: "Bestseller" | "New" | "Limited Edition" | "Featured" | string;
+    is_bestseller?: boolean;
+    is_new?: boolean;
     slug?: string;
     variants?: ProductVariantItem[];
     sizes?: string[];
