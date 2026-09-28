@@ -392,15 +392,7 @@ export default function ProductCatalogView({
         })
             .then((res) => {
                 if (isCancelled) return;
-                let list = res.products || [];
-                if (isBestsellerFilter) {
-                    const filtered = list.filter((p: any) => p.badge === "Bestseller" || p.is_bestseller || p.is_featured);
-                    list = filtered.length ? filtered : list;
-                } else if (isNewArrivalsFilter) {
-                    const filtered = list.filter((p: any) => p.badge === "New" || p.is_new || p.is_new_arrival);
-                    list = filtered.length ? filtered : list;
-                }
-                setProducts(list);
+                setProducts(res.products || []);
             })
             .catch(() => {
                 if (!isCancelled) setProducts([]);
