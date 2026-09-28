@@ -29,7 +29,7 @@ export interface Product {
     rating: number;
     reviews: number;
     image: string;
-    badge?: "Bestseller" | "New" | "Limited Edition" | "Featured" | string;
+    badge?: "Bestseller" | "New Arrival" | "Limited Edition" | "Featured" | string;
     is_bestseller?: boolean;
     is_new?: boolean;
     slug?: string;
@@ -190,9 +190,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                         )}
                     </div>
                     {/* Mobile-only Shopping Cart Quick Button */}
-                    <button 
+                    <button
                         onClick={handleQuickAdd}
-                        className="md:hidden flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 bg-midnight text-cream hover:bg-[#4A323A] active:scale-95 transition-all duration-300 rounded-none z-10 shrink-0" 
+                        className="md:hidden flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 bg-midnight text-cream hover:bg-[#4A323A] active:scale-95 transition-all duration-300 rounded-none z-10 shrink-0"
                         aria-label="Add to cart"
                     >
                         <ShoppingCart size={13} />
