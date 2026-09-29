@@ -179,14 +179,19 @@ export default function ProductCard({ product }: ProductCardProps) {
 
                 {/* Pricing & Mobile Quick Add */}
                 <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                         <span className="font-bold text-sm sm:text-lg text-dark">
                             AED {product.price}
                         </span>
-                        {product.originalPrice && (
-                            <span className="text-xs sm:text-sm font-semibold text-dark/50 line-through">
-                                AED {product.originalPrice}
-                            </span>
+                        {product.originalPrice && product.originalPrice > product.price && (
+                            <>
+                                <span className="text-xs sm:text-sm font-semibold text-dark/50 line-through">
+                                    {product.originalPrice}
+                                </span>
+                                <span className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-500">
+                                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                                </span>
+                            </>
                         )}
                     </div>
                     {/* Mobile-only Shopping Cart Quick Button */}

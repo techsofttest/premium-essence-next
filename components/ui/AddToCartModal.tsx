@@ -136,10 +136,15 @@ export default function AddToCartModal() {
                                     </span>
                                 )}
                             </div>
-                            <div className="flex items-baseline gap-3 mt-1">
+                            <div className="flex items-baseline gap-2.5 sm:gap-3 mt-1 flex-wrap">
                                 <span className="font-serif text-2xl sm:text-3xl text-dark font-bold">AED {currentPrice}</span>
                                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                                    <span className="text-sm sm:text-base text-dark/40 line-through font-semibold">AED {currentOriginalPrice}</span>
+                                    <>
+                                        <span className="text-sm sm:text-base text-dark/40 line-through font-semibold">{currentOriginalPrice}</span>
+                                        <span className="text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-500">
+                                            {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}% OFF
+                                        </span>
+                                    </>
                                 )}
                             </div>
                         </div>

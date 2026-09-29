@@ -148,16 +148,20 @@ export default function DealDetailPage({ params }: PageProps) {
                         </div>
 
                         {/* Price & Savings Tag */}
-                        <div className="flex items-center gap-4 bg-white border border-dark/10 p-5 shadow-sm">
+                        <div className="flex items-center gap-3 sm:gap-4 bg-white border border-dark/10 p-5 shadow-sm flex-wrap">
                             <span className="font-serif text-3xl font-bold text-dark">
                                 AED {deal.price.toLocaleString()}
                             </span>
-                            <span className="text-lg text-dark/40 line-through">
-                                AED {deal.originalPrice.toLocaleString()}
-                            </span>
-                            <span className="bg-[#1B1315] text-[#C5A059] text-xs font-bold uppercase tracking-widest px-3 py-1 ml-auto">
-                                Save {deal.discountPercent}%
-                            </span>
+                            {deal.originalPrice && deal.originalPrice > deal.price && (
+                                <>
+                                    <span className="text-lg text-dark/40 line-through">
+                                        {deal.originalPrice.toLocaleString()}
+                                    </span>
+                                    <span className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                                        {deal.discountPercent || Math.round(((deal.originalPrice - deal.price) / deal.originalPrice) * 100)}% OFF
+                                    </span>
+                                </>
+                            )}
                         </div>
 
                         {/* Description */}

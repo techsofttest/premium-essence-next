@@ -212,14 +212,19 @@ export default function InteractiveShowcase({ products }: InteractiveShowcasePro
 
                         {/* Price & Rating */}
                         <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 mb-8 sm:mb-10">
-                            <div className="flex items-baseline gap-2 sm:gap-3">
+                            <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
                                 <span className="font-serif text-2xl sm:text-3xl text-dark">
                                     <span className="text-lg sm:text-xl font-sans">AED</span> {activeProduct.price}
                                 </span>
                                 {activeProduct.originalPrice && activeProduct.originalPrice > activeProduct.price && (
-                                    <span className="text-sm sm:text-base text-dark/40 line-through font-light">
-                                        AED {activeProduct.originalPrice}
-                                    </span>
+                                    <>
+                                        <span className="text-sm sm:text-base text-dark/40 line-through font-light">
+                                            {activeProduct.originalPrice}
+                                        </span>
+                                        <span className="text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-500">
+                                            {Math.round(((activeProduct.originalPrice - activeProduct.price) / activeProduct.originalPrice) * 100)}% OFF
+                                        </span>
+                                    </>
                                 )}
                             </div>
 

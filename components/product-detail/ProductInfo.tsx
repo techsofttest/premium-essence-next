@@ -169,20 +169,18 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             </div>
 
             {/* Dynamic Price & Strikeoff Price based on selected variant */}
-            <div className="flex flex-wrap items-baseline gap-4">
+            <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
                 <span className="text-3xl font-serif text-dark">AED {currentPrice}</span>
 
                 {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                    <span className="text-lg text-dark/40 line-through font-light">
-                        AED {currentOriginalPrice}
-                    </span>
-                )}
-
-                {/* Offer percentage badge */}
-                {currentOriginalPrice && currentOriginalPrice > currentPrice && (
-                    <span className="bg-[#4A323A] text-cream text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 shadow-sm">
-                        {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}% OFF
-                    </span>
+                    <>
+                        <span className="text-lg text-dark/40 line-through font-light">
+                            {currentOriginalPrice}
+                        </span>
+                        <span className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                            {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}% OFF
+                        </span>
+                    </>
                 )}
             </div>
 
