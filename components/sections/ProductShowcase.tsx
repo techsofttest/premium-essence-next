@@ -58,14 +58,20 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
                 </div>
 
                 {/* Product Grid */}
-                <div
-                    key={activeTab}
-                    className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-8 gap-y-6 sm:gap-y-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out"
-                >
-                    {currentProducts.map((product, idx) => (
-                        <ProductCard key={`showcase-${activeTab}-${product.id}-${idx}`} product={product} />
-                    ))}
-                </div>
+                {currentProducts.length === 0 ? (
+                    <div className="w-full text-center py-12 text-dark/60 font-sans">
+                        <p className="font-serif text-lg sm:text-xl text-dark">No products available in this section</p>
+                    </div>
+                ) : (
+                    <div
+                        key={activeTab}
+                        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-8 gap-y-6 sm:gap-y-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out"
+                    >
+                        {currentProducts.map((product, idx) => (
+                            <ProductCard key={`showcase-${activeTab}-${product.id}-${idx}`} product={product} />
+                        ))}
+                    </div>
+                )}
 
                 {/* Bottom CTA to view all products in the selected category */}
                 <div className="mt-8 sm:mt-12">

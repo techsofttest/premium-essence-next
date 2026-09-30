@@ -18,25 +18,41 @@ export default function DealDetailPage({ params }: PageProps) {
     const router = useRouter();
     const { addToCart, setIsDrawerOpen } = useCart();
 
-    const initialDeal = getCuratedDealBySlug(slug);
-    const [deal, setDeal] = useState<CuratedDeal | undefined>(initialDeal);
+    const [deal, setDeal] = useState<CuratedDeal | undefined>(undefined);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        getStorefrontCuratedDeal(slug).then((fetched) => {
-            if (fetched) setDeal(fetched);
-        });
+        setLoading(true);
+        getStorefrontCuratedDeal(slug)
+            .then((fetched) => {
+                setDeal(fetched);
+            })
+            .catch(() => {
+                setDeal(undefined);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, [slug]);
 
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [quantity, setQuantity] = useState<number>(1);
     const [added, setAdded] = useState<boolean>(false);
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#F7F3F4] text-dark flex items-center justify-center p-8">
+                <p className="text-xs uppercase tracking-widest font-bold text-dark/60">Loading deal details...</p>
+            </div>
+        );
+    }
+
     if (!deal) {
         return (
             <div className="min-h-screen bg-[#F7F3F4] text-dark flex flex-col items-center justify-center p-8">
                 <Sparkles size={48} className="text-dark/30 mb-4" />
-                <h1 className="font-serif text-3xl font-bold mb-2">Curated Deal Not Found</h1>
-                <p className="text-sm text-dark/60 mb-6">The special deal or curation you are looking for is no longer active.</p>
+                <h1 className="font-serif text-3xl font-bold mb-2">Deal Not Found</h1>
+                <p className="text-sm text-dark/60 mb-6">The requested offer or bundle is no longer active.</p>
                 <Link href="/shop" className="bg-dark text-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#4A323A] transition-colors">
                     Explore Shop Catalog
                 </Link>
