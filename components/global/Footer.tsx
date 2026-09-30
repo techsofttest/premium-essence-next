@@ -43,11 +43,22 @@ const Linkedin = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
     </svg>
 );
 
-const Pinterest = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <line x1="12" y1="20" x2="12" y2="10" />
-        <path d="M12 20a8 8 0 1 0-8-8c0 1.5.4 3 1.1 4.2l-.7 2.8 2.8-.7c1.2.7 2.7 1.1 4.2 1.1z" />
-        <path d="M12 6a4 4 0 0 0-4 4c0 1.2.5 2.2 1.3 3" />
+const Pinterest = ({
+    size = 24,
+    className = "",
+}: {
+    size?: number;
+    className?: string;
+}) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={className}
+    >
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.237 2.632 7.858 6.352 9.323-.087-1.25-.017-2.755.312-4.063l1.16-4.91s-.296-.593-.296-1.469c0-1.375.797-2.402 1.789-2.402.844 0 1.25.633 1.25 1.391 0 .848-.539 2.117-.816 3.293-.232.984.492 1.785 1.463 1.785 1.756 0 3.105-1.853 3.105-4.529 0-2.369-1.703-4.026-4.135-4.026-2.815 0-4.468 2.112-4.468 4.297 0 .851.328 1.764.738 2.26.081.098.093.184.069.285l-.275 1.128c-.045.182-.148.221-.342.134-1.276-.594-2.073-2.46-2.073-3.96 0-3.223 2.342-6.183 6.754-6.183 3.547 0 6.302 2.528 6.302 5.906 0 3.523-2.222 6.36-5.308 6.36-1.037 0-2.013-.539-2.347-1.176l-.638 2.432c-.23.887-.852 1.999-1.269 2.677.956.296 1.965.455 3.012.455 5.523 0 10-4.477 10-10S17.523 2 12 2z" />
     </svg>
 );
 
