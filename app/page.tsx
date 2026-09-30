@@ -12,14 +12,16 @@ import BestChoicesGrid from "@/components/sections/BestChoicesGrid";
 import FragranceReelsSection from "@/components/sections/FragranceReelsSection";
 import FragranceFamilySection from "@/components/sections/FragranceFamilySection";
 import { getStorefrontHome, getStorefrontProducts, getStorefrontReels, getFragranceFamilies } from "@/lib/storefront";
+import { getStorefrontCuratedDeals } from "@/lib/deals";
 import SeoHead from "@/components/seo/SeoHead";
 
 export default async function Home() {
-  const [homeData, fallbackProducts, reels, fragranceFamilies] = await Promise.all([
+  const [homeData, fallbackProducts, reels, fragranceFamilies, curatedDeals] = await Promise.all([
     getStorefrontHome(),
     getStorefrontProducts(),
     getStorefrontReels(),
     getFragranceFamilies(),
+    getStorefrontCuratedDeals(),
   ]);
 
   const collections = homeData.collections || {};
@@ -28,6 +30,20 @@ export default async function Home() {
   const bestsellersList = collections["best-sellers"] || collections["bestsellers"] || fallbackProducts.slice(0, 4);
   const newArrivalsList = collections["new-arrivals"] || collections["newarrivals"] || fallbackProducts.slice(0, 4);
 
+  // Combo Offers / Curated Deals from DB
+  const combosList: Product[] = (curatedDeals || []).map((deal) => ({
+    id: `deal-${deal.slug}`,
+    slug: `deals/${deal.slug}`,
+    brand: "Exclusive Combo",
+    name: deal.name,
+    price: deal.price,
+    originalPrice: deal.originalPrice,
+    rating: 5.0,
+    reviews: 120,
+    image: deal.image,
+    badge: deal.badge || `${deal.discountPercent}% OFF`,
+  }));
+
   // Trending collection from DB
   const trendingList = collections["trending"] || collections["featured"] || fallbackProducts.slice(0, 6);
 
@@ -35,9 +51,10 @@ export default async function Home() {
   const bestChoicesList = collections["best-choice"] || collections["bestchoice"] || fallbackProducts.slice(0, 8);
   const specialDealsList = collections["special-deals"] || collections["specialdeals"] || fallbackProducts.slice(0, 8);
 
-  const showcaseProducts: Record<"bestsellers" | "newArrivals", Product[]> = {
+  const showcaseProducts: Record<"bestsellers" | "newArrivals" | "combos", Product[]> = {
     bestsellers: bestsellersList.length ? bestsellersList.slice(0, 4) : fallbackProducts.slice(0, 4),
     newArrivals: newArrivalsList.length ? newArrivalsList.slice(0, 4) : fallbackProducts.slice(0, 4),
+    combos: combosList.length ? combosList.slice(0, 4) : [],
   };
 
   const bestChoicesGridData: Record<"bestsellers" | "newArrivals", Product[]> = {

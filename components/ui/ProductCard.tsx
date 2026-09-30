@@ -77,11 +77,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         await toggleWishlist(product);
     };
 
+    const productHref = product.slug?.startsWith("deals/") || product.slug?.startsWith("/deals/")
+        ? (product.slug.startsWith("/") ? product.slug : `/${product.slug}`)
+        : `/product/${product.slug || product.id}`;
+
     return (
         <div className="group flex flex-col gap-2 sm:gap-3 font-sans max-w-[260px] mx-auto w-full relative overflow-hidden rounded-none">
 
             {/* Image Container */}
-            <Link href={`/product/${product.slug || product.id}`} className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#DEDEDE] to-[#F7F3F4] rounded-none block cursor-pointer">
+            <Link href={productHref} className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#DEDEDE] to-[#F7F3F4] rounded-none block cursor-pointer">
 
                 {/* Wishlist Button Top Right */}
                 <button
@@ -144,7 +148,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     )}
                 </div>
 
-                <Link href={`/product/${product.slug || product.id}`}>
+                <Link href={productHref}>
                     <h3 className="font-serif text-base sm:text-xl font-bold uppercase tracking-wider text-dark group-hover:text-[#4A323A] transition-colors line-clamp-1">
                         {product.name}
                     </h3>

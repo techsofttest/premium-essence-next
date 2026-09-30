@@ -6,11 +6,25 @@ import ProductCard, { Product } from "../ui/ProductCard";
 import GlowingButton from "../ui/GlowingButton";
 
 interface ProductShowcaseProps {
-    products: Record<"bestsellers" | "newArrivals", Product[]>;
+    products: Record<"bestsellers" | "newArrivals" | "combos", Product[]>;
 }
 
 export default function ProductShowcase({ products }: ProductShowcaseProps) {
-    const [activeTab, setActiveTab] = useState<"bestsellers" | "newArrivals">("bestsellers");
+    const [activeTab, setActiveTab] = useState<"bestsellers" | "newArrivals" | "combos">("bestsellers");
+
+    const getCtaLink = () => {
+        if (activeTab === "bestsellers") return "/bestsellers";
+        if (activeTab === "newArrivals") return "/new-arrivals";
+        return "/combos";
+    };
+
+    const getCtaText = () => {
+        if (activeTab === "bestsellers") return "View All Bestsellers";
+        if (activeTab === "newArrivals") return "View All New Arrivals";
+        return "View All Combo Offers";
+    };
+
+    const currentProducts = products[activeTab] || [];
 
     return (
         <section className="py-12 sm:py-20 md:py-24 px-4 sm:px-8 md:px-16 lg:px-24 bg-[#F7F3F4] w-full font-sans">
@@ -33,6 +47,14 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
                     >
                         NEW ARRIVALS
                     </button>
+                    {/* <span className="text-dark/20 text-base sm:text-2xl md:text-3xl font-light select-none">|</span>
+                    <button
+                        onClick={() => setActiveTab("combos")}
+                        className={`font-serif text-base sm:text-2xl md:text-3xl tracking-wide transition-colors duration-300 uppercase ${activeTab === "combos" ? "text-dark font-bold" : "text-dark/40 hover:text-dark/70"
+                            }`}
+                    >
+                        COMBO OFFERS
+                    </button> */}
                 </div>
 
                 {/* Product Grid */}
@@ -40,16 +62,16 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
                     key={activeTab}
                     className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-8 gap-y-6 sm:gap-y-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out"
                 >
-                    {products[activeTab].map((product, idx) => (
+                    {currentProducts.map((product, idx) => (
                         <ProductCard key={`showcase-${activeTab}-${product.id}-${idx}`} product={product} />
                     ))}
                 </div>
 
                 {/* Bottom CTA to view all products in the selected category */}
                 <div className="mt-8 sm:mt-12">
-                    <Link href={activeTab === "bestsellers" ? "/bestsellers" : "/new-arrivals"}>
+                    <Link href={getCtaLink()}>
                         <GlowingButton variant="outline" className="px-8 sm:px-12 text-xs sm:text-sm">
-                            View All {activeTab === "bestsellers" ? "Bestsellers" : "New Arrivals"}
+                            {getCtaText()}
                         </GlowingButton>
                     </Link>
                 </div>
