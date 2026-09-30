@@ -15,7 +15,7 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
     const getCtaLink = () => {
         if (activeTab === "bestsellers") return "/bestsellers";
         if (activeTab === "newArrivals") return "/new-arrivals";
-        return "/combos";
+        return "/combo-offer";
     };
 
     const getCtaText = () => {

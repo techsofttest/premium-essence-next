@@ -1,5 +1,5 @@
-import CombosPage from "../combos/page";
+import ComboOfferPage from "../combo-offer/page";
 
 export default function DealsPage() {
-    return <CombosPage />;
+    return <ComboOfferPage />;
 }

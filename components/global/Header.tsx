@@ -34,6 +34,7 @@ function getCategoryHref(cat: any): string {
     if (cat.name === "Brands") return "/brands";
     if (cat.name === "Fragrances") return "/fragrances";
     if (cat.name === "Bestsellers") return "/bestsellers";
+    if (cat.name === "Combo Offer" || cat.name === "Combo Offers") return "/combo-offer";
     if (cat.name === "New Arrivals") return "/new-arrivals";
     if (cat.name === "Discovery Sets") return "/category/discovery-sets";
     if (cat.name === "Gifting") return "/category/gifting";
@@ -107,6 +108,7 @@ const NAV_CATEGORIES = [
     },
 
     { name: "Bestsellers", href: "/bestsellers", hasDropdown: false },
+    { name: "Combo Offer", href: "/combo-offer", hasDropdown: false },
     { name: "New Arrivals", href: "/new-arrivals", hasDropdown: false },
 
     { name: "All Products", href: "/shop", hasDropdown: false },
@@ -266,8 +268,9 @@ export default function Header() {
                 ]
         },
 
-        { name: "Bestsellers", href: "/shop?sort=featured", hasDropdown: false },
-        { name: "New Arrivals", href: "/shop?sort=latest", hasDropdown: false },
+        { name: "Bestsellers", href: "/bestsellers", hasDropdown: false },
+        { name: "Combo Offer", href: "/combo-offer", hasDropdown: false },
+        { name: "New Arrivals", href: "/new-arrivals", hasDropdown: false },
 
         { name: "All Products", href: "/shop", hasDropdown: false },
 
