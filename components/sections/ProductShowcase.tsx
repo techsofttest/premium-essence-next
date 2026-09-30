@@ -47,14 +47,14 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
                     >
                         NEW ARRIVALS
                     </button>
-                    {/* <span className="text-dark/20 text-base sm:text-2xl md:text-3xl font-light select-none">|</span>
+                    <span className="text-dark/20 text-base sm:text-2xl md:text-3xl font-light select-none">|</span>
                     <button
                         onClick={() => setActiveTab("combos")}
                         className={`font-serif text-base sm:text-2xl md:text-3xl tracking-wide transition-colors duration-300 uppercase ${activeTab === "combos" ? "text-dark font-bold" : "text-dark/40 hover:text-dark/70"
                             }`}
                     >
                         COMBO OFFERS
-                    </button> */}
+                    </button>
                 </div>
 
                 {/* Product Grid */}
