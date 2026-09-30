@@ -43,6 +43,20 @@ const Linkedin = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
     </svg>
 );
 
+const Pinterest = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="12" y1="20" x2="12" y2="10" />
+        <path d="M12 20a8 8 0 1 0-8-8c0 1.5.4 3 1.1 4.2l-.7 2.8 2.8-.7c1.2.7 2.7 1.1 4.2 1.1z" />
+        <path d="M12 6a4 4 0 0 0-4 4c0 1.2.5 2.2 1.3 3" />
+    </svg>
+);
+
+const TikTok = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+);
+
 interface MarqueeItem {
     name: string;
     slug: string;
@@ -301,6 +315,18 @@ export default function Footer() {
                                 {contactSettings.linkedin_url && contactSettings.linkedin_url.trim() !== "" && (
                                     <a href={contactSettings.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
                                         <Linkedin size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+
+                                {contactSettings.pinterest_url && contactSettings.pinterest_url.trim() !== "" && (
+                                    <a href={contactSettings.pinterest_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <Pinterest size={20} strokeWidth={1.5} />
+                                    </a>
+                                )}
+
+                                {contactSettings.tiktok_url && contactSettings.tiktok_url.trim() !== "" && (
+                                    <a href={contactSettings.tiktok_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
+                                        <TikTok size={20} strokeWidth={1.5} />
                                     </a>
                                 )}
                             </div>

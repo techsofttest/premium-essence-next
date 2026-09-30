@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import ProductCard, { Product } from "../ui/ProductCard";
 import GlowingButton from "../ui/GlowingButton";
+import ComboOfferFloatingBadge from "./ComboOfferFloatingBadge";
 
 interface ProductShowcaseProps {
     products: Record<"bestsellers" | "newArrivals" | "combos", Product[]>;
@@ -27,7 +28,10 @@ export default function ProductShowcase({ products }: ProductShowcaseProps) {
     const currentProducts = products[activeTab] || [];
 
     return (
-        <section className="py-12 sm:py-20 md:py-24 px-4 sm:px-8 md:px-16 lg:px-24 bg-[#F7F3F4] w-full font-sans">
+        <section className="py-12 sm:py-20 md:py-24 px-4 sm:px-8 md:px-16 lg:px-24 bg-[#F7F3F4] w-full font-sans relative">
+            {/* Eye-catching floating badge positioned on the left margin, scrolling with the section */}
+            <ComboOfferFloatingBadge />
+
             <div className="max-w-screen-2xl mx-auto flex flex-col items-center">
 
                 {/* Tabbed Header */}
