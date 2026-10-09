@@ -99,7 +99,16 @@ export default function JournalArticlePage() {
             />
             {/* Header Banner */}
             <div className="bg-[#1B1315] text-[#FAFAF8] pt-16 pb-24 px-6 md:px-12 relative overflow-hidden">
-                <div className="max-w-4xl mx-auto">
+                <Image
+                    src="/banners/banner3.jpg"
+                    alt="The Perfume Journal Banner"
+                    fill
+                    className="object-cover opacity-75"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
+
+                <div className="relative z-10 max-w-4xl mx-auto">
                     <Link
                         href="/journals"
                         className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-bold text-[#D4AF37] hover:underline mb-8 transition-colors"
