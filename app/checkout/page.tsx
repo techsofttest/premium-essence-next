@@ -9,6 +9,8 @@ import OrderItemsPreview from "@/components/checkout/OrderItemsPreview";
 import OrderNote from "@/components/checkout/OrderNote";
 import { useCart } from "@/context/CartContext";
 
+import SeoHead from "@/components/seo/SeoHead";
+
 export default function CheckoutPage() {
     const { cartItems, appliedCoupon, shippingSettings } = useCart();
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -19,6 +21,7 @@ export default function CheckoutPage() {
 
     return (
         <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-32">
+            <SeoHead pageSlug="checkout" />
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 py-12">
                 <CartHeader title="Secure Checkout" currentStep={2} />
 

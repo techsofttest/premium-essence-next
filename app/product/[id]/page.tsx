@@ -119,6 +119,7 @@ export default function ProductDetailPage() {
                 overrideTitle={productDetail?.meta_title}
                 overrideDescription={productDetail?.meta_description}
                 overrideKeywords={productDetail?.meta_keywords}
+                overrideCanonical={productDetail?.canonical}
             />
             <style jsx global>{`
                 .product-gallery-scroll {

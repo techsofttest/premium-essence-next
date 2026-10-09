@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Package, Heart } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 type Summary = { total_orders: number; active_orders: number; saved_addresses_count: number; wishlist_count: number };
 
@@ -17,6 +18,7 @@ export default function AccountPage() {
     if (!loading && !customer) return <main className="min-h-screen bg-[#F7F3F4] p-12 text-center"><Link href="/login" className="text-sm font-bold text-dark underline">Sign in to view your account</Link></main>;
 
     return <main className="min-h-screen bg-[#F7F3F4] py-16 px-6 md:px-12"><div className="max-w-5xl mx-auto">
+        <SeoHead pageSlug="account" />
         <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059]">My Account</p>
         <h1 className="font-serif text-4xl text-dark mt-3">Welcome, {customer?.name || ""}</h1>
         <p className="text-sm text-dark/60 mt-2">{customer?.email}</p>

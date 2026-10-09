@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProductCatalogView from "@/components/shop/ProductCatalogView";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 function BrandCatalogContent() {
     const params = useParams();
@@ -33,12 +34,19 @@ function BrandCatalogContent() {
         : "Brand Products";
 
     return (
-        <ProductCatalogView
-            title={`${brandTitle} Collection`}
-            subtitle={`Explore exclusive fragrances and signature creations from ${brandTitle}.`}
-            fixedBrand={slug}
-            bannerImage={bannerImage}
-        />
+        <>
+            <SeoHead
+                pageSlug={`brand-${slug}`}
+                fallbackTitle={`${brandTitle} Perfumes | Premium Essence`}
+                fallbackDescription={`Explore exclusive fragrances and signature creations from ${brandTitle}.`}
+            />
+            <ProductCatalogView
+                title={`${brandTitle} Collection`}
+                subtitle={`Explore exclusive fragrances and signature creations from ${brandTitle}.`}
+                fixedBrand={slug}
+                bannerImage={bannerImage}
+            />
+        </>
     );
 }
 

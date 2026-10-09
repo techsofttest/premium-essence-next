@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
+import SeoHead from "@/components/seo/SeoHead";
 
 function CategoryContent() {
     const params = useParams();
@@ -95,6 +96,11 @@ function CategoryContent() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead
+                pageSlug={`category-${slug}`}
+                fallbackTitle={`${categoryTitle} Collection | Premium Essence`}
+                fallbackDescription={`Curated selections of fine luxury perfumes within ${categoryTitle}.`}
+            />
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-10">
                 
                 {/* Breadcrumb Navigation */}

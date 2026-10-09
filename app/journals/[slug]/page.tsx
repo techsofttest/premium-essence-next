@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, User, Share2, Sparkles, Loader2, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface JournalDetail {
     id: number;
@@ -25,6 +26,10 @@ interface JournalDetail {
         excerpt: string;
         image: string | null;
     }[];
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string | null;
+    canonical?: string | null;
 }
 
 export default function JournalArticlePage() {
@@ -82,6 +87,16 @@ export default function JournalArticlePage() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead
+                pageSlug={`journal-${article.slug || slug}`}
+                fallbackTitle={`${article.title} | Journal | Premium Essence`}
+                fallbackDescription={article.excerpt || article.content.replace(/<[^>]*>?/gm, '').slice(0, 160)}
+                fallbackKeywords={article.category}
+                overrideTitle={article.meta_title}
+                overrideDescription={article.meta_description}
+                overrideKeywords={article.meta_keywords}
+                overrideCanonical={article.canonical}
+            />
             {/* Header Banner */}
             <div className="bg-[#1B1315] text-[#FAFAF8] pt-16 pb-24 px-6 md:px-12 relative overflow-hidden">
                 <div className="max-w-4xl mx-auto">

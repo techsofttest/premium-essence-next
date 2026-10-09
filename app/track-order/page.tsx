@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, Package, MapPin, Truck, CheckCircle2, Clock, ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface OrderItem {
     id: number;
@@ -99,6 +100,7 @@ function TrackOrderContent() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] py-16 px-6 md:px-12 font-sans">
+            <SeoHead pageSlug="track-order" />
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                     <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">

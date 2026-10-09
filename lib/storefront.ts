@@ -44,6 +44,7 @@ export type StorefrontProduct = {
     meta_title?: string | null;
     meta_description?: string | null;
     meta_keywords?: string | null;
+    canonical?: string | null;
 };
 
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { X, Loader2, Sparkles, SlidersHorizontal, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { api } from "@/lib/api";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface FilterOption {
     id: number;
@@ -334,6 +335,11 @@ function FragranceCatalogContent() {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans py-12 px-6 md:px-12">
+            <SeoHead
+                pageSlug="shop"
+                fallbackTitle={`${displayTitle} | Premium Essence`}
+                fallbackDescription={displaySubtitle}
+            />
             <div className="max-w-screen-2xl mx-auto">
                 {/* Hero Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-center md:text-left py-10 mb-10 border-b border-dark/10">

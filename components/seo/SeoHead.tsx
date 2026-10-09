@@ -11,6 +11,8 @@ interface SeoHeadProps {
     overrideTitle?: string | null;
     overrideDescription?: string | null;
     overrideKeywords?: string | null;
+    overrideCanonical?: string | null;
+    fallbackCanonical?: string;
 }
 
 interface SeoData {
@@ -18,6 +20,7 @@ interface SeoData {
     meta_title?: string | null;
     meta_description?: string | null;
     meta_keywords?: string | null;
+    canonical?: string | null;
 }
 
 export default function SeoHead({
@@ -28,6 +31,8 @@ export default function SeoHead({
     overrideTitle,
     overrideDescription,
     overrideKeywords,
+    overrideCanonical,
+    fallbackCanonical,
 }: SeoHeadProps) {
     const [seoData, setSeoData] = useState<SeoData | null>(null);
 
@@ -49,6 +54,7 @@ export default function SeoHead({
         const finalTitle = overrideTitle || seoData?.meta_title || fallbackTitle;
         const finalDescription = overrideDescription || seoData?.meta_description || fallbackDescription;
         const finalKeywords = overrideKeywords || seoData?.meta_keywords || fallbackKeywords;
+        const finalCanonical = overrideCanonical || seoData?.canonical || fallbackCanonical;
 
         if (finalTitle && typeof document !== "undefined") {
             document.title = finalTitle;
@@ -74,8 +80,23 @@ export default function SeoHead({
             if (finalKeywords) {
                 metaKey.setAttribute("content", finalKeywords);
             }
+
+            if (finalCanonical) {
+                let linkCanonical = document.querySelector('link[rel="canonical"]');
+                if (!linkCanonical) {
+                    linkCanonical = document.createElement("link");
+                    linkCanonical.setAttribute("rel", "canonical");
+                    document.head.appendChild(linkCanonical);
+                }
+                linkCanonical.setAttribute("href", finalCanonical);
+            } else {
+                let linkCanonical = document.querySelector('link[rel="canonical"]');
+                if (linkCanonical) {
+                    linkCanonical.remove();
+                }
+            }
         }
-    }, [seoData, overrideTitle, overrideDescription, overrideKeywords, fallbackTitle, fallbackDescription, fallbackKeywords]);
+    }, [seoData, overrideTitle, overrideDescription, overrideKeywords, overrideCanonical, fallbackTitle, fallbackDescription, fallbackKeywords, fallbackCanonical]);
 
     return null;
 }

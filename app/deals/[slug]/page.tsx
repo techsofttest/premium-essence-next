@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Check, ShoppingBag, Sparkles, ShieldCheck, Truck, RefreshCw } from "lucide-react";
 import { getCuratedDealBySlug, getStorefrontCuratedDeal, CuratedDeal } from "@/lib/deals";
 import { useCart } from "@/context/CartContext";
+import SeoHead from "@/components/seo/SeoHead";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -101,6 +102,12 @@ export default function DealDetailPage({ params }: PageProps) {
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
+            <SeoHead
+                pageSlug={`deal-${deal.slug}`}
+                fallbackTitle={`${deal.name} | Premium Essence`}
+                fallbackDescription={deal.description}
+                fallbackKeywords={`deal, bundle, ${deal.name}`}
+            />
             <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-10">
                 
                 {/* Breadcrumbs */}
