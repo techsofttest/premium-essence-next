@@ -331,7 +331,7 @@ export default function Footer() {
 
                                 {contactSettings.pinterest_url && contactSettings.pinterest_url.trim() !== "" && (
                                     <a href={contactSettings.pinterest_url} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] hover:-translate-y-1 transition-all duration-300">
-                                        <Pinterest size={20} strokeWidth={1.5} />
+                                        <Pinterest size={20} />
                                     </a>
                                 )}
 
