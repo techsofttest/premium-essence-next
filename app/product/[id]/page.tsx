@@ -89,8 +89,10 @@ export default function ProductDetailPage() {
         gender: productDetail?.gender || undefined,
         price: productDetail?.price || 0,
         originalPrice: productDetail?.max_price && productDetail.max_price > (productDetail.price || 0) ? productDetail.max_price : undefined,
-        rating: productDetail?.rating || 5.0,
-        reviews: productDetail?.review_count || (productDetail?.reviews?.length ?? 0),
+        rating: ((productDetail?.review_count ?? 0) > 0 || (productDetail?.reviews?.length ?? 0) > 0)
+            ? (productDetail?.rating || 5.0)
+            : 0,
+        reviews: productDetail?.review_count ?? (productDetail?.reviews?.length ?? 0),
         sizes: sizes.length ? sizes : ["50ml", "100ml"],
         variants: formattedVariants,
         description: productDetail?.description || "Exquisite luxury fragrance crafted from fine ingredients.",

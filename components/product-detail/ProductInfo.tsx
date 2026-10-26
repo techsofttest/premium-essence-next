@@ -144,28 +144,22 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     )}
                 </div>
 
-                <div className="flex items-center gap-4 mt-2">
-                    {product.rating && product.reviews ? (
-                        <>
-                            <div className="flex items-center gap-1 text-[#C5A059]">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        size={14}
-                                        fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-[11px] tracking-widest text-dark font-bold uppercase underline underline-offset-4 cursor-pointer hover:text-dark/70">
-                                {product.reviews} Reviews
-                            </span>
-                        </>
-                    ) : (
-                        <span className="text-[11px] tracking-widest text-dark/60 font-medium uppercase">
-                            Not yet rated
+                {Boolean(product.rating && product.reviews && product.reviews > 0) && (
+                    <div className="flex items-center gap-4 mt-2">
+                        <div className="flex items-center gap-1 text-[#C5A059]">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    size={14}
+                                    fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-[11px] tracking-widest text-dark font-bold uppercase underline underline-offset-4 cursor-pointer hover:text-dark/70">
+                            {product.reviews} Review{product.reviews === 1 ? "" : "s"}
                         </span>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             {/* Dynamic Price & Strikeoff Price based on selected variant */}

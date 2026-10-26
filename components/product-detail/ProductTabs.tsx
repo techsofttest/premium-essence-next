@@ -50,6 +50,10 @@ export default function ProductTabs({ productId, description, notes, highlights,
     };
 
     const highlightList = parsedHighlights();
+    const hasReviews = Boolean(reviews && reviews.length > 0);
+    const avgRating = hasReviews
+        ? (reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / reviews.length)
+        : 0;
 
     const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,7 +91,7 @@ export default function ProductTabs({ productId, description, notes, highlights,
                     { id: "description", label: "Description" },
                     { id: "scent notes", label: "Scent Notes" },
                     { id: "highlights", label: "Highlights" },
-                    { id: "reviews", label: `Reviews (${reviews.length})` },
+                    { id: "reviews", label: hasReviews ? `Reviews (${reviews.length})` : "Reviews" },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -196,13 +200,33 @@ export default function ProductTabs({ productId, description, notes, highlights,
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-dark/10 pb-8">
                                 <div>
                                     <h3 className="font-serif text-2xl text-dark">Customer Reviews</h3>
-                                    <p className="text-xs uppercase tracking-widest text-dark/50 mt-1">
-                                        {reviews.length} verified review{reviews.length === 1 ? "" : "s"}
-                                    </p>
+                                    {hasReviews ? (
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <div className="flex items-center gap-1 text-[#C5A059]">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        size={14}
+                                                        fill={i < Math.floor(avgRating) ? "currentColor" : "none"}
+                                                        className={i < Math.floor(avgRating) ? "" : "text-dark/20"}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <span className="text-xs font-bold text-dark">{avgRating.toFixed(1)} / 5</span>
+                                            <span className="text-xs text-dark/30">&bull;</span>
+                                            <p className="text-xs uppercase tracking-widest text-dark/60 font-semibold">
+                                                {reviews.length} verified review{reviews.length === 1 ? "" : "s"}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs uppercase tracking-widest text-dark/50 mt-1">
+                                            No reviews yet
+                                        </p>
+                                    )}
                                 </div>
                                 <button
                                     onClick={() => setShowReviewForm(!showReviewForm)}
-                                    className="px-6 py-3 bg-dark text-white text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-dark/90 transition-all flex items-center gap-2"
+                                    className="px-6 py-3 bg-dark text-white text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-dark/90 transition-all flex items-center gap-2 cursor-pointer"
                                 >
                                     <MessageSquare size={14} /> Write a Review
                                 </button>
@@ -331,8 +355,9 @@ export default function ProductTabs({ productId, description, notes, highlights,
                                 </div>
                             ) : (
                                 <div className="p-12 text-center bg-white border border-dark/10 flex flex-col items-center gap-3">
-                                    <Star size={28} className="text-dark/20" />
-                                    <p className="text-sm text-dark/60">Be the first to review this fragrance!</p>
+                                    <MessageSquare size={26} className="text-dark/20" />
+                                    <p className="text-sm text-dark/60 font-medium">Be the first to review this fragrance!</p>
+                                    <p className="text-xs text-dark/40 max-w-sm">Share your experience with its scent profile, longevity, and sillage.</p>
                                 </div>
                             )}
                         </div>
