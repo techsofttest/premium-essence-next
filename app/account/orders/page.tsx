@@ -65,23 +65,24 @@ const formatPaymentMethod = (method?: string) => {
 };
 
 const getDealFallbackImage = (itemName?: string, variantDetails?: string): string | null => {
-    if (!itemName) return null;
-    const name = itemName.toLowerCase();
+    if (!itemName && !variantDetails) return null;
+    const name = (itemName || "").toLowerCase();
     const variant = (variantDetails || "").toLowerCase();
+    const combined = `${name} ${variant}`;
 
-    if (name.includes("discovery") || variant.includes("discovery") || variant.includes("travel spray")) {
+    if (combined.includes("discovery") || combined.includes("travel spray")) {
         return "/deals/The%20Signature%20Discovery%20Set.png";
     }
-    if (name.includes("his & hers") || name.includes("ultimate") || variant.includes("couples")) {
+    if (combined.includes("his & hers") || combined.includes("his and hers") || combined.includes("ultimate") || combined.includes("couples")) {
         return "/deals/Ultimate%20His%20%26%20Hers%20Box.png";
     }
-    if (name.includes("trio") || name.includes("oud") || variant.includes("oud")) {
+    if (combined.includes("trio") || combined.includes("oud master") || combined.includes("rare oud")) {
         return "/deals/Top%20Collection%20Trio.png";
     }
-    if (name.includes("travel") || name.includes("vault") || variant.includes("atomizer")) {
+    if (combined.includes("travel") || combined.includes("vault") || combined.includes("atomizer")) {
         return "/deals/travel_vault.png";
     }
-    if (name.includes("midnight") || variant.includes("nighttime") || variant.includes("seductive")) {
+    if (combined.includes("midnight") || combined.includes("nighttime") || combined.includes("seductive")) {
         return "/deals/midnight_exclusive.png";
     }
     return null;
@@ -285,9 +286,13 @@ function OrdersContent() {
                                             <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none">
                                                 {order.items.map((item) => {
                                                     const dealFallback = getDealFallbackImage(item.name, item.variant_details);
-                                                    const initialImage = item.image && !item.image.includes("brand-logo-nobg") && !item.image.includes("logo-black")
-                                                        ? item.image
-                                                        : (dealFallback || item.image || "/logo/logo-black.png");
+                                                    const isDeal = Boolean(dealFallback) || item.brand === "Exclusive Curation" || item.brand === "Special Curation Bundle";
+                                                    const isProductImage = item.image && item.image.includes("/storage/products/");
+                                                    const initialImage = (isDeal && isProductImage && dealFallback)
+                                                        ? dealFallback
+                                                        : (item.image && !item.image.includes("brand-logo-nobg") && !item.image.includes("logo-black")
+                                                            ? item.image
+                                                            : (dealFallback || item.image || "/logo/logo-black.png"));
 
                                                     return (
                                                         <div key={item.id} className="flex items-center gap-3 shrink-0 bg-white p-2.5 border border-dark/10 max-w-[240px]">
