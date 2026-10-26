@@ -19,6 +19,29 @@ interface OrderItem {
     brand?: string;
 }
 
+const getDealFallbackImage = (itemName?: string, variantDetails?: string): string | null => {
+    if (!itemName) return null;
+    const name = itemName.toLowerCase();
+    const variant = (variantDetails || "").toLowerCase();
+
+    if (name.includes("discovery") || variant.includes("discovery") || variant.includes("travel spray")) {
+        return "/deals/The%20Signature%20Discovery%20Set.png";
+    }
+    if (name.includes("his & hers") || name.includes("ultimate") || variant.includes("couples")) {
+        return "/deals/Ultimate%20His%20%26%20Hers%20Box.png";
+    }
+    if (name.includes("trio") || name.includes("oud") || variant.includes("oud")) {
+        return "/deals/Top%20Collection%20Trio.png";
+    }
+    if (name.includes("travel") || name.includes("vault") || variant.includes("atomizer")) {
+        return "/deals/travel_vault.png";
+    }
+    if (name.includes("midnight") || variant.includes("nighttime") || variant.includes("seductive")) {
+        return "/deals/midnight_exclusive.png";
+    }
+    return null;
+};
+
 interface TimelineStep {
     title: string;
     description: string;
@@ -239,34 +262,47 @@ function TrackOrderContent() {
                                     <Package size={16} /> Items Ordered ({trackingData.items.length})
                                 </h3>
                                 <div className="space-y-4">
-                                    {trackingData.items.map((item) => (
-                                        <div key={item.id} className="flex items-center gap-4 py-2 border-b border-dark/5 last:border-0">
-                                            <div className="relative w-14 h-16 bg-[#F7F3F4] border border-dark/10 shrink-0">
-                                                <Image
-                                                    src={item.image || "/logo/logo-black.png"}
-                                                    alt={item.name}
-                                                    fill
-                                                    unoptimized
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        if (target) target.src = "/logo/logo-black.png";
-                                                    }}
-                                                    className="object-contain p-1"
-                                                />
+                                    {trackingData.items.map((item) => {
+                                        const dealFallback = getDealFallbackImage(item.name, item.variant_details);
+                                        const initialImage = item.image && !item.image.includes("brand-logo-nobg") && !item.image.includes("logo-black")
+                                            ? item.image
+                                            : (dealFallback || item.image || "/logo/logo-black.png");
+
+                                        return (
+                                            <div key={item.id} className="flex items-center gap-4 py-2 border-b border-dark/5 last:border-0">
+                                                <div className="relative w-14 h-16 bg-[#F7F3F4] border border-dark/10 shrink-0">
+                                                    <Image
+                                                        src={initialImage}
+                                                        alt={item.name}
+                                                        fill
+                                                        unoptimized
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            if (target) {
+                                                                if (dealFallback && target.src !== dealFallback) {
+                                                                    target.src = dealFallback;
+                                                                } else {
+                                                                    target.src = "/logo/logo-black.png";
+                                                                }
+                                                            }
+                                                        }}
+                                                        className="object-contain p-1"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-bold text-dark truncate">{item.name}</p>
+                                                    <p className="text-[11px] font-semibold text-[#C5A059] mt-0.5">
+                                                        {item.brand ? `${item.brand} • ` : ""}
+                                                        Size/Variant: {item.variant_details || "Standard Edition"}
+                                                    </p>
+                                                    <p className="text-xs text-dark/80 mt-1">Qty: {item.quantity} &times; AED {item.price}</p>
+                                                </div>
+                                                <div className="text-right font-serif text-sm text-dark font-medium">
+                                                    AED {item.line_total}
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-bold text-dark truncate">{item.name}</p>
-                                                <p className="text-[11px] font-semibold text-[#C5A059] mt-0.5">
-                                                    {item.brand ? `${item.brand} • ` : ""}
-                                                    Size/Variant: {item.variant_details || "Standard Edition"}
-                                                </p>
-                                                <p className="text-xs text-dark/80 mt-1">Qty: {item.quantity} &times; AED {item.price}</p>
-                                            </div>
-                                            <div className="text-right font-serif text-sm text-dark font-medium">
-                                                AED {item.line_total}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>

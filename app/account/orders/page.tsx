@@ -64,6 +64,29 @@ const formatPaymentMethod = (method?: string) => {
     return method.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
+const getDealFallbackImage = (itemName?: string, variantDetails?: string): string | null => {
+    if (!itemName) return null;
+    const name = itemName.toLowerCase();
+    const variant = (variantDetails || "").toLowerCase();
+
+    if (name.includes("discovery") || variant.includes("discovery") || variant.includes("travel spray")) {
+        return "/deals/The%20Signature%20Discovery%20Set.png";
+    }
+    if (name.includes("his & hers") || name.includes("ultimate") || variant.includes("couples")) {
+        return "/deals/Ultimate%20His%20%26%20Hers%20Box.png";
+    }
+    if (name.includes("trio") || name.includes("oud") || variant.includes("oud")) {
+        return "/deals/Top%20Collection%20Trio.png";
+    }
+    if (name.includes("travel") || name.includes("vault") || variant.includes("atomizer")) {
+        return "/deals/travel_vault.png";
+    }
+    if (name.includes("midnight") || variant.includes("nighttime") || variant.includes("seductive")) {
+        return "/deals/midnight_exclusive.png";
+    }
+    return null;
+};
+
 function OrdersContent() {
     const { customer, loading: authLoading } = useAuth();
     const searchParams = useSearchParams();
@@ -260,32 +283,45 @@ function OrdersContent() {
                                     {order.items && order.items.length > 0 && (
                                         <div className="px-6 md:px-8 pb-6 bg-[#F7F3F4]/50 border-t border-dark/5 pt-4">
                                             <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none">
-                                                {order.items.map((item) => (
-                                                    <div key={item.id} className="flex items-center gap-3 shrink-0 bg-white p-2.5 border border-dark/10 max-w-[240px]">
-                                                        <div className="relative w-10 h-12 bg-[#F7F3F4] shrink-0 border border-dark/5">
-                                                            <Image
-                                                                src={item.image || "/logo/logo-black.png"}
-                                                                alt={item.name}
-                                                                fill
-                                                                unoptimized
-                                                                onError={(e) => {
-                                                                    const target = e.target as HTMLImageElement;
-                                                                    if (target) target.src = "/logo/logo-black.png";
-                                                                }}
-                                                                className="object-contain p-0.5"
-                                                            />
+                                                {order.items.map((item) => {
+                                                    const dealFallback = getDealFallbackImage(item.name, item.variant_details);
+                                                    const initialImage = item.image && !item.image.includes("brand-logo-nobg") && !item.image.includes("logo-black")
+                                                        ? item.image
+                                                        : (dealFallback || item.image || "/logo/logo-black.png");
+
+                                                    return (
+                                                        <div key={item.id} className="flex items-center gap-3 shrink-0 bg-white p-2.5 border border-dark/10 max-w-[240px]">
+                                                            <div className="relative w-10 h-12 bg-[#F7F3F4] shrink-0 border border-dark/5">
+                                                                <Image
+                                                                    src={initialImage}
+                                                                    alt={item.name}
+                                                                    fill
+                                                                    unoptimized
+                                                                    onError={(e) => {
+                                                                        const target = e.target as HTMLImageElement;
+                                                                        if (target) {
+                                                                            if (dealFallback && target.src !== dealFallback) {
+                                                                                target.src = dealFallback;
+                                                                            } else {
+                                                                                target.src = "/logo/logo-black.png";
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className="object-contain p-0.5"
+                                                                />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-xs font-bold text-dark truncate">{item.name}</p>
+                                                                {item.variant_details && (
+                                                                    <p className="text-[10px] text-[#C5A059] font-semibold tracking-wide truncate">
+                                                                        {item.variant_details}
+                                                                    </p>
+                                                                )}
+                                                                <p className="text-[10px] text-dark/60">Qty: {item.quantity} &bull; AED {item.line_total}</p>
+                                                            </div>
                                                         </div>
-                                                        <div className="min-w-0">
-                                                            <p className="text-xs font-bold text-dark truncate">{item.name}</p>
-                                                            {item.variant_details && (
-                                                                <p className="text-[10px] text-[#C5A059] font-semibold tracking-wide truncate">
-                                                                    {item.variant_details}
-                                                                </p>
-                                                            )}
-                                                            <p className="text-[10px] text-dark/60">Qty: {item.quantity} &bull; AED {item.line_total}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
