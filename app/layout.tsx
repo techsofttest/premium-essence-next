@@ -18,7 +18,8 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "Premium Essence Perfumes | Essence of Elegance",
-  description: "A luxury fragrance boutique specializing in authentic perfumes from the world's most prestigious international brands.",
+  description:
+    "A luxury fragrance boutique specializing in authentic perfumes from the world's most prestigious international brands.",
 };
 
 export default function RootLayout({
@@ -29,9 +30,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${garamond.variable} ${spaceGrotesk.variable} h - full antialiased`}
+      className={`${garamond.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans selection:bg-teal selection:text-cream">
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-TRHT9899V6"
           strategy="afterInteractive"
@@ -40,16 +42,49 @@ export default function RootLayout({
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
-            function gtag() { window.dataLayer.push(arguments); }
+            function gtag() {
+              window.dataLayer.push(arguments);
+            }
             window.gtag = gtag;
             gtag('js', new Date());
             gtag('config', 'G-TRHT9899V6');
-            `}
+          `}
         </Script>
 
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        {/* Meta Pixel */}
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {
+              if(f.fbq)return;
+              n=f.fbq=function(){
+                n.callMethod
+                  ? n.callMethod.apply(n,arguments)
+                  : n.queue.push(arguments)
+              };
+              if(!f._fbq)f._fbq=n;
+              n.push=n;
+              n.loaded=!0;
+              n.version='2.0';
+              n.queue=[];
+              t=b.createElement(e);
+              t.async=!0;
+              t.src=v;
+              s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)
+            }(
+              window,
+              document,
+              'script',
+              'https://connect.facebook.net/en_US/fbevents.js'
+            );
+
+            fbq('init', '1740543487007369');
+            fbq('track', 'PageView');
+          `}
+        </Script>
+
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
