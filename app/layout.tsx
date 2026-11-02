@@ -33,6 +33,19 @@ export default function RootLayout({
       className={`${garamond.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans selection:bg-teal selection:text-cream">
+
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=1740543487007369&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-TRHT9899V6"
