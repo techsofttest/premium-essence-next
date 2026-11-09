@@ -133,9 +133,10 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                         <Link
                                             href={targetHref}
                                             onClick={(e) => e.stopPropagation()}
-                                            className="bg-[#2B82F6] hover:bg-[#1D6FE5] text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 rounded-md uppercase tracking-wider transition-colors shadow-md flex items-center gap-1"
+                                            className="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-all duration-300 shadow-[0_2px_10px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_16px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-[0.98]"
                                         >
-                                            {reel.button_text || "View"}
+                                            <ShoppingBag size={12} className="text-[#1B1315] transition-transform group-hover/btn:scale-110" />
+                                            <span>{reel.button_text || "Buy Now"}</span>
                                         </Link>
 
                                         {reel.product && (
@@ -230,14 +231,14 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                                         });
                                                     }
                                                 }}
-                                                className="bg-gold hover:bg-amber-400 text-dark px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-lg"
+                                                className="bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full shadow-[0_4px_14px_rgba(212,175,55,0.35)] transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95"
                                             >
                                                 <ShoppingBag size={14} /> Add to Cart
                                             </button>
                                             <Link
                                                 href={`/product/${selectedReel.product.slug}`}
                                                 onClick={() => setSelectedReel(null)}
-                                                className="bg-cream/10 hover:bg-cream/20 text-cream px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
+                                                className="bg-cream/10 hover:bg-cream/20 text-cream px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition-colors"
                                             >
                                                 Details
                                             </Link>
@@ -247,7 +248,7 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
                                     <Link
                                         href={selectedReel.button_link || "/shop"}
                                         onClick={() => setSelectedReel(null)}
-                                        className="w-full text-center bg-gold hover:bg-amber-400 text-dark py-2.5 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors"
+                                        className="w-full text-center bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all shadow-md"
                                     >
                                         Explore Collection
                                     </Link>
