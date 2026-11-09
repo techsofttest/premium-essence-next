@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Truck, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface CmsPageData {
     title: string;
@@ -27,28 +28,15 @@ export default function ShippingPolicyPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="shipping-policy" />
-            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
-                <Image
-                    src="/banners/banner1.jpg"
-                    alt="Shipping Policy Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
-
-                <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
-                        Logistics & Dispatch
-                    </span>
-                    <h1 className="font-serif text-3xl md:text-5xl tracking-tight text-white mb-4 drop-shadow-md">
-                        {pageData?.title || "Shipping Policy"}
-                    </h1>
-                    <p className="text-xs text-white uppercase tracking-widest drop-shadow-sm font-medium">
-                        UAE Express Dispatch & Temperature-Regulated Delivery
-                    </p>
-                </div>
-            </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="policies"
+                fallbackImage="/banners/banner1.jpg"
+                title={pageData?.title || "Shipping & Courier Policy"}
+                subtitle="Express courier delivery across all 7 Emirates with temperature-regulated packaging and real-time tracking."
+                kicker="Logistics & Dispatch"
+                breadcrumbs={[{ label: "Shipping Policy" }]}
+            />
 
             <div className="max-w-4xl mx-auto px-6 mt-12">
                 <Link

@@ -1,4 +1,4 @@
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
 
 export class ApiError extends Error {
     constructor(message: string, public status: number, public errors?: Record<string, string[]>) {

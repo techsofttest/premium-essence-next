@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShieldCheck, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface CmsPageData {
     title: string;
@@ -29,29 +30,16 @@ export default function TermsAndConditionsPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="terms-and-conditions" />
-            {/* Header with Banner 2 */}
-            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
-                <Image
-                    src="/banners/banner2.jpg"
-                    alt="Terms & Conditions Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
 
-                <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
-                        Legal Agreement
-                    </span>
-                    <h1 className="font-serif text-3xl md:text-5xl tracking-tight text-white mb-4 drop-shadow-md">
-                        {pageData?.title || "Terms & Conditions"}
-                    </h1>
-                    <p className="text-xs text-white uppercase tracking-widest drop-shadow-sm font-medium">
-                        Premium Essence Perfumes LLC &bull; Abu Dhabi, UAE
-                    </p>
-                </div>
-            </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="policies"
+                fallbackImage="/banners/banner2.jpg"
+                title={pageData?.title || "Terms & Conditions"}
+                subtitle="Please review our terms of service, boutique order fulfillment policies, and consumer rights under UAE e-commerce law."
+                kicker="Legal Agreement"
+                breadcrumbs={[{ label: "Terms & Conditions" }]}
+            />
 
             <div className="max-w-4xl mx-auto px-6 mt-12">
                 <Link

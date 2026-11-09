@@ -7,6 +7,7 @@ import { Loader2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 function NewArrivalsContent() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -83,11 +84,10 @@ function NewArrivalsContent() {
                     <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`w-9 h-9 text-xs font-bold transition-all ${
-                            pageNum === page
-                                ? "bg-dark text-white border border-dark shadow-sm"
-                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
-                        }`}
+                        className={`w-9 h-9 text-xs font-bold transition-all ${pageNum === page
+                            ? "bg-dark text-white border border-dark shadow-sm"
+                            : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                            }`}
                     >
                         {pageNum}
                     </button>
@@ -108,29 +108,23 @@ function NewArrivalsContent() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="new-arrivals" />
-            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-10">
-                
-                {/* Breadcrumb Navigation */}
-                <nav className="flex items-center gap-3 text-[10px] tracking-widest uppercase text-dark font-bold mb-8">
-                    <Link href="/" className="hover:text-dark/60 transition-colors">Home</Link>
-                    <ArrowRight size={10} strokeWidth={2.5} />
-                    <span className="text-dark/50">New Arrivals</span>
-                </nav>
 
-                {/* Page Heading (No Banner) */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-16 border-b border-dark/10 pb-10">
-                    <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
-                        <span className="text-[11px] tracking-[0.3em] uppercase text-[#C5A059] font-bold">
-                            Latest Releases
-                        </span>
-                        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-dark tracking-tight">
-                            New Arrivals Collection
-                        </h1>
-                        <div className="w-12 h-[1px] bg-[#4A323A] my-2 md:mx-0"></div>
-                        <p className="text-sm text-dark/70 max-w-xl leading-relaxed">
-                            Explore our newest luxury perfume additions, crafted with rare essences and modern olfactory artistry.
-                        </p>
-                    </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="new_arrivals"
+                fallbackImage="/banners/banner3.jpg"
+                title="New Arrivals Collection"
+                subtitle="Explore our newest luxury perfume additions, crafted with rare essences, modern olfactory artistry, and exquisite sillage."
+                kicker="Latest Releases"
+                breadcrumbs={[{ label: "New Arrivals" }]}
+            />
+
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-8">
+                {/* Controls & Pagination Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-dark/10">
+                    <p className="text-xs uppercase tracking-widest text-dark/70 font-bold">
+                        Showing {totalProducts} New Fragrance{totalProducts === 1 ? "" : "s"}
+                    </p>
                     {renderPaginationNumbers()}
                 </div>
 

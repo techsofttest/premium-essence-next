@@ -6,22 +6,24 @@ import InteractiveShowcase from "@/components/sections/InteractiveShowcase";
 import ProductBanner from "@/components/sections/ProductBanner";
 import DealsCarousel from "@/components/sections/DealsCarousel";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
-import Testimonials from "@/components/sections/Testimonials";
 import ProductCarousel from "@/components/sections/ProductCarousel";
 import BestChoicesGrid from "@/components/sections/BestChoicesGrid";
 import FragranceReelsSection from "@/components/sections/FragranceReelsSection";
 import FragranceFamilySection from "@/components/sections/FragranceFamilySection";
+import DeQollmerCollectionSection from "@/components/sections/DeQollmerCollectionSection";
+import BudgetPicksSection from "@/components/sections/BudgetPicksSection";
 import { getStorefrontHome, getStorefrontProducts, getStorefrontReels, getFragranceFamilies } from "@/lib/storefront";
 import { getStorefrontCuratedDeals } from "@/lib/deals";
 import SeoHead from "@/components/seo/SeoHead";
 
 export default async function Home() {
-  const [homeData, fallbackProducts, reels, fragranceFamilies, curatedDeals] = await Promise.all([
+  const [homeData, fallbackProducts, reels, fragranceFamilies, curatedDeals, deqollmerProducts] = await Promise.all([
     getStorefrontHome(),
     getStorefrontProducts(),
     getStorefrontReels(),
     getFragranceFamilies(),
     getStorefrontCuratedDeals(),
+    getStorefrontProducts({ brand: "de-qollmer" }),
   ]);
 
   const collections = homeData.collections || {};
@@ -71,6 +73,9 @@ export default async function Home() {
       {/* Full-width Slider */}
       <HeroSlider initialBanners={homeData?.banners} />
 
+      {/* Exclusive House Brand Showcase: DE QOLLMER Collection */}
+      <DeQollmerCollectionSection products={deqollmerProducts} />
+
       {/* Product Showcase (Best Sellers & New Arrivals Collections from DB) */}
       <ProductShowcase products={showcaseProducts} />
 
@@ -79,6 +84,9 @@ export default async function Home() {
 
       {/* Dynamic Brands Carousel from DB */}
       <BrandCarousel initialBrands={homeData.brands} />
+
+      {/* Explore Budget Picks Section (Under AED 49, 99, 149, 199, 249, 299) */}
+      <BudgetPicksSection />
 
       {/* Trending Collections from DB */}
       <ProductCarousel
@@ -108,7 +116,6 @@ export default async function Home() {
       <BestChoicesGrid products={bestChoicesGridData} />
 
       <WhyChooseUs initialItems={homeData.why_choose_us} />
-      <Testimonials />
     </div>
   );
 }

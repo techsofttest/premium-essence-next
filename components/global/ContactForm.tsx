@@ -50,18 +50,19 @@ export default function ContactForm() {
     };
 
     return (
-        <div className="bg-white border border-dark/10 p-8 md:p-12 shadow-sm relative overflow-hidden">
-            <div className="mb-8">
-                <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">
-                    Private Concierge Inquiry
-                </span>
-                <h2 className="font-serif text-2xl md:text-3xl text-dark font-bold">
-                    Send Us an Inquiry
-                </h2>
-                <p className="text-xs text-dark/60 mt-1">
-                    Our master fragrance consultants and customer care team will respond within 24 business hours.
-                </p>
-            </div>
+        <div className="bg-white border border-dark/10 rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden h-full flex flex-col justify-between">
+            <div>
+                <div className="mb-6">
+                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-1.5">
+                        Private Concierge Inquiry
+                    </span>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-dark font-bold">
+                        Send Us an Inquiry
+                    </h2>
+                    <p className="text-xs text-dark/60 mt-1">
+                        Our master fragrance consultants and customer care team will respond within 24 business hours.
+                    </p>
+                </div>
 
             {successMessage && (
                 <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-3">
@@ -143,11 +144,11 @@ export default function ContactForm() {
                         <MessageSquare size={16} className="absolute left-3.5 top-4 text-dark/40" />
                         <textarea
                             required
-                            rows={5}
+                            rows={4}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Tell us about your bespoke perfume query, order assistance, or wholesale inquiries..."
-                            className="w-full pl-10 pr-4 py-3 bg-[#F7F3F4] border border-dark/10 text-xs text-dark placeholder:text-dark/40 focus:outline-none focus:border-dark transition-colors resize-none"
+                            className="w-full pl-10 pr-4 py-2.5 bg-[#F7F3F4] border border-dark/10 text-xs text-dark placeholder:text-dark/40 focus:outline-none focus:border-dark transition-colors resize-none"
                         />
                     </div>
                 </div>
@@ -157,12 +158,13 @@ export default function ContactForm() {
                     type="submit"
                     disabled={submitting}
                     fullWidth
-                    className="h-14 text-[11px] tracking-[0.3em] uppercase flex items-center justify-center gap-2"
+                    className="h-12 text-[11px] tracking-[0.25em] uppercase flex items-center justify-center gap-2"
                 >
                     <Send size={14} />
                     {submitting ? "Sending Inquiry..." : "Submit Inquiry"}
                 </GlowingButton>
             </form>
+            </div>
         </div>
     );
 }

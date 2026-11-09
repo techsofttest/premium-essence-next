@@ -6,6 +6,7 @@ import Link from "next/link";
 import { HelpCircle, ChevronDown, Search, Mail, Phone, Loader2, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 import { useContactSettings } from "@/context/ContactContext";
 
 interface FaqItem {
@@ -39,44 +40,33 @@ export default function FaqsPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="faqs" />
-            {/* Hero Header with Banner 3 */}
-            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 text-center overflow-hidden">
-                <Image
-                    src="/banners/banner3.jpg"
-                    alt="FAQs Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
 
-                <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
-                        Concierge Assistance
-                    </span>
-                    <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-6 drop-shadow-md">
-                        Frequently Asked Questions
-                    </h1>
-                    <p className="text-xs md:text-sm text-white max-w-xl mx-auto leading-relaxed mb-8 drop-shadow-sm font-medium">
-                        Everything you need to know about our fragrance portfolio, authenticity verification, express delivery, and care recommendations.
-                    </p>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="faqs"
+                fallbackImage="/banners/banner3.jpg"
+                title="Frequently Asked Questions"
+                subtitle="Everything you need to know about our fragrance portfolio, authenticity verification, express delivery across UAE, and care recommendations."
+                kicker="Concierge Assistance"
+                breadcrumbs={[{ label: "FAQs" }]}
+            />
 
-                    {/* Search Bar */}
-                    <div className="relative max-w-xl mx-auto">
-                        <input
-                            type="text"
-                            placeholder="Type a question (e.g. delivery, authenticity, returns)..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white text-dark border border-white/20 pl-11 pr-4 py-3.5 text-xs outline-none focus:ring-2 focus:ring-[#D4AF37] shadow-lg"
-                        />
-                        <Search size={16} className="absolute left-4 top-4 text-dark/50" />
-                    </div>
+            {/* Search Bar Bar */}
+            <div className="max-w-4xl mx-auto px-6 mt-10">
+                <div className="relative max-w-xl mx-auto mb-10">
+                    <input
+                        type="text"
+                        placeholder="Type a question (e.g. delivery, authenticity, returns)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white text-dark border border-dark/15 pl-11 pr-4 py-3.5 text-xs outline-none focus:border-[#C5A059] shadow-sm"
+                    />
+                    <Search size={16} className="absolute left-4 top-4 text-dark/50" />
                 </div>
             </div>
 
             {/* Accordion Content */}
-            <div className="max-w-4xl mx-auto px-6 mt-16">
+            <div className="max-w-4xl mx-auto px-6 mt-4">
                 {loading ? (
                     <div className="bg-white border border-dark/10 p-16 text-center text-dark/60 flex items-center justify-center gap-3">
                         <Loader2 className="animate-spin text-dark" size={20} /> Loading FAQ directory...

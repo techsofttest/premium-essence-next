@@ -1,3 +1,4 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -5,21 +6,22 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: "http",
         hostname: "localhost",
+        port: "8000",
+        pathname: "/storage/**",
       },
       {
         protocol: "http",
         hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/storage/**",
       },
       {
         protocol: "https",
-        hostname: "**",
-      },
-      {
-        protocol: "http",
         hostname: "**",
       },
     ],

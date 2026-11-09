@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RotateCcw, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface CmsPageData {
     title: string;
@@ -27,28 +28,15 @@ export default function RefundAndReturnPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="refund-and-return" />
-            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-24 px-6 md:px-12 text-center overflow-hidden">
-                <Image
-                    src="/banners/banner3.jpg"
-                    alt="Refund & Return Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
-
-                <div className="max-w-3xl mx-auto relative z-10">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
-                        Customer Satisfaction Guarantee
-                    </span>
-                    <h1 className="font-serif text-3xl md:text-5xl tracking-tight text-white mb-4 drop-shadow-md">
-                        {pageData?.title || "Refund & Return Policy"}
-                    </h1>
-                    <p className="text-xs text-white uppercase tracking-widest drop-shadow-sm font-medium">
-                        14-Day Return Guarantee For Sealed Parfums
-                    </p>
-                </div>
-            </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="policies"
+                fallbackImage="/banners/banner3.jpg"
+                title={pageData?.title || "Refund & Return Policy"}
+                subtitle="14-Day return guarantee for sealed authentic luxury fragrances. Our concierge team ensures a seamless experience."
+                kicker="Customer Satisfaction Guarantee"
+                breadcrumbs={[{ label: "Refund & Return" }]}
+            />
 
             <div className="max-w-4xl mx-auto px-6 mt-12">
                 <Link

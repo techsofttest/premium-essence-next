@@ -19,7 +19,7 @@ export function getCuratedDealBySlug(slug: string): CuratedDeal | undefined {
     return CURATED_DEALS[slug];
 }
 
-const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
 
 export async function getStorefrontCuratedDeals(): Promise<CuratedDeal[]> {
     try {

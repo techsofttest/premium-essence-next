@@ -13,6 +13,8 @@ import dynamic from "next/dynamic";
 const AddToCartModal = dynamic(() => import("@/components/ui/AddToCartModal"), { ssr: false });
 const CartDrawer = dynamic(() => import("@/components/ui/CartDrawer"), { ssr: false });
 const FloatingWhatsApp = dynamic(() => import("@/components/global/FloatingWhatsApp"), { ssr: false });
+const WelcomeModal = dynamic(() => import("@/components/ui/WelcomeModal"), { ssr: false });
+const FloatingCouponWidget = dynamic(() => import("@/components/ui/FloatingCouponWidget"), { ssr: false });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -35,6 +37,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         <AddToCartModal />
                         <CartDrawer />
                         <FloatingWhatsApp />
+                        {!isAuthPage && (
+                            <>
+                                <WelcomeModal />
+                                <FloatingCouponWidget />
+                            </>
+                        )}
                     </CartProvider>
                 </WishlistProvider>
             </ContactProvider>

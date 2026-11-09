@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Search, Package, MapPin, Truck, CheckCircle2, Clock, ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface OrderItem {
     id: number;
@@ -123,21 +124,20 @@ function TrackOrderContent() {
     }, [initialOrderNumber, initialEmail]);
 
     return (
-        <main className="min-h-screen bg-[#F7F3F4] py-16 px-6 md:px-12 font-sans">
+        <main className="min-h-screen bg-[#F7F3F4] font-sans pb-24">
             <SeoHead pageSlug="track-order" />
-            <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">
-                        Real-Time Fulfillment Status
-                    </span>
-                    <h1 className="font-serif text-3xl md:text-5xl text-dark tracking-tight">
-                        Track Your Order
-                    </h1>
-                    <p className="text-xs md:text-sm text-dark/60 mt-3 max-w-md mx-auto leading-relaxed">
-                        Enter your order number and email address or phone number used during checkout to track delivery status.
-                    </p>
-                </div>
 
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="track_order"
+                fallbackImage="/banners/banner2.jpg"
+                title="Track Your Order"
+                subtitle="Enter your order number and contact details to monitor real-time preparation, dispatch, and express doorstep delivery across UAE."
+                kicker="Fulfillment & Concierge"
+                breadcrumbs={[{ label: "Track Order" }]}
+            />
+
+            <div className="max-w-4xl mx-auto px-6 md:px-12 pt-12">
                 {/* Track Order Form */}
                 <div className="bg-white border border-dark/10 p-8 md:p-10 shadow-sm mb-12">
                     <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-4 items-end">
@@ -188,11 +188,10 @@ function TrackOrderContent() {
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <span className="font-serif text-2xl text-dark">{trackingData.order_number}</span>
-                                    <span className={`text-[10px] uppercase font-bold tracking-widest px-3 py-1 border ${
-                                        trackingData.payment_status === 'paid' 
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                                    }`}>
+                                    <span className={`text-[10px] uppercase font-bold tracking-widest px-3 py-1 border ${trackingData.payment_status === 'paid'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                                        }`}>
                                         Payment: {trackingData.payment_status}
                                     </span>
                                 </div>
@@ -213,13 +212,12 @@ function TrackOrderContent() {
                             <div className="relative pl-6 md:pl-8 space-y-8 before:absolute before:left-2.5 md:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-dark/10">
                                 {trackingData.timeline.map((step, idx) => (
                                     <div key={idx} className="relative flex items-start gap-4">
-                                        <div className={`absolute -left-6 md:-left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                                            step.completed 
-                                                ? 'bg-dark text-white shadow-sm' 
-                                                : step.current 
-                                                    ? 'bg-[#C5A059] text-white animate-pulse' 
-                                                    : 'bg-white border border-dark/20 text-dark/40'
-                                        }`}>
+                                        <div className={`absolute -left-6 md:-left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step.completed
+                                            ? 'bg-dark text-white shadow-sm'
+                                            : step.current
+                                                ? 'bg-[#C5A059] text-white animate-pulse'
+                                                : 'bg-white border border-dark/20 text-dark/40'
+                                            }`}>
                                             {step.completed ? <CheckCircle2 size={14} /> : idx + 1}
                                         </div>
                                         <div>

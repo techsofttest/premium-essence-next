@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart, ArrowRight, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
-import ProductBanner from "@/components/sections/ProductBanner";
+import PageBanner from "@/components/global/PageBanner";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 import SeoHead from "@/components/seo/SeoHead";
@@ -27,12 +27,16 @@ export default function WishlistPage() {
     if (!customer) {
         return (
             <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-32">
-                <ProductBanner
-                    imageUrl="/product-banner/Montblanc-B.png"
-                    altText="Your Curated Wishlist"
-                    priority={true}
+                <SeoHead pageSlug="wishlist" />
+                <PageBanner
+                    pageKey="wishlist"
+                    fallbackImage="/banners/banner3.jpg"
+                    title="Your Curated Wishlist"
+                    subtitle="Sign in to save your bespoke fragrance selections and access your curated wishlist across all devices."
+                    kicker="Personal Sanctuary"
+                    breadcrumbs={[{ label: "Wishlist" }]}
                 />
-                <div className="max-w-md mx-auto px-6 text-center mt-20 flex flex-col items-center gap-6">
+                <div className="max-w-md mx-auto px-6 text-center mt-16 flex flex-col items-center gap-6">
                     <div className="w-16 h-16 rounded-full bg-white border border-dark/10 flex items-center justify-center text-[#4A323A] shadow-sm">
                         <Heart size={28} />
                     </div>
@@ -55,24 +59,28 @@ export default function WishlistPage() {
 
     return (
         <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-32">
-            <ProductBanner
-                imageUrl="/product-banner/Montblanc-B.png"
-                altText="Your Curated Wishlist"
-                priority={true}
+            <SeoHead pageSlug="wishlist" />
+
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="wishlist"
+                fallbackImage="/banners/banner3.jpg"
+                title="Your Curated Wishlist"
+                subtitle="A private curation of your favorite fragrances, exclusive extraits, and perfumes saved for future acquisition."
+                kicker="Personal Sanctuary"
+                breadcrumbs={[{ label: "Wishlist" }]}
+                badge={`${wishlistProducts.length} Saved Item${wishlistProducts.length === 1 ? "" : "s"}`}
             />
 
-            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 mt-12">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-dark/10 pb-6 mb-12 gap-4">
-                    <div>
-                        <span className="text-xs tracking-[0.3em] uppercase text-[#C5A059] font-bold block mb-2">
-                            Personal Collection
-                        </span>
-                        <h1 className="font-serif text-4xl text-dark">Your Curated Wishlist</h1>
-                    </div>
-                    <span className="text-xs uppercase tracking-widest text-dark/60 font-bold">
-                        {wishlistProducts.length} Saved Item{wishlistProducts.length === 1 ? "" : "s"}
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 mt-8">
+                {/* Header Sub-bar */}
+                <div className="flex items-center justify-between border-b border-dark/10 pb-4 mb-10">
+                    <span className="text-xs uppercase tracking-widest text-dark/70 font-bold">
+                        {wishlistProducts.length} Fragrance Creation{wishlistProducts.length === 1 ? "" : "s"} Saved
                     </span>
+                    <Link href="/shop" className="text-xs uppercase font-bold text-dark hover:text-[#C5A059] flex items-center gap-1 transition-colors">
+                        Continue Exploring &rarr;
+                    </Link>
                 </div>
 
                 {wishlistProducts.length > 0 ? (

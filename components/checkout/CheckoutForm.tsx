@@ -7,6 +7,7 @@ import { MapPin, Plus, Check, Loader2, AlertCircle, CreditCard, Lock, ArrowRight
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { api } from "@/lib/api";
+import MarketplaceLogos from "@/components/ui/MarketplaceLogos";
 
 export interface SavedAddress {
     id: number;
@@ -364,9 +365,8 @@ export default function CheckoutForm() {
                                         <div
                                             key={addr.id}
                                             onClick={() => handleSelectAddress(addr.id)}
-                                            className={`p-4 border cursor-pointer transition-all flex flex-col justify-between ${
-                                                isSelected ? "border-dark bg-dark/5" : "border-dark/10 hover:border-dark/30 bg-white"
-                                            }`}
+                                            className={`p-4 border cursor-pointer transition-all flex flex-col justify-between ${isSelected ? "border-dark bg-dark/5" : "border-dark/10 hover:border-dark/30 bg-white"
+                                                }`}
                                         >
                                             <div>
                                                 <div className="flex items-center justify-between mb-2">
@@ -385,9 +385,8 @@ export default function CheckoutForm() {
 
                                 <div
                                     onClick={() => handleSelectAddress("new")}
-                                    className={`p-4 border cursor-pointer transition-all flex items-center gap-3 ${
-                                        selectedAddressId === "new" ? "border-dark bg-dark/5" : "border-dashed border-dark/20 hover:border-dark/40 bg-white"
-                                    }`}
+                                    className={`p-4 border cursor-pointer transition-all flex items-center gap-3 ${selectedAddressId === "new" ? "border-dark bg-dark/5" : "border-dashed border-dark/20 hover:border-dark/40 bg-white"
+                                        }`}
                                 >
                                     <Plus size={18} className="text-dark/60" />
                                     <span className="text-xs font-bold text-dark">Enter New Address</span>
@@ -670,11 +669,10 @@ export default function CheckoutForm() {
                     {/* Stripe Card Option */}
                     <div
                         onClick={() => setPaymentMethod("stripe")}
-                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${
-                            paymentMethod === "stripe"
+                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${paymentMethod === "stripe"
                                 ? "border-dark bg-dark/5 shadow-xs"
                                 : "border-dark/10 bg-white hover:border-dark/30"
-                        }`}
+                            }`}
                     >
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3">
@@ -696,11 +694,10 @@ export default function CheckoutForm() {
                     {/* Cash on Delivery Option */}
                     <div
                         onClick={() => setPaymentMethod("cod")}
-                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${
-                            paymentMethod === "cod"
+                        className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${paymentMethod === "cod"
                                 ? "border-dark bg-dark/5 shadow-xs"
                                 : "border-dark/10 bg-white hover:border-dark/30"
-                        }`}
+                            }`}
                     >
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3">
@@ -829,6 +826,11 @@ export default function CheckoutForm() {
                         </>
                     )}
                 </button>
+
+                {/* Also Available On Marketplace Trust Section */}
+                <div className="mt-8">
+                    <MarketplaceLogos variant="checkout" />
+                </div>
             </section>
         </form>
     );

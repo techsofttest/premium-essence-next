@@ -6,6 +6,7 @@ import Image from "next/image";
 import { BookOpen, Calendar, User, ArrowRight, Search, Sparkles, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface JournalArticle {
     id: number;
@@ -48,29 +49,16 @@ export default function JournalsPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="journals" />
-            {/* Hero Header with Banner 3 (matching FAQ page) */}
-            <div className="relative bg-[#1B1315] text-[#FAFAF8] py-28 px-6 md:px-12 lg:px-20 text-center overflow-hidden">
-                <Image
-                    src="/banners/banner3.jpg"
-                    alt="The Perfume Journal Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
 
-                <div className="relative z-10 max-w-4xl mx-auto">
-                    <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#D4AF37] block mb-3 drop-shadow-sm">
-                        The Olfactory Gazette
-                    </span>
-                    <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-white mb-6 drop-shadow-md">
-                        The Perfume Journal
-                    </h1>
-                    <p className="text-xs md:text-sm text-white max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-medium">
-                        Explorations into rare ingredients, European perfume heritage, layer accords, and master perfumer insights.
-                    </p>
-                </div>
-            </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="journals"
+                fallbackImage="/banners/banner3.jpg"
+                title="The Perfume Journal"
+                subtitle="Explorations into rare ingredients, European perfume heritage, layer accords, and master perfumer insights."
+                kicker="The Olfactory Gazette"
+                breadcrumbs={[{ label: "The Journal" }]}
+            />
 
             <div className="max-w-screen-xl mx-auto px-6 md:px-12 mt-12">
                 {/* Search & Category Filter Bar */}
@@ -80,11 +68,10 @@ export default function JournalsPage() {
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                                    selectedCategory === cat
-                                        ? "bg-dark text-white shadow-sm"
-                                        : "bg-[#F7F3F4] text-dark/70 hover:text-dark hover:bg-dark/5"
-                                }`}
+                                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${selectedCategory === cat
+                                    ? "bg-dark text-white shadow-sm"
+                                    : "bg-[#F7F3F4] text-dark/70 hover:text-dark hover:bg-dark/5"
+                                    }`}
                             >
                                 {cat}
                             </button>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { X, Loader2, Sparkles, SlidersHorizontal, Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import ProductBanner from "@/components/sections/ProductBanner";
+import PageBanner from "@/components/global/PageBanner";
 import { api } from "@/lib/api";
 import { getStorefrontProductsWithMeta } from "@/lib/storefront";
 
@@ -106,7 +107,7 @@ const getInitialPage = (pathname: string, searchParams: URLSearchParams): number
                         return saved.currentPage;
                     }
                 }
-            } catch {}
+            } catch { }
         }
     }
     return 1;
@@ -456,7 +457,7 @@ export default function ProductCatalogView({
         if (typeof window !== "undefined") {
             try {
                 sessionStorage.removeItem(storageKey);
-            } catch {}
+            } catch { }
         }
         cleanUrl();
     };
@@ -602,8 +603,8 @@ export default function ProductCatalogView({
                             key={item}
                             onClick={() => handlePageChange(item)}
                             className={`w-9 h-9 text-xs font-bold transition-all ${item === validPage
-                                    ? "bg-dark text-white border border-dark shadow-sm"
-                                    : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                                ? "bg-dark text-white border border-dark shadow-sm"
+                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
                                 }`}
                         >
                             {item}
@@ -629,52 +630,25 @@ export default function ProductCatalogView({
 
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-20">
-            {/* Banner Header */}
-            {bannerImage && (
-                <ProductBanner imageUrl={bannerImage} altText={displayTitle} priority={true} />
-            )}
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey={fixedBrand ? "brands" : "shop"}
+                fallbackImage={bannerImage || "/banners/banner1.jpg"}
+                title={displayTitle}
+                subtitle={subtitle || "Browse our complete collection of luxury fragrances, Eau de Parfum, Extrait de Parfum, and Niche perfume houses."}
+                kicker={fixedBrand ? "Haute Parfumerie" : "Artisanal Fragrance Boutique"}
+                breadcrumbs={[
+                    { label: "Shop", href: "/shop" },
+                    ...(fixedBrand ? [{ label: displayTitle }] : [])
+                ]}
+            />
 
-            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 mt-10">
-                {/* Breadcrumb Navigation */}
-                <nav className="flex items-center gap-3 text-[10px] tracking-widest uppercase text-dark font-bold mb-6">
-                    <Link href="/" className="hover:text-dark/60 transition-colors">Home</Link>
-                    <ArrowRight size={10} strokeWidth={2.5} />
-                    <Link href="/shop" className="hover:text-dark/60 transition-colors">Shop All</Link>
-                    {fixedBrand && (
-                        <>
-                            <ArrowRight size={10} strokeWidth={2.5} />
-                            <span className="text-dark/50">{displayTitle}</span>
-                        </>
-                    )}
-                    {fixedCategory && (
-                        <>
-                            <ArrowRight size={10} strokeWidth={2.5} />
-                            <span className="text-dark/50">{displayTitle}</span>
-                        </>
-                    )}
-                    {selectedFilterParam && (
-                        <>
-                            <ArrowRight size={10} strokeWidth={2.5} />
-                            <span className="text-dark/50">{displayTitle}</span>
-                        </>
-                    )}
-                </nav>
-
-                {/* Page Title & Subtitle */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-dark/10 pb-6">
-                    <div className="flex flex-col gap-2">
-                        <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059]">
-                            Luxury Perfumery Catalog
-                        </span>
-                        <h1 className="font-serif text-3xl md:text-5xl text-dark tracking-tight">
-                            {displayTitle}
-                        </h1>
-                        <p className="text-xs md:text-sm text-dark/70 max-w-2xl mt-1 leading-relaxed">
-                            {displaySubtitle}
-                        </p>
-                    </div>
-
-                    {/* Top Pagination */}
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 mt-8">
+                {/* Top Pagination & Stats */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-dark/10">
+                    <p className="text-xs uppercase tracking-widest text-dark/70 font-bold">
+                        Showing {products.length} Curated Fragrance{products.length === 1 ? "" : "s"}
+                    </p>
                     {renderPaginationNumbers()}
                 </div>
 

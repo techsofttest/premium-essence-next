@@ -6,6 +6,7 @@ import { X, Loader2, Sparkles, SlidersHorizontal, Check, ChevronLeft, ChevronRig
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 interface FilterOption {
     id: number;
@@ -50,7 +51,7 @@ const getInitialFragranceFilters = (pathname: string, searchParams: URLSearchPar
                         };
                     }
                 }
-            } catch {}
+            } catch { }
         }
     }
     return defaults;
@@ -68,7 +69,7 @@ const getInitialFragrancePage = (pathname: string, searchParams: URLSearchParams
                         return saved.currentPage;
                     }
                 }
-            } catch {}
+            } catch { }
         }
     }
     return 1;
@@ -200,8 +201,8 @@ function FragranceCatalogContent() {
                             key={item}
                             onClick={() => handlePageChange(item)}
                             className={`w-9 h-9 text-xs font-bold transition-all ${item === validPage
-                                    ? "bg-dark text-white border border-dark shadow-sm"
-                                    : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
+                                ? "bg-dark text-white border border-dark shadow-sm"
+                                : "bg-white text-dark/70 border border-dark/10 hover:border-dark/40 hover:text-dark"
                                 }`}
                         >
                             {item}
@@ -311,7 +312,7 @@ function FragranceCatalogContent() {
         if (typeof window !== "undefined") {
             try {
                 sessionStorage.removeItem(storageKey);
-            } catch {}
+            } catch { }
         }
         cleanUrl();
     };
@@ -334,26 +335,32 @@ function FragranceCatalogContent() {
     }
 
     return (
-        <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans py-12 px-6 md:px-12">
+        <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead
                 pageSlug="shop"
                 fallbackTitle={`${displayTitle} | Premium Essence`}
                 fallbackDescription={displaySubtitle}
             />
-            <div className="max-w-screen-2xl mx-auto">
-                {/* Hero Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-center md:text-left py-10 mb-10 border-b border-dark/10">
-                    <div className="flex flex-col items-center md:items-start">
-                        <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#C5A059] block mb-2">
-                            Olfactive Excellence
-                        </span>
-                        <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-dark">
-                            {displayTitle}
-                        </h1>
-                        <p className="text-xs md:text-sm text-dark/70 mt-3 max-w-xl mx-auto md:mx-0 leading-relaxed">
-                            {displaySubtitle}
-                        </p>
-                    </div>
+
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="fragrances"
+                fallbackImage="/banners/banner3.jpg"
+                title={displayTitle}
+                subtitle={displaySubtitle}
+                kicker="Olfactive Excellence"
+                breadcrumbs={[
+                    { label: "Fragrances", href: "/fragrances" },
+                    ...(selectedFamily ? [{ label: selectedFamily.replace(/-/g, ' ').toUpperCase() }] : [])
+                ]}
+            />
+
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-8">
+                {/* Pagination Controls Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-dark/10">
+                    <p className="text-xs uppercase tracking-widest text-dark/70 font-bold">
+                        Showing {totalProducts} Fragrance Creation{totalProducts === 1 ? "" : "s"}
+                    </p>
                     {renderPaginationNumbers()}
                 </div>
 
@@ -631,7 +638,7 @@ function FragranceCatalogContent() {
                                     >
                                         All Olfactive Families
                                         {!selectedFamily && <Check size={14} />}
-                                </button>
+                                    </button>
                                     {filterMeta.families.map((fam) => {
                                         const isSelected = selectedFamily.toLowerCase() === fam.slug.toLowerCase() || selectedFamily.toLowerCase() === fam.name.toLowerCase();
                                         return (

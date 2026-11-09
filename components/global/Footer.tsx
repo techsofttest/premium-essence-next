@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useContactSettings } from "@/context/ContactContext";
+import MarketplaceLogos from "@/components/ui/MarketplaceLogos";
 
 // Inline SVGs for brand icons removed from lucide-react
 const Facebook = ({ size = 24, strokeWidth = 2, className = "" }: any) => (
@@ -344,6 +345,9 @@ export default function Footer() {
                         </div>
 
                     </div>
+
+                    {/* Marketplace Availability Bar */}
+                    <MarketplaceLogos />
 
                     {/* Bottom Copyright Bar */}
                     <div className="pt-6 md:pt-8 border-t border-dark/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-dark/40">

@@ -14,15 +14,8 @@
 }
 
 :root {
-  --background: var(--color-cream);
+  --background: var(--color-white);
   --foreground: var(--color-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--color-dark);
-    --foreground: var(--color-cream);
-  }
 }
 
 body {
@@ -31,6 +24,23 @@ body {
   font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure all form inputs, textareas, and selects default to dark readable text */
+input, textarea, select {
+  color: #1B1315;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6B7280;
+  opacity: 0.8;
+}
+
+/* Ensure white and light container cards always enforce dark readable text */
+.bg-white, .bg-white label,
+.bg-\[\#F7F3F4\], .bg-\[\#F7F3F4\] label,
+.bg-neutral-50, .bg-gray-50, .bg-slate-50 {
+  color: #1B1315;
 }
 
 /* Updated Spatial Glassmorphism Utility with new palette */

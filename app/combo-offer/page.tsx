@@ -6,6 +6,7 @@ import { Loader2, ArrowRight, Sparkles, Tag } from "lucide-react";
 import ProductCard, { Product } from "@/components/ui/ProductCard";
 import { getStorefrontCuratedDeals, CuratedDeal } from "@/lib/deals";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 function ComboOfferContent() {
     const [deals, setDeals] = useState<CuratedDeal[]>([]);
@@ -39,36 +40,27 @@ function ComboOfferContent() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="combos" />
-            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-10">
-                
-                {/* Breadcrumb Navigation */}
-                <nav className="flex items-center gap-3 text-[10px] tracking-widest uppercase text-dark font-bold mb-8">
-                    <Link href="/" className="hover:text-dark/60 transition-colors">Home</Link>
-                    <ArrowRight size={10} strokeWidth={2.5} />
-                    <span className="text-dark/50">Combo Offer</span>
-                </nav>
 
-                {/* Page Heading */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-16 border-b border-dark/10 pb-10">
-                    <div className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
-                        <span className="text-[11px] tracking-[0.3em] uppercase text-[#C5A059] font-bold flex items-center gap-2">
-                            <Sparkles size={14} className="text-[#C5A059]" />
-                            Special Curations
-                        </span>
-                        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-dark tracking-tight">
-                            Combo Offer & Bundles
-                        </h1>
-                        <div className="w-12 h-[1px] bg-[#4A323A] my-2 md:mx-0"></div>
-                        <p className="text-sm text-dark/70 max-w-xl leading-relaxed">
-                            Discover our handpicked luxury combo sets, gift boxes, and fragrance bundles crafted for connoisseurs with incredible savings.
-                        </p>
-                    </div>
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="combo_offer"
+                fallbackImage="/banners/banner2.jpg"
+                title="Combo Offers & Luxury Bundles"
+                subtitle="Discover our handpicked luxury combo sets, gift boxes, and curated fragrance pairings with exclusive connoisseur savings."
+                kicker="Special Curations"
+                breadcrumbs={[{ label: "Combo Offer" }]}
+                badge={`${deals.length} Active Offers`}
+            />
 
-                    <div className="flex items-center gap-2 self-start md:self-end">
-                        <span className="bg-[#1B1315] text-[#C5A059] text-xs font-bold uppercase tracking-widest px-4 py-2 flex items-center gap-2 shadow-sm">
-                            <Tag size={14} /> {deals.length} Active Offers
-                        </span>
-                    </div>
+            <div className="max-w-screen-2xl mx-auto px-6 md:px-12 lg:px-20 pt-8">
+                {/* Active Offers Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-dark/10">
+                    <p className="text-xs uppercase tracking-widest text-dark/70 font-bold">
+                        Featuring {deals.length} Handcrafted Bundle{deals.length === 1 ? "" : "s"} & Gift Sets
+                    </p>
+                    <span className="bg-[#1B1315] text-[#C5A059] text-xs font-bold uppercase tracking-widest px-4 py-2 flex items-center gap-2 shadow-sm w-fit">
+                        <Tag size={14} /> Limited Stock Bundles
+                    </span>
                 </div>
 
                 {/* Product Grid */}

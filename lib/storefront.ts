@@ -1,12 +1,18 @@
 import { Product } from "@/components/ui/ProductCard";
 
 export type StorefrontReview = {
-    id: number;
+    id: number | string;
     name: string;
     rating: number;
     title: string | null;
     content: string;
     date: string;
+    source?: 'website' | 'google' | 'verified_buyer' | 'testimonial' | string;
+    is_verified_buyer?: boolean;
+    images?: string[];
+    videos?: string[];
+    helpful_count?: number;
+    admin_notes?: string | null;
 };
 
 export type StorefrontProduct = {
@@ -47,15 +53,15 @@ export type StorefrontProduct = {
     canonical?: string | null;
 };
 
-const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
 
 export function toProduct(product: StorefrontProduct): Product {
     const mainVariant = product.variants?.[0];
     const mainBuying = mainVariant?.buying_price ?? mainVariant?.original_price ?? product.buying_price ?? product.original_price;
     const originalPrice = (mainBuying && mainBuying > product.price) ? mainBuying : undefined;
 
-    const concentrationName = typeof product.concentration === "string" 
-        ? product.concentration 
+    const concentrationName = typeof product.concentration === "string"
+        ? product.concentration
         : (product.fragrance_concentration?.name || (typeof product.concentration === "object" ? product.concentration?.name : undefined));
 
     const badge = product.badge
@@ -336,5 +342,27 @@ export async function getFragranceFamilies(): Promise<FragranceFamilyItem[]> {
         return [];
     } catch {
         return [];
+    }
+}
+
+export interface InnerPageBannerItem {
+    id: number;
+    name: string;
+    position: string;
+    image_url: string;
+    url?: string;
+}
+
+export async function getPageBanner(position: string): Promise<InnerPageBannerItem | null> {
+    try {
+        const response = await fetch(`${baseUrl}/storefront/banners?position=${encodeURIComponent(position)}`, { next: { revalidate: 60 } });
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+            return data[0];
+        }
+        return null;
+    } catch {
+        return null;
     }
 }

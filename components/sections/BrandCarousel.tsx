@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -33,11 +33,15 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
     );
 
     useEffect(() => {
-        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
+        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
         fetch(`${baseUrl}/storefront/brands`)
             .then((res) => res.json())
             .then((data) => {
-                const list = data.all || [];
+                const list = (data.all || []).filter((b: any) => {
+                    const name = String(b.name || '').toLowerCase();
+                    const slug = String(b.slug || '').toLowerCase();
+                    return !name.includes('de qollmer') && !slug.includes('de-qollmer');
+                });
                 if (list.length > 0) {
                     const mapped = list.map((b: any) => ({
                         id: b.id,
@@ -52,15 +56,91 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
             .catch(() => undefined);
     }, []);
 
-    const scroll = (direction: "left" | "right") => {
-        if (carouselRef.current) {
-            const scrollAmount = window.innerWidth >= 1024 ? 480 : 300;
-            carouselRef.current.scrollBy({
-                left: direction === "left" ? -scrollAmount : scrollAmount,
-                behavior: "smooth"
-            });
+    const loopedBrands = [...brands, ...brands, ...brands];
+    const animFrameRef = useRef<number | null>(null);
+    const isAnimatingRef = useRef(false);
+    const [isPaused, setIsPaused] = useState(false);
+
+    useEffect(() => {
+        const el = carouselRef.current;
+        if (!el) return;
+        const initTimer = setTimeout(() => {
+            const singleSetWidth = el.scrollWidth / 3;
+            if (singleSetWidth > 100 && el.scrollLeft < 50) {
+                el.scrollLeft = singleSetWidth;
+            }
+        }, 200);
+        return () => clearTimeout(initTimer);
+    }, [brands.length]);
+
+    const cancelAnimation = () => {
+        if (animFrameRef.current !== null) {
+            cancelAnimationFrame(animFrameRef.current);
+            animFrameRef.current = null;
         }
+        isAnimatingRef.current = false;
     };
+
+    const checkWrap = useCallback(() => {
+        const el = carouselRef.current;
+        if (!el) return;
+        const singleSetWidth = el.scrollWidth / 3;
+        if (singleSetWidth <= 100) return;
+
+        if (el.scrollLeft >= singleSetWidth * 2) {
+            el.scrollLeft -= singleSetWidth;
+        } else if (el.scrollLeft <= 50) {
+            el.scrollLeft += singleSetWidth;
+        }
+    }, []);
+
+    const smoothScroll = useCallback((distance: number, duration: number = 1200) => {
+        const el = carouselRef.current;
+        if (!el) return;
+
+        cancelAnimation();
+        isAnimatingRef.current = true;
+        const startLeft = el.scrollLeft;
+        const startTime = performance.now();
+
+        const animate = (currentTime: number) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = progress < 0.5
+                ? 4 * progress * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            el.scrollLeft = startLeft + distance * ease;
+
+            if (progress < 1) {
+                animFrameRef.current = requestAnimationFrame(animate);
+            } else {
+                isAnimatingRef.current = false;
+                animFrameRef.current = null;
+                checkWrap();
+            }
+        };
+
+        animFrameRef.current = requestAnimationFrame(animate);
+    }, [checkWrap]);
+
+    const scroll = useCallback((direction: "left" | "right") => {
+        const scrollAmount = typeof window !== "undefined" && window.innerWidth >= 1024 ? 380 : 260;
+        smoothScroll(direction === "right" ? scrollAmount : -scrollAmount, 1200);
+    }, [smoothScroll]);
+
+    useEffect(() => {
+        if (isPaused) return;
+        const interval = setInterval(() => {
+            if (!isAnimatingRef.current) {
+                scroll("right");
+            }
+        }, 4500);
+        return () => {
+            clearInterval(interval);
+            cancelAnimation();
+        };
+    }, [isPaused, scroll]);
 
     return (
         <section className="relative w-full pt-20 pb-12 overflow-hidden bg-gradient-to-br from-[#DEDEDE] to-[#F7F3F4] font-sans border-t border-dark/5">
@@ -87,7 +167,13 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
                 </div>
 
                 {/* Carousel Container Wrapper */}
-                <div className="relative w-full group/carousel flex items-center">
+                <div
+                    className="relative w-full group/carousel flex items-center"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                    onTouchStart={() => setIsPaused(true)}
+                    onTouchEnd={() => setIsPaused(false)}
+                >
 
                     {/* Left Scroll Chevron Arrow */}
                     <button
@@ -110,10 +196,13 @@ export default function BrandCarousel({ initialBrands }: BrandCarouselProps) {
                     {/* Horizontal Scrolling Track */}
                     <div
                         ref={carouselRef}
-                        className="w-full px-6 md:px-12 lg:px-20 flex gap-6 md:gap-8 lg:gap-12 overflow-x-auto snap-x snap-mandatory py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
+                        onScroll={() => {
+                            if (!isAnimatingRef.current) checkWrap();
+                        }}
+                        className="w-full px-6 md:px-12 lg:px-20 flex gap-6 md:gap-8 lg:gap-12 overflow-x-auto py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                     >
-                        {brands.map((brand, index) => (
-                            <BrandCarouselCard key={brand.id || brand.slug || index} brand={brand} index={index} />
+                        {loopedBrands.map((brand, index) => (
+                            <BrandCarouselCard key={`${brand.id || brand.slug || brand.name}-${index}`} brand={brand} index={index % brands.length} />
                         ))}
 
                         <div className="min-w-[1px] md:min-w-[40px]" aria-hidden="true" />

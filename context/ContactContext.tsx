@@ -13,6 +13,11 @@ export interface ContactSettingsData {
     support_email: string;
     working_hours: string;
     google_maps_link: string;
+    store_video?: string | null;
+    store_video_url?: string | null;
+    store_video_poster_url?: string | null;
+    store_video_title?: string | null;
+    store_video_description?: string | null;
     facebook_url?: string | null;
     instagram_url?: string | null;
     threads_url?: string | null;

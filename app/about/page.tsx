@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, ShieldCheck, Award } from "lucide-react";
 import SeoHead from "@/components/seo/SeoHead";
+import PageBanner from "@/components/global/PageBanner";
 
 const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost/perfumes/premiumess/public/api").replace(/\/$/, "");
 
@@ -38,29 +39,16 @@ export default async function AboutPage() {
     return (
         <main className="min-h-screen bg-[#F7F3F4] text-dark font-sans pb-24">
             <SeoHead pageSlug="about-us" />
-            {/* Hero Header with Banner 1 */}
-            <div className="relative bg-[#1B1315] text-[#E9D7C3] py-28 px-6 md:px-12 text-center border-b border-[#C5A059]/20 overflow-hidden">
-                <Image
-                    src="/banners/banner1.jpg"
-                    alt="About Us Banner"
-                    fill
-                    className="object-cover opacity-75"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1B1315]/90 via-[#1B1315]/40 to-black/30" />
-                
-                <div className="relative z-10 max-w-4xl mx-auto space-y-4">
-                    <span className="text-[10px] tracking-[0.4em] uppercase font-bold text-[#C5A059] block drop-shadow-sm">
-                        Abu Dhabi's Premier Haute Perfumerie
-                    </span>
-                    <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
-                        {title}
-                    </h1>
-                    <p className="text-xs md:text-sm text-[#E9D7C3] max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-medium">
-                        Curating rare, handcrafted scents and artisanal olfactory masterpieces for discerning perfume connoisseurs worldwide.
-                    </p>
-                </div>
-            </div>
+
+            {/* Dynamic Inner Page Banner */}
+            <PageBanner
+                pageKey="about"
+                fallbackImage="/banners/banner1.jpg"
+                title={title}
+                subtitle="Curating rare, handcrafted scents and artisanal olfactory masterpieces for discerning perfume connoisseurs worldwide."
+                kicker="Abu Dhabi's Premier Haute Perfumerie"
+                breadcrumbs={[{ label: "About Us" }]}
+            />
 
             <div className="max-w-screen-xl mx-auto px-6 md:px-12 pt-16 space-y-16">
                 
