@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Package, MapPin, Truck, CheckCircle2, Clock, ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
+import { Search, Package, MapPin, Truck, CheckCircle2, Clock, ShieldCheck, Loader2, ArrowLeft, ExternalLink } from "lucide-react";
 import { api } from "@/lib/api";
 import SeoHead from "@/components/seo/SeoHead";
 import PageBanner from "@/components/global/PageBanner";
@@ -63,6 +63,10 @@ interface TrackingData {
     shipping_cost: number;
     discount: number;
     grand_total: number;
+    courier_name?: string;
+    airwaybill_number?: string;
+    shipment_label_url?: string;
+    postaplus_tracking_url?: string;
     delivery_type: string;
     shipping_address: {
         name: string;
@@ -202,6 +206,52 @@ function TrackOrderContent() {
                                 <span className="font-serif text-2xl text-dark">AED {trackingData.grand_total}</span>
                             </div>
                         </div>
+
+                        {/* PostaPlus / Courier Waybill Status */}
+                        {trackingData.airwaybill_number && (
+                            <div className="bg-[#1B1315] text-[#F7F3F4] border border-[#D4AF37]/30 p-6 md:p-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="flex items-start md:items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 text-[#D4AF37]">
+                                        <Truck size={22} />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37]">
+                                                {trackingData.courier_name || "PostaPlus Express"}
+                                            </span>
+                                            <span className="text-xs text-white/40">•</span>
+                                            <span className="text-xs font-mono font-bold tracking-wider text-white">
+                                                AWB: {trackingData.airwaybill_number}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-white/70 mt-1">
+                                            Your parcel is dispatched and being handled by our official logistics partner.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0 flex-wrap">
+                                    <a
+                                        href={trackingData.postaplus_tracking_url || `https://www.postaplus.com/track?code=${trackingData.airwaybill_number}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 bg-[#D4AF37] text-[#1B1315] hover:bg-[#c5a059] px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                                    >
+                                        Live Courier Track
+                                        <ExternalLink size={13} />
+                                    </a>
+                                    {trackingData.shipment_label_url && (
+                                        <a
+                                            href={trackingData.shipment_label_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 border border-white/20 text-white/90 hover:bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors"
+                                        >
+                                            Waybill Label
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Order Progress Timeline */}
                         <div className="bg-white border border-dark/10 p-8 md:p-10 shadow-sm">
