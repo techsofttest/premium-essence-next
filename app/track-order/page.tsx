@@ -207,8 +207,21 @@ function TrackOrderContent() {
                             </div>
                         </div>
 
-                        {/* PostaPlus / Courier Waybill Status */}
-                        {trackingData.airwaybill_number && (
+                            {/* Unpaid / Pending Online Payment Notice */ }
+                        {trackingData.payment_status !== 'paid' && !['cod', 'cash_on_delivery', 'cash'].includes((trackingData.payment_method || '').toLowerCase()) && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-900 p-5 text-xs shadow-sm flex items-start gap-3">
+                                <Clock className="text-amber-600 shrink-0 mt-0.5" size={18} />
+                                <div>
+                                    <p className="font-bold uppercase tracking-wider text-[11px]">Payment Awaiting Verification</p>
+                                    <p className="text-amber-800/80 mt-1 leading-relaxed">
+                                        Your online payment is currently pending or incomplete. Fragrance inspection, packaging, and courier dispatch will begin immediately once payment is successfully received.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* PostaPlus / Courier Waybill Status (Only shown if shipment has been created with an active AWB) */}
+                        {Boolean(trackingData.airwaybill_number && trackingData.airwaybill_number.trim()) && (
                             <div className="bg-[#1B1315] text-[#F7F3F4] border border-[#D4AF37]/30 p-6 md:p-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="flex items-start md:items-center gap-4">
                                     <div className="w-12 h-12 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 text-[#D4AF37]">
