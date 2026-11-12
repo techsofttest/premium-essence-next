@@ -24,59 +24,8 @@ interface ProductReviewsProps {
     reviews?: StorefrontReview[];
 }
 
-// Curated high-trust reviews when DB has 0 reviews yet
-const FALLBACK_REVIEWS: StorefrontReview[] = [
-    {
-        id: "curated-1",
-        name: "Dr. Sophia Al-Maktoum",
-        rating: 5,
-        title: "Unrivalled Sillage & Pure Royal Elegance",
-        content: "An absolute masterpiece. From the initial burst of rare citrus to the profound drydown of Cambodian oud and warm amber, this scent commands presence without being overwhelming. I get stopped daily by colleagues asking what fragrance I'm wearing.",
-        date: "Nov 02, 2026",
-        source: "google",
-        is_verified_buyer: true,
-        helpful_count: 34,
-        images: [
-            "http://127.0.0.1:8000/storage/products/exec-b6460ed9-b1a9-4df0-a0b3-3ded186bff91.png",
-            "http://127.0.0.1:8000/storage/products/exec-17a63b6f-eff7-42e4-b6e3-456e3580e3ce.png"
-        ],
-        admin_notes: "Thank you Dr. Sophia! We are deeply honored by your wonderful words. Enjoy the signature sillage."
-    },
-    {
-        id: "curated-2",
-        name: "Khalid Mansoor",
-        rating: 5,
-        title: "True Luxury Experience in the UAE",
-        content: "The heavy crystal flacon and hand-finished cap speak volumes of the craftsmanship. The projection easily lasts 14+ hours in the Dubai heat. Premium Essence is now my go-to maison.",
-        date: "Oct 28, 2026",
-        source: "verified_buyer",
-        is_verified_buyer: true,
-        helpful_count: 19,
-        images: [
-            "http://127.0.0.1:8000/storage/products/exec-6432523b-e3ed-4296-84f8-818ecb4ffc0a.png"
-        ],
-        videos: [
-            "http://127.0.0.1:8000/storage/reels/01M205JCBTAJBH1FCGCW2F96BA.mp4"
-        ]
-    },
-    {
-        id: "curated-3",
-        name: "Eleanor Vance",
-        rating: 5,
-        title: "Fast Global Delivery & 100% Authentic",
-        content: "Ordered from London after seeing the sensory fragrance reels. Arrived beautifully wrapped in bespoke velvet-lined packaging. The scent profile is hypnotic, luxurious, and truly niche.",
-        date: "Oct 15, 2026",
-        source: "google",
-        is_verified_buyer: true,
-        helpful_count: 27,
-        images: [
-            "http://127.0.0.1:8000/storage/products/9A471F2E-90F2-46DD-8FED-829D804E33BA.png"
-        ]
-    }
-];
-
 export default function ProductReviews({ productId, reviews = [] }: ProductReviewsProps) {
-    const activeReviews = reviews && reviews.length > 0 ? reviews : FALLBACK_REVIEWS;
+    const activeReviews = Array.isArray(reviews) ? reviews : [];
 
     // Filter & sort
     const [selectedFilter, setSelectedFilter] = useState<"all" | "media" | "google" | "5star">("all");
@@ -117,7 +66,7 @@ export default function ProductReviews({ productId, reviews = [] }: ProductRevie
     const totalReviews = activeReviews.length;
     const avgScore = totalReviews > 0
         ? (activeReviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / totalReviews)
-        : 5.0;
+        : 0;
 
     const countByRating = (score: number) => activeReviews.filter((r) => Math.round(Number(r.rating)) === score).length;
 
@@ -217,20 +166,20 @@ export default function ProductReviews({ productId, reviews = [] }: ProductRevie
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                     <div className="flex flex-col items-center justify-center p-4 bg-[#1B1315] text-[#F7F3F4] rounded-xl w-28 h-28 shrink-0 shadow-md">
                         <span className="font-serif text-4xl font-bold text-[#E9D7C3] leading-none">
-                            {avgScore.toFixed(1)}
+                            {totalReviews > 0 ? avgScore.toFixed(1) : "—"}
                         </span>
                         <div className="flex items-center gap-0.5 text-[#D4AF37] my-1">
                             {[...Array(5)].map((_, i) => (
                                 <Star
                                     key={i}
                                     size={12}
-                                    fill={i < Math.floor(avgScore) ? "currentColor" : "none"}
-                                    className={i < Math.floor(avgScore) ? "" : "text-white/20"}
+                                    fill={totalReviews > 0 && i < Math.floor(avgScore) ? "currentColor" : "none"}
+                                    className={totalReviews > 0 && i < Math.floor(avgScore) ? "" : "text-white/20"}
                                 />
                             ))}
                         </div>
                         <span className="text-[10px] uppercase tracking-wider text-[#E9D7C3]/80">
-                            {totalReviews} Reviews
+                            {totalReviews} {totalReviews === 1 ? "Review" : "Reviews"}
                         </span>
                     </div>
 
@@ -257,15 +206,17 @@ export default function ProductReviews({ productId, reviews = [] }: ProductRevie
 
                 {/* Center / Right: Trust Badges */}
                 <div className="flex flex-wrap items-center gap-4 border-t lg:border-t-0 lg:border-l border-[#1B1315]/10 pt-4 lg:pt-0 lg:pl-8">
-                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#1B1315]">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                        </svg>
-                        <span className="text-xs font-bold tracking-wide">Google Reviews Verified</span>
-                    </div>
+                    {activeReviews.some((r) => r.source === "google") && (
+                        <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#1B1315]">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                            </svg>
+                            <span className="text-xs font-bold tracking-wide">Google Reviews Verified</span>
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800">
                         <CheckCircle2 size={16} className="text-emerald-600" />
@@ -540,26 +491,28 @@ export default function ProductReviews({ productId, reviews = [] }: ProductRevie
                 </div>
             )}
 
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-[#1B1315]/10 pb-4">
-                {[
-                    { id: "all", label: `All Reviews (${activeReviews.length})` },
-                    { id: "media", label: `With Photos & Videos (${activeReviews.filter((r) => (r.images && r.images.length > 0) || (r.videos && r.videos.length > 0)).length})` },
-                    { id: "google", label: `Google Reviews (${activeReviews.filter((r) => r.source === "google").length})` },
-                    { id: "5star", label: `5 Stars Only (${countByRating(5)})` },
-                ].map((f) => (
-                    <button
-                        key={f.id}
-                        onClick={() => setSelectedFilter(f.id as any)}
-                        className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${selectedFilter === f.id
-                                ? "bg-[#1B1315] text-[#F7F3F4] shadow-sm"
-                                : "bg-white border border-[#1B1315]/15 text-[#1B1315]/70 hover:bg-[#1B1315]/5 hover:text-[#1B1315]"
-                            }`}
-                    >
-                        {f.label}
-                    </button>
-                ))}
-            </div>
+            {/* Filter Tabs - Only when reviews exist */}
+            {totalReviews > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-b border-[#1B1315]/10 pb-4">
+                    {[
+                        { id: "all", label: `All Reviews (${activeReviews.length})` },
+                        { id: "media", label: `With Photos & Videos (${activeReviews.filter((r) => (r.images && r.images.length > 0) || (r.videos && r.videos.length > 0)).length})` },
+                        { id: "google", label: `Google Reviews (${activeReviews.filter((r) => r.source === "google").length})` },
+                        { id: "5star", label: `5 Stars Only (${countByRating(5)})` },
+                    ].map((f) => (
+                        <button
+                            key={f.id}
+                            onClick={() => setSelectedFilter(f.id as any)}
+                            className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${selectedFilter === f.id
+                                    ? "bg-[#1B1315] text-[#F7F3F4] shadow-sm"
+                                    : "bg-white border border-[#1B1315]/15 text-[#1B1315]/70 hover:bg-[#1B1315]/5 hover:text-[#1B1315]"
+                                }`}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* Reviews Cards Grid */}
             {filteredReviews.length > 0 ? (
@@ -681,6 +634,26 @@ export default function ProductReviews({ productId, reviews = [] }: ProductRevie
                             </div>
                         </div>
                     ))}
+                </div>
+            ) : totalReviews === 0 ? (
+                <div className="p-12 md:p-16 text-center bg-white border border-[#1B1315]/10 rounded-2xl flex flex-col items-center justify-center gap-4 shadow-sm">
+                    <div className="w-14 h-14 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                        <MessageSquare size={26} />
+                    </div>
+                    <div className="flex flex-col gap-1 max-w-md">
+                        <h4 className="font-serif text-2xl text-[#1B1315]">No Reviews Yet</h4>
+                        <p className="text-sm text-[#1B1315]/60 leading-relaxed">
+                            There are no customer reviews for this fragrance yet. Be the first to share your thoughts and olfactory experience!
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setShowForm(true)}
+                        className="mt-2 px-8 py-3 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] text-xs font-bold tracking-widest uppercase shadow-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] flex items-center gap-2 cursor-pointer"
+                    >
+                        <Sparkles size={14} />
+                        <span>Write the First Review</span>
+                    </button>
                 </div>
             ) : (
                 <div className="p-12 text-center bg-white border border-[#1B1315]/10 rounded-2xl flex flex-col items-center gap-3">
