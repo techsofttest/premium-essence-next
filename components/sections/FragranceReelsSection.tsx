@@ -1,14 +1,133 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, ShoppingBag, X, Volume2, VolumeX, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, ShoppingBag, X, Volume2, VolumeX, Sparkles } from "lucide-react";
 import { FragranceReelItem } from "@/lib/storefront";
 import { useCart } from "@/context/CartContext";
 
 interface FragranceReelsSectionProps {
     reels: FragranceReelItem[];
+}
+
+function ReelCard({
+    reel,
+    onSelect,
+    onAddToCart,
+}: {
+    reel: FragranceReelItem;
+    onSelect: () => void;
+    onAddToCart: (product: any) => void;
+}) {
+    const isVideo = Boolean(reel.video_url);
+    const [videoError, setVideoError] = useState(false);
+    const coverImg = reel.thumbnail || reel.product?.image || "/products/Baccarat Rouge 540 1.png";
+    const targetHref = reel.button_link || (reel.product ? `/product/${reel.product.slug}` : "/shop");
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+        if (videoRef.current && isVideo && !videoError) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+        }
+    }, [isVideo, videoError]);
+
+    return (
+        <div
+            className="group relative rounded-2xl overflow-hidden bg-[#1D1719] border border-cream/10 shadow-2xl transition-all duration-500 hover:border-gold/50 hover:shadow-gold/10 hover:-translate-y-1.5 flex flex-col aspect-[9/14] cursor-pointer"
+            onClick={onSelect}
+        >
+            {/* Media Background: Show uploaded video by default, else fallback to image */}
+            <div className="absolute inset-0 z-0 bg-black overflow-hidden">
+                {isVideo && !videoError ? (
+                    <video
+                        ref={videoRef}
+                        src={reel.video_url}
+                        poster={reel.thumbnail || undefined}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onError={() => setVideoError(true)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                ) : (
+                    <Image
+                        src={coverImg}
+                        alt={reel.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    />
+                )}
+                {/* Vignette Overlay for readable text */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#140F11] via-[#140F11]/25 to-transparent z-10 pointer-events-none" />
+            </div>
+
+            {/* Top Badge & Controls */}
+            <div className="relative z-20 p-3 sm:p-4 flex items-start justify-between pointer-events-none">
+                {reel.badge ? (
+                    <span className="bg-dark/80 backdrop-blur-md text-gold border border-gold/30 text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1 pointer-events-auto">
+                        {reel.badge}
+                    </span>
+                ) : <span />}
+
+                {reel.product && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAddToCart(reel.product);
+                        }}
+                        className="w-8 h-8 rounded-full bg-black/40 hover:bg-gold text-white hover:text-dark border border-white/20 backdrop-blur-md flex items-center justify-center transition-all shadow-lg shrink-0 cursor-pointer pointer-events-auto"
+                        title="Quick Add to Cart"
+                    >
+                        <ShoppingBag size={14} />
+                    </button>
+                )}
+            </div>
+
+            {/* Center Play Indicator Overlay */}
+            {isVideo && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                    <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/40 border border-gold/40 text-gold flex items-center justify-center pl-0.5 shadow-2xl backdrop-blur-sm group-hover:scale-110 group-hover:bg-gold group-hover:text-dark group-hover:border-gold transition-all duration-300">
+                        <Play size={18} className="fill-current" />
+                    </div>
+                </div>
+            )}
+
+            {/* Bottom Info Bar */}
+            <div className="relative z-20 mt-auto p-3 sm:p-4 flex flex-col justify-end pointer-events-none">
+                <h3 className="font-serif text-xs sm:text-sm font-bold text-cream group-hover:text-gold transition-colors line-clamp-2 leading-snug drop-shadow-sm">
+                    {reel.title}
+                </h3>
+                {reel.subtitle && (
+                    <p className="text-[10px] sm:text-xs text-cream/80 mt-1 line-clamp-1 drop-shadow-sm">
+                        {reel.subtitle}
+                    </p>
+                )}
+
+                {/* Action Button */}
+                <div className="mt-3 flex items-center justify-between pointer-events-auto">
+                    <Link
+                        href={targetHref}
+                        onClick={(e) => e.stopPropagation()}
+                        className="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-all duration-300 shadow-[0_2px_10px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_16px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-[0.98]"
+                    >
+                        <ShoppingBag size={12} className="text-[#1B1315] transition-transform group-hover/btn:scale-110" />
+                        <span>{reel.button_text || "Buy Now"}</span>
+                    </Link>
+
+                    {reel.product && (
+                        <span className="text-xs font-serif font-bold text-gold drop-shadow-sm">
+                            AED {reel.product.price}
+                        </span>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default function FragranceReelsSection({ reels }: FragranceReelsSectionProps) {
@@ -49,106 +168,27 @@ export default function FragranceReelsSection({ reels }: FragranceReelsSectionPr
 
                 {/* Reels Grid / Horizontal Scroll */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-                    {reels.map((reel) => {
-                        const isVideo = Boolean(reel.video_url);
-                        const coverImg = reel.thumbnail || reel.product?.image || "/products/Baccarat Rouge 540 1.png";
-                        const targetHref = reel.button_link || (reel.product ? `/product/${reel.product.slug}` : "/shop");
-
-                        return (
-                            <div
-                                key={reel.id}
-                                className="group relative rounded-2xl overflow-hidden bg-[#1D1719] border border-cream/10 shadow-2xl transition-all duration-500 hover:border-gold/50 hover:shadow-gold/10 hover:-translate-y-1.5 flex flex-col aspect-[9/14] cursor-pointer"
-                                onClick={() => isVideo ? setSelectedReel(reel) : undefined}
-                            >
-                                {/* Media Cover Background */}
-                                <div className="absolute inset-0 z-0">
-                                    <Image
-                                        src={coverImg}
-                                        alt={reel.title}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                                    />
-                                    {/* Vignette Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#140F11] via-[#140F11]/30 to-transparent z-10" />
-                                </div>
-
-                                {/* Top Badge & Controls */}
-                                <div className="relative z-20 p-3 sm:p-4 flex items-start justify-between">
-                                    {reel.badge ? (
-                                        <span className="bg-dark/80 backdrop-blur-md text-gold border border-gold/30 text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
-                                            {reel.badge}
-                                        </span>
-                                    ) : <span />}
-
-                                    {reel.product && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (reel.product) {
-                                                    addToCart({
-                                                        id: reel.product.id,
-                                                        brand: reel.product.brand,
-                                                        name: reel.product.name,
-                                                        price: reel.product.price,
-                                                        size: reel.product.variants?.[0]?.size || "100ml",
-                                                        image: reel.product.image,
-                                                        quantity: 1,
-                                                        stock: reel.product.variants?.[0]?.stock ?? 99,
-                                                        productId: Number(reel.product.id),
-                                                        variantId: reel.product.variants?.[0]?.id,
-                                                    });
-                                                }
-                                            }}
-                                            className="w-8 h-8 rounded-full bg-white/20 hover:bg-gold text-white hover:text-dark backdrop-blur-md flex items-center justify-center transition-colors shadow-lg shrink-0"
-                                            title="Quick Add to Cart"
-                                        >
-                                            <ShoppingBag size={14} />
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Center Play Button Overlay */}
-                                {isVideo && (
-                                    <div className="absolute inset-0 z-20 flex items-center justify-center">
-                                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gold/90 text-dark flex items-center justify-center pl-1 shadow-2xl group-hover:scale-110 group-hover:bg-gold transition-all duration-300">
-                                            <Play size={20} className="fill-dark" />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Bottom Info Bar */}
-                                <div className="relative z-20 mt-auto p-3 sm:p-4 flex flex-col justify-end">
-                                    <h3 className="font-serif text-xs sm:text-sm font-bold text-cream group-hover:text-gold transition-colors line-clamp-2 leading-snug">
-                                        {reel.title}
-                                    </h3>
-                                    {reel.subtitle && (
-                                        <p className="text-[10px] sm:text-xs text-cream/70 mt-1 line-clamp-1">
-                                            {reel.subtitle}
-                                        </p>
-                                    )}
-
-                                    {/* Action Button */}
-                                    <div className="mt-3 flex items-center justify-between">
-                                        <Link
-                                            href={targetHref}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E8C86A] to-[#C59B27] hover:from-[#E8C86A] hover:to-[#D4AF37] text-[#1B1315] text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-all duration-300 shadow-[0_2px_10px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_16px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-[0.98]"
-                                        >
-                                            <ShoppingBag size={12} className="text-[#1B1315] transition-transform group-hover/btn:scale-110" />
-                                            <span>{reel.button_text || "Buy Now"}</span>
-                                        </Link>
-
-                                        {reel.product && (
-                                            <span className="text-xs font-serif font-bold text-gold">
-                                                AED {reel.product.price}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {reels.map((reel) => (
+                        <ReelCard
+                            key={reel.id}
+                            reel={reel}
+                            onSelect={() => Boolean(reel.video_url) ? setSelectedReel(reel) : undefined}
+                            onAddToCart={(product) => {
+                                addToCart({
+                                    id: product.id,
+                                    brand: product.brand,
+                                    name: product.name,
+                                    price: product.price,
+                                    size: product.variants?.[0]?.size || "100ml",
+                                    image: product.image,
+                                    quantity: 1,
+                                    stock: product.variants?.[0]?.stock ?? 99,
+                                    productId: Number(product.id),
+                                    variantId: product.variants?.[0]?.id,
+                                });
+                            }}
+                        />
+                    ))}
                 </div>
             </div>
 
