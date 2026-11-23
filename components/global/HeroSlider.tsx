@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 export interface HeroBannerItem {
     id: number;
     name: string;
+    description?: string;
+    cta_text?: string;
     image_url: string;
     url?: string;
 }
@@ -16,18 +18,24 @@ const FALLBACK_HERO_SLIDES: HeroBannerItem[] = [
     {
         id: 1,
         name: "DE QOLLMER - Ishq",
+        description: "An intoxicating blend of amber, precious woods and Arabian rose.",
+        cta_text: "EXPLORE COLLECTION",
         image_url: "http://127.0.0.1:8000/storage/banners/01M1ZS506FXN48QRDD8YTFRGMB.png",
         url: "/shop",
     },
     {
         id: 2,
         name: "Bleu de Chanel",
+        description: "The essence of masculine freedom – pure French sophistication.",
+        cta_text: "DISCOVER NOW",
         image_url: "http://127.0.0.1:8000/storage/banners/01M1RKWMW2RQC0QP35GNZYAZJH.png",
         url: "/shop",
     },
     {
         id: 3,
         name: "Dior Sauvage",
+        description: "Radically fresh, raw and noble – crafted for the modern gentleman.",
+        cta_text: "SHOP NOW",
         image_url: "http://127.0.0.1:8000/storage/banners/01M1ZTH5RCE7NM758JKNQWDVMK.png",
         url: "/shop",
     },
@@ -63,6 +71,9 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
         image: b.image_url,
         link: b.url ? b.url.replace(/^https?:\/\/[^\/]+/, "") || "/shop" : "/shop",
         alt: b.name,
+        name: b.name,
+        description: b.description,
+        ctaText: b.cta_text || "SHOP NOW",
     }));
 
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -116,21 +127,23 @@ export default function HeroSlider({ initialBanners }: HeroSliderProps) {
             {/* Luxury Typography Overlay */}
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 sm:px-8 py-10">
                 {/* Main Headline */}
-                <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-[#F7F3F4] font-light tracking-tight max-w-4xl leading-[1.1] drop-shadow-2xl">
-                    Discover the <span className="italic font-normal text-[#E9D7C3]">Essence of Luxury</span>
+                <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-[#F7F3F4] font-light tracking-tight max-w-4xl leading-[1.1] drop-shadow-2xl transition-all duration-700">
+                    {slides[currentSlide]?.name || (
+                        <>Discover the <span className="italic font-normal text-[#E9D7C3]">Essence of Luxury</span></>
+                    )}
                 </h1>
 
                 {/* Subline */}
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-[#F7F3F4]/90 max-w-2xl font-light tracking-wide leading-relaxed drop-shadow-md mt-3 sm:mt-4 mb-6 sm:mb-8 px-2">
-                    Premium Essence Perfumes – Authentic, long-lasting fragrances for men and women
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-[#F7F3F4]/90 max-w-2xl font-light tracking-wide leading-relaxed drop-shadow-md mt-3 sm:mt-4 mb-6 sm:mb-8 px-2 transition-all duration-700">
+                    {slides[currentSlide]?.description || "Premium Essence Perfumes – Authentic, long-lasting fragrances for men and women"}
                 </p>
 
-                {/* Linked SHOP NOW Button */}
+                {/* Linked CTA Button */}
                 <Link
                     href={slides[currentSlide]?.link || "/shop"}
                     className="group/btn inline-flex items-center gap-3 px-8 sm:px-10 py-3 sm:py-4 bg-[#E9D7C3] hover:bg-[#F7F3F4] text-[#1B1315] text-xs sm:text-sm font-bold tracking-[0.25em] uppercase transition-all duration-300 shadow-2xl hover:shadow-[0_4px_25px_rgba(233,215,195,0.4)] hover:scale-105 active:scale-95 cursor-pointer"
                 >
-                    <span>SHOP NOW</span>
+                    <span>{slides[currentSlide]?.ctaText || "SHOP NOW"}</span>
                     <ArrowRight size={15} className="transform group-hover/btn:translate-x-1.5 transition-transform" />
                 </Link>
             </div>

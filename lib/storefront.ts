@@ -206,8 +206,8 @@ export interface ShippingSettingsData {
 export interface StorefrontHomeData {
     collections: Record<string, Product[]>;
     brands: { id: number; name: string; slug: string; classification?: string; logo?: string }[];
-    banners?: { id: number; name: string; image_url: string; url?: string }[];
-    middle_banner?: { id: number; name: string; image_url: string; url?: string } | null;
+    banners?: { id: number; name: string; description?: string; cta_text?: string; image_url: string; url?: string }[];
+    middle_banner?: { id: number; name: string; description?: string; cta_text?: string; image_url: string; url?: string } | null;
     why_choose_us?: WhyChooseUsItemData[];
     shipping_settings?: ShippingSettingsData;
     home_advertisement?: { id: number; name: string; title?: string; banner_url: string; url?: string } | null;
@@ -236,9 +236,11 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
             logo: b.logo || b.logo_url || undefined,
         }));
 
-        const banners = (data.banners || []).map((b: { id: number; name?: string; image_url?: string; image?: string; url?: string }) => ({
+        const banners = (data.banners || []).map((b: { id: number; name?: string; description?: string; cta_text?: string; image_url?: string; image?: string; url?: string }) => ({
             id: b.id,
             name: b.name || "Banner",
+            description: b.description || "",
+            cta_text: b.cta_text || "SHOP NOW",
             image_url: b.image_url || b.image || "",
             url: b.url || "/shop",
         }));
@@ -246,6 +248,8 @@ export async function getStorefrontHome(): Promise<StorefrontHomeData> {
         const middleBanner = data.middle_banner ? {
             id: data.middle_banner.id,
             name: data.middle_banner.name || "Middle Banner",
+            description: data.middle_banner.description || "",
+            cta_text: data.middle_banner.cta_text || "SHOP NOW",
             image_url: data.middle_banner.image_url || data.middle_banner.image || "",
             url: data.middle_banner.url || "/shop",
         } : null;

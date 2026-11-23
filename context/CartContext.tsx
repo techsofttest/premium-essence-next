@@ -95,8 +95,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         state: "Dubai",
         postcode: "00000",
     });
-    const [shippingFee, setShippingFee] = useState<number>(15);
-    const [shippingLabel, setShippingLabel] = useState<string>("Standard UAE Delivery");
+    const [shippingFee, setShippingFee] = useState<number>(3.51);
+    const [shippingLabel, setShippingLabel] = useState<string>("PostaPlus Courier Delivery (Dubai)");
     const [isShippingLoading, setIsShippingLoading] = useState<boolean>(false);
 
     // Fetch dynamic shipping settings from backend home API
