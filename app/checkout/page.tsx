@@ -12,12 +12,13 @@ import { useCart } from "@/context/CartContext";
 import SeoHead from "@/components/seo/SeoHead";
 
 export default function CheckoutPage() {
-    const { cartItems, appliedCoupon, shippingSettings } = useCart();
+    const { cartItems, appliedCoupon, shippingSettings, shippingFee } = useCart();
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const isFreeShipping = !shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold;
-    const shipping = isFreeShipping ? 0 : (shippingSettings.default_shipping_fee || 20);
+    const resolvedShipping = typeof shippingFee === "number"
+        ? shippingFee
+        : (!shippingSettings.is_enabled || subtotal >= shippingSettings.free_shipping_threshold ? 0 : (shippingSettings.default_shipping_fee || 15));
     const discount = appliedCoupon?.discount ?? 0;
-    const total = Math.max(0, subtotal + shipping - discount);
+    const total = Math.max(0, subtotal + resolvedShipping - discount);
 
     return (
         <main className="w-full bg-[#F7F3F4] min-h-screen font-sans pb-32">
@@ -36,7 +37,7 @@ export default function CheckoutPage() {
                         <OrderItemsPreview items={cartItems} />
                         <OrderNote />
                         <PromoCode />
-                        <OrderSummary subtotal={subtotal} shipping={shipping} total={total} />
+                        <OrderSummary subtotal={subtotal} shipping={resolvedShipping} total={total} />
                     </div>
                 </div>
             </div>

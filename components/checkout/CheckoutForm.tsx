@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Plus, Check, Loader2, AlertCircle, CreditCard, Lock, ArrowRight, ShieldCheck, Smartphone } from "lucide-react";
+import { MapPin, Plus, Check, Loader2, AlertCircle, CreditCard, Lock, ArrowRight, ShieldCheck, Smartphone, Truck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { api } from "@/lib/api";
@@ -24,10 +24,28 @@ export interface SavedAddress {
     is_default_shipping?: boolean;
 }
 
+const POPULAR_COUNTRIES = [
+    { code: "AE", name: "United Arab Emirates" },
+    { code: "SA", name: "Saudi Arabia" },
+    { code: "KW", name: "Kuwait" },
+    { code: "QA", name: "Qatar" },
+    { code: "OM", name: "Oman" },
+    { code: "BH", name: "Bahrain" },
+];
+
 export default function CheckoutForm() {
     const router = useRouter();
     const { customer } = useAuth();
-    const { cartItems, appliedCoupon, clearCart, validateCartStock } = useCart();
+    const {
+        cartItems,
+        appliedCoupon,
+        clearCart,
+        validateCartStock,
+        shippingFee,
+        shippingLabel,
+        isShippingLoading,
+        updateDeliveryAddress
+    } = useCart();
 
     const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
@@ -104,7 +122,8 @@ export default function CheckoutForm() {
         setCity(addr.city || "Dubai");
         setState(addr.state || "Dubai");
         setPostcode(addr.postcode || "00000");
-        setCountry(addr.country || "United Arab Emirates");
+        const selectedCountry = addr.country || "United Arab Emirates";
+        setCountry(selectedCountry);
     };
 
     const handleSelectAddress = (id: number | "new") => {
@@ -116,11 +135,22 @@ export default function CheckoutForm() {
             setCity("Dubai");
             setState("Dubai");
             setPostcode("00000");
+            setCountry("United Arab Emirates");
         } else {
             const found = savedAddresses.find((a) => a.id === id);
             if (found) applySavedAddress(found);
         }
     };
+
+    // Synchronize shipping calculation whenever delivery address inputs change
+    useEffect(() => {
+        updateDeliveryAddress({
+            country,
+            city,
+            state,
+            postcode,
+        });
+    }, [country, city, state, postcode, updateDeliveryAddress]);
 
     const handleProceedToStripeGateway = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -455,20 +485,37 @@ export default function CheckoutForm() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Emirate / State *</label>
-                        <select
-                            value={state}
-                            onChange={(e) => setState(e.target.value)}
-                            className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors appearance-none"
-                        >
-                            <option value="Dubai">Dubai</option>
-                            <option value="Abu Dhabi">Abu Dhabi</option>
-                            <option value="Sharjah">Sharjah</option>
-                            <option value="Ajman">Ajman</option>
-                            <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                            <option value="Fujairah">Fujairah</option>
-                            <option value="Umm Al Quwain">Umm Al Quwain</option>
-                        </select>
+                        <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Emirate / State / Province *</label>
+                        {(country.toLowerCase().includes("united arab") || country.toLowerCase() === "uae" || country.toLowerCase() === "ae") ? (
+                            <select
+                                value={state}
+                                onChange={(e) => {
+                                    setState(e.target.value);
+                                    setCity(e.target.value);
+                                }}
+                                className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors appearance-none"
+                            >
+                                <option value="Dubai">Dubai</option>
+                                <option value="Abu Dhabi">Abu Dhabi</option>
+                                <option value="Sharjah">Sharjah</option>
+                                <option value="Ajman">Ajman</option>
+                                <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                                <option value="Fujairah">Fujairah</option>
+                                <option value="Umm Al Quwain">Umm Al Quwain</option>
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                required
+                                placeholder="Province / State / Region"
+                                value={state}
+                                onChange={(e) => {
+                                    setState(e.target.value);
+                                    setCity(e.target.value);
+                                }}
+                                className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
+                            />
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -476,7 +523,7 @@ export default function CheckoutForm() {
                         <input
                             type="text"
                             required
-                            placeholder="e.g. 92282 or 00000"
+                            placeholder="e.g. 12345 or 00000"
                             value={postcode}
                             onChange={(e) => setPostcode(e.target.value)}
                             className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
@@ -485,13 +532,54 @@ export default function CheckoutForm() {
 
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] tracking-widest uppercase font-bold text-dark/80">Country *</label>
-                        <input
-                            type="text"
-                            required
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                            className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors"
-                        />
+                        <select
+                            value={POPULAR_COUNTRIES.some(c => c.name.toLowerCase() === country.toLowerCase()) ? (POPULAR_COUNTRIES.find(c => c.name.toLowerCase() === country.toLowerCase())?.name || country) : "Other"}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val !== "Other") {
+                                    setCountry(val);
+                                    if (val === "United Arab Emirates") {
+                                        setState("Dubai");
+                                        setCity("Dubai");
+                                    } else if (val === "Saudi Arabia") {
+                                        setState("Riyadh");
+                                        setCity("Riyadh");
+                                    } else if (val === "Kuwait") {
+                                        setState("Kuwait City");
+                                        setCity("Kuwait City");
+                                    } else if (val === "Qatar") {
+                                        setState("Doha");
+                                        setCity("Doha");
+                                    } else if (val === "Oman") {
+                                        setState("Muscat");
+                                        setCity("Muscat");
+                                    } else if (val === "Bahrain") {
+                                        setState("Manama");
+                                        setCity("Manama");
+                                    }
+                                } else {
+                                    setCountry("");
+                                }
+                            }}
+                            className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors appearance-none"
+                        >
+                            {POPULAR_COUNTRIES.map((c) => (
+                                <option key={c.code} value={c.name}>
+                                    {c.name} {c.code === "AE" ? "(UAE)" : c.code === "SA" ? "(KSA)" : ""}
+                                </option>
+                            ))}
+                            <option value="Other">Other International Country...</option>
+                        </select>
+                        {(!POPULAR_COUNTRIES.some(c => c.name.toLowerCase() === country.toLowerCase())) && (
+                            <input
+                                type="text"
+                                required
+                                placeholder="Enter Country Name (e.g. Jordan, Egypt)"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                className="w-full bg-[#F7F3F4] border border-dark/10 p-4 text-sm text-dark outline-none focus:border-dark transition-colors mt-2"
+                            />
+                        )}
                     </div>
 
                     {customer && selectedAddressId === "new" && (
@@ -507,6 +595,44 @@ export default function CheckoutForm() {
                             </label>
                         </div>
                     )}
+                </div>
+
+                {/* Live Delivery Rate Calculation Overview */}
+                <div className="mt-8 p-4 md:p-5 bg-[#F7F3F4]/90 border border-dark/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-full bg-white border border-dark/10 flex items-center justify-center shrink-0">
+                            <Truck className="text-[#C5A059]" size={20} />
+                        </div>
+                        <div>
+                            <div className="text-[11px] font-bold uppercase tracking-wider text-dark flex items-center gap-2">
+                                <span>{shippingLabel || "Calculated Delivery Rate"}</span>
+                                {isShippingLoading && <Loader2 size={12} className="animate-spin text-dark/40" />}
+                            </div>
+                            <div className="text-[10px] text-dark/60 font-medium">
+                                Destination: {city || "Dubai"}, {country} {postcode ? `(${postcode})` : ""}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="text-right sm:self-auto self-end">
+                        {isShippingLoading ? (
+                            <span className="text-xs text-dark/50 italic flex items-center gap-1.5">
+                                <Loader2 size={12} className="animate-spin" /> Calculating rate...
+                            </span>
+                        ) : shippingFee === 0 ? (
+                            <span className="text-xs font-bold text-emerald-800 bg-emerald-100/70 px-3 py-1 border border-emerald-300 uppercase tracking-wider">
+                                FREE Delivery
+                            </span>
+                        ) : (
+                            <div className="flex flex-col items-end">
+                                <span className="font-serif text-lg font-bold text-dark">
+                                    AED {shippingFee.toFixed(2).replace(/\.00$/, '')}
+                                </span>
+                                <span className="text-[9px] uppercase tracking-widest text-[#C5A059] font-bold">
+                                    Live Courier Rate
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Billing Address Checkbox Toggle */}
@@ -670,8 +796,8 @@ export default function CheckoutForm() {
                     <div
                         onClick={() => setPaymentMethod("stripe")}
                         className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${paymentMethod === "stripe"
-                                ? "border-dark bg-dark/5 shadow-xs"
-                                : "border-dark/10 bg-white hover:border-dark/30"
+                            ? "border-dark bg-dark/5 shadow-xs"
+                            : "border-dark/10 bg-white hover:border-dark/30"
                             }`}
                     >
                         <div className="flex items-start justify-between">
@@ -695,8 +821,8 @@ export default function CheckoutForm() {
                     <div
                         onClick={() => setPaymentMethod("cod")}
                         className={`p-5 border-2 cursor-pointer transition-all flex flex-col justify-between gap-4 ${paymentMethod === "cod"
-                                ? "border-dark bg-dark/5 shadow-xs"
-                                : "border-dark/10 bg-white hover:border-dark/30"
+                            ? "border-dark bg-dark/5 shadow-xs"
+                            : "border-dark/10 bg-white hover:border-dark/30"
                             }`}
                     >
                         <div className="flex items-start justify-between">

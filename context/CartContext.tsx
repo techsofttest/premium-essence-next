@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -34,6 +34,22 @@ export interface ShippingSettingsConfig {
     is_enabled: boolean;
 }
 
+export interface ShippingRateResult {
+    shipping_cost: number;
+    free_shipping_threshold: number;
+    is_free_shipping: boolean;
+    country_code: string;
+    label: string;
+    currency: string;
+}
+
+export interface DeliveryAddressInput {
+    country?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+}
+
 interface CartContextType {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
@@ -51,6 +67,12 @@ interface CartContextType {
     validateCartStock: () => Promise<{ valid: boolean; errors: string[] }>;
     clearCart: () => void;
     shippingSettings: ShippingSettingsConfig;
+    shippingFee: number;
+    shippingLabel: string;
+    isShippingLoading: boolean;
+    deliveryAddress: DeliveryAddressInput;
+    updateDeliveryAddress: (address: DeliveryAddressInput) => void;
+    refreshShippingRate: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -63,10 +85,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
     const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
     const [shippingSettings, setShippingSettings] = useState<ShippingSettingsConfig>({
-        default_shipping_fee: 20,
-        free_shipping_threshold: 200,
+        default_shipping_fee: 15,
+        free_shipping_threshold: 300,
         is_enabled: true,
     });
+    const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddressInput>({
+        country: "United Arab Emirates",
+        city: "Dubai",
+        state: "Dubai",
+        postcode: "00000",
+    });
+    const [shippingFee, setShippingFee] = useState<number>(15);
+    const [shippingLabel, setShippingLabel] = useState<string>("Standard UAE Delivery");
+    const [isShippingLoading, setIsShippingLoading] = useState<boolean>(false);
 
     // Fetch dynamic shipping settings from backend home API
     useEffect(() => {
@@ -122,9 +153,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     let mergedCart = [...serverItems];
 
                     // Transfer unSynced guest products to DB cart
-                    const unSyncedGuestProducts = localCart.filter(localItem => 
-                        localItem.productId && 
-                        localItem.variantId && 
+                    const unSyncedGuestProducts = localCart.filter(localItem =>
+                        localItem.productId &&
+                        localItem.variantId &&
                         !serverItems.some(s => s.productId === localItem.productId && s.variantId === localItem.variantId)
                     );
 
@@ -360,6 +391,72 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("premium_essence_coupon");
     };
 
+    const fetchShippingRate = useCallback(async (addr = deliveryAddress, items = cartItems) => {
+        if (!items || items.length === 0) {
+            setShippingFee(0);
+            setShippingLabel("Free Shipping");
+            return;
+        }
+        const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        setIsShippingLoading(true);
+        try {
+            const res = await api<ShippingRateResult>("/delivery/calculate", {
+                method: "POST",
+                body: JSON.stringify({
+                    country: addr.country || "AE",
+                    city: addr.city || addr.state || "Dubai",
+                    state: addr.state || "Dubai",
+                    postcode: addr.postcode || "00000",
+                    subtotal: subtotal,
+                    cart: items.map((item) => ({
+                        product_id: item.productId || item.id,
+                        variant_id: item.variantId || null,
+                        quantity: item.quantity,
+                        price: item.price,
+                    })),
+                }),
+            });
+
+            if (res && typeof res.shipping_cost === "number") {
+                setShippingFee(res.shipping_cost);
+                setShippingLabel(res.label || (res.shipping_cost === 0 ? "Free Shipping" : "Standard Delivery"));
+            }
+        } catch {
+            const isFree = !shippingSettings.is_enabled || (shippingSettings.free_shipping_threshold > 0 && subtotal >= shippingSettings.free_shipping_threshold);
+            setShippingFee(isFree ? 0 : (shippingSettings.default_shipping_fee || 15));
+            setShippingLabel(isFree ? "Free Shipping" : "Standard Delivery");
+        } finally {
+            setIsShippingLoading(false);
+        }
+    }, [deliveryAddress, cartItems, shippingSettings.is_enabled, shippingSettings.free_shipping_threshold, shippingSettings.default_shipping_fee]);
+
+    const updateDeliveryAddress = useCallback((newAddress: DeliveryAddressInput) => {
+        setDeliveryAddress((prev) => {
+            const isSame =
+                (newAddress.country === undefined || prev.country === newAddress.country) &&
+                (newAddress.city === undefined || prev.city === newAddress.city) &&
+                (newAddress.state === undefined || prev.state === newAddress.state) &&
+                (newAddress.postcode === undefined || prev.postcode === newAddress.postcode);
+
+            if (isSame) {
+                return prev;
+            }
+            return { ...prev, ...newAddress };
+        });
+    }, []);
+
+    const refreshShippingRate = useCallback(async () => {
+        await fetchShippingRate(deliveryAddress, cartItems);
+    }, [fetchShippingRate, deliveryAddress, cartItems]);
+
+    // Reactively recalculate dynamic shipping charge when address or cart subtotal changes
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            void fetchShippingRate(deliveryAddress, cartItems);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [deliveryAddress.country, deliveryAddress.city, deliveryAddress.state, deliveryAddress.postcode, cartItems]);
+
     return (
         <CartContext.Provider value={{
             cartItems,
@@ -378,6 +475,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             validateCartStock,
             clearCart,
             shippingSettings,
+            shippingFee,
+            shippingLabel,
+            isShippingLoading,
+            deliveryAddress,
+            updateDeliveryAddress,
+            refreshShippingRate,
         }}>
             {children}
         </CartContext.Provider>
